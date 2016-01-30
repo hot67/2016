@@ -190,7 +190,7 @@ public:
 	void TeleopArm ()
 	{
 		/*
-		 * BUTTON MAPPING
+		 * OPERATOR BUTTON MAPPING
 		 *
 		 * right bumper & y-button - arm to climb, screw extend
 		 * right bumper & a-button - arm does nothing, screw retract
@@ -266,6 +266,51 @@ public:
 			//m_arm->SetArmPIDPoint(kCloseHighGoal);
 			//m_arm->EnableArmPID();
 			//if operator presses button B, arm will set to Close High Goal angle
+			;
+		}
+	}
+	void TeleopIntake(){
+		/*
+		 * INTAKE MAPPING
+		 *
+		 * operator left trigger - intake roll out
+		 * operator right trigger - intake roll in
+		 *
+		 * operator DPAD up - shoot speed increases by 1%
+		 * operator DPAD down - shoot speed decreases by 1%
+		 *
+		 * driver right trigger - shoots
+		 * driver left trigger - roll out
+		 *
+		 */
+		if (m_operator->AxisLT() > 0.2){
+			//m_intake->RollOut();
+			//if operator presses left trigger, intake rollers roll out
+			;
+		}
+		else if (m_operator->AxisRT() > 0.2){
+			//m_intake->Intake();
+			//if operator presses right trigger, intake rollers roll in
+			;
+		}
+		else if (m_operator->GetPOV() == 0){
+			//m_intake->IncreaseShooterSpeed();
+			//if operator presses up on DPAD, shooter speed increases by 1%
+			;
+		}
+		else if (m_operator->GetPOV() == 180){
+			//m_intake->DecreaseShooterSpeed();
+			//if operator presses down on DPAD, shooter speed decreases by 1%
+			;
+		}
+		else if (m_driver->AxisRT() > 0.2){
+			//m_intake->Shoot();
+			//if driver presses right trigger, shoots
+			;
+		}
+		else if (m_driver->AxisLT() > 0.2){
+			//m_intake->Rollout();
+			//if driver presses left trigger, intake rollers roll out
 			;
 		}
 	}
