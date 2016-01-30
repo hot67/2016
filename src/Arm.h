@@ -3,6 +3,17 @@
 
 #include <RobotUtils/HotSubsystem.h>
 
+//#define COMPETITION_BOT
+#define PRACTICE_BOT
+
+#ifdef PRACTICE_BOT
+//Do some practicing. stop reading my comments
+#endif
+
+#ifdef COMPETITION_BOT
+//Do some competeting. why are you still reading these
+#endif
+
 #define ARM_P 0
 #define ARM_I 0
 #define ARM_D 0
@@ -61,7 +72,7 @@ public:
 	Arm(HotBot* bot); //Constructor
 	virtual ~Arm();
 
-	void Set(float speed); //Set the Speed of the Arm
+	void SetArm(float speed); //Set the Speed of the Arm
 	void SetExtend(float speed); //Set the Speed of the Screw Drive / Arm Extender
 
 	void SetPIDPoint(ArmSetPoint setpoint); //Set the desired pidcontroller setpoint, such as close_low_goal

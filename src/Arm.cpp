@@ -33,3 +33,50 @@ Arm::~Arm() {
 void Arm::SetExtend(float speed) {
 
 }
+
+void Arm::SetArm(float speed) {
+	m_armLeftTalon->Set(speed);
+}
+
+void Arm::SetExtend(float speed) {
+	m_screwLeftTalon->Set(speed);
+}
+
+void Arm::EnableArmPID() {
+	m_armPIDController->Enable();
+}
+
+void Arm::DisableArmPID() {
+	m_armPIDController->Disable();
+}
+
+void Arm::EnableScrewPID() {
+	m_screwPIDController->Enable();
+}
+
+void Arm::DisableScrewPID() {
+	m_screwPIDController->Disable();
+}
+
+void Arm::SetPIDPoint(ArmSetPoint setpoint) {
+	switch (setpoint) {
+	case 1: //Far away high goal
+		break;
+	case 2: //Climbing
+		break;
+	case 3: //Medium away low goal
+		break;
+	case 4: //Close high goal
+		break;
+	case 5: //Carry position
+		break;
+	case 6: //Close low goal
+		break;
+	case 7: //Pickup position
+		break;
+	case 8: //Retract the screw
+		break;
+	case 9: //Obstacle self-lift position
+		break;
+	}
+}
