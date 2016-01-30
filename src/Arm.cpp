@@ -18,7 +18,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 	m_armEncoder->SetDistancePerPulse(1.44);
 	// ToDo: SetDistancePerPulse for screw
 
-	ShoulderPIDInverter shoulderInverter(m_armRightTalon,m_armLeftTalon,m_armEncoder);
+
 	m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon);
 
 	m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon);
@@ -27,36 +27,16 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
  */
 	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slavery is good
 	m_screwRightTalon->Set(SCREW_DRIVE_ID_LEFT);
-/*
+
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); // See Above
 	m_armRightTalon->Set(ARM_ID_LEFT);
-*/
+	m_armRightTalon->SetClosedLoopOutputDirection(true);
+
 
 }
 
 Arm::~Arm() {
 	// TODO Auto-generated destructor stub // i thinks me will leave this heres
-}
-
-
-Arm::ShoulderPIDInverter::ShoulderPIDInverter(CANTalon* motorRight,CANTalon* motorLeft, Encoder* encoder) {
-	m_right = motorRight;
-	m_left = motorLeft;
-	m_encoder = encoder;
-}
-
-void Arm::ShoulderPIDInverter::PIDWrite(float speed) { //get output value of pid
-	Set(speed);
-}
-
-
-void Arm::ShoulderPIDInverter::Set(float speed) { //set speed of motor, and invert for other one
-
-	/*
-	 * flip around the motors if needed, depending on final robot design.
-	 */
-	m_right->Set(speed); // set the speed
-	m_left->Set(-speed); // set the inverted speed
 }
 
 void Arm::SetArm(float speed) {
