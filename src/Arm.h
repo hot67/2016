@@ -14,6 +14,7 @@
 //Do some competeting. why are you still reading these
 #endif
 
+//PID values
 #define ARM_P 0
 #define ARM_I 0
 #define ARM_D 0
@@ -21,22 +22,27 @@
 #define SCREW_I 0
 #define SCREW_D 0
 
-#define FAR_HIGH_GOAL 0
-#define CLIMB_ARM 0
-#define CLIMB_SCREW 0
-#define MEDIUM_LOW_GOAL 0
-#define CLOSE_HIGH_GOAL 0
-#define CARRY 0
-#define CLOSE_LOW_GOAL 0
+//Values for angles of Arm Positioning (degrees)
+#define FAR_HIGH_GOAL 45
+#define CLIMB_ARM 97.126
+#define MEDIUM_LOW_GOAL 50
+#define CLOSE_HIGH_GOAL 60
+#define CARRY 10
+#define CLOSE_LOW_GOAL 15
 #define PICKUP 0
-#define RETRACT_SCREW 0
-#define OBSTACLE 0
+#define OBSTACLE -10
 
+//Values of distance to reach, in feet
+#define CLIMB_SCREW 0
+#define RETRACT_SCREW 0
+
+//Encoder ids
 #define ENCODER_CHANNEL1_ARM 4
 #define ENCODER_CHANNEL2_ARM 5
 #define ENCODER_CHANNEL1_SCREW 6
 #define ENCODER_CHANNEL2_SCREW 7
 
+//Motor ids
 #define SCREW_DRIVE_ID_LEFT 14
 #define SCREW_DRIVE_ID_RIGHT 15
 #define ARM_ID_RIGHT 12
