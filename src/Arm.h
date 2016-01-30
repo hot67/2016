@@ -60,16 +60,16 @@ enum ScrewSetPoint {
 
 class Arm: public HotSubsystem {
 
-	CANTalon* m_armLeftTalon;
+	CANTalon* m_armLeftTalon; //Initializes Talons for Arm
 	CANTalon* m_armRightTalon;
 
-	CANTalon* m_screwLeftTalon;
+	CANTalon* m_screwLeftTalon; //Initializes Talons for Screwdrive
 	CANTalon* m_screwRightTalon;
 
-	Encoder* m_screwEncoder;
+	Encoder* m_screwEncoder; //Initializes Encoders
 	Encoder* m_armEncoder;
 
-	PIDController* m_armPIDController;
+	PIDController* m_armPIDController; //Initializes PID Controllers
 	PIDController* m_screwPIDController;
 
 public:
@@ -80,7 +80,10 @@ public:
 	void SetArm(float speed); //Set the Speed of the Arm
 	void SetExtend(float speed); //Set the Speed of the Screw Drive / Arm Extender
 
-	void SetArmPIDPoint(ArmSetPoint setpoint); //Set the desired pidcontroller setpoint, such as close_low_goal
+	void SetArmPIDPoint(ArmSetPoint setpoint);
+	/*
+	 * Set the desired pidcontroller setpoint, such as close_low_goal
+	 */
 	void SetScrewPIDPoint(ScrewSetPoint setpoint);
 
 	bool ArmAtSetPoint(); //Checks if arm is at given set point

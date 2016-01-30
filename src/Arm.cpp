@@ -59,6 +59,8 @@ void Arm::DisableScrewPID() {
 }
 
 void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
+
+
 	switch (setpoint) {
 	case kFarHighGoal: //Far away high goal
 		m_armPIDController->SetSetpoint(FAR_HIGH_GOAL);
@@ -84,9 +86,13 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 	case kClimb: //Climb position
 		m_armPIDController->SetSetpoint(CLIMB_ARM);
 	}
+
+
 }
 
 void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
+
+
 	switch (point) {
 	case kClimb: //Climb position
 		m_screwPIDController->SetSetpoint(CLIMB_SCREW);
@@ -95,12 +101,14 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 		m_screwPIDController->SetSetpoint(RETRACT_SCREW);
 		break;
 	}
-}
 
-bool ArmAtSetPoint() { //If arm is at the given set point
 
 }
 
-bool ScrewAtSetPoint() { //If screw is at the given set point
+bool Arm::ArmAtSetPoint() { //If arm is at the given set point
+	return m_armPIDController->OnTarget();
+}
 
+bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
+	return m_screwPIDController->OnTarget();
 }
