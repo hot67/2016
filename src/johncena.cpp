@@ -176,6 +176,100 @@ public:
 	{
 	}
 
+	void TeleopDrive ()
+	{
+		if ((m_driver->AxisLY() > 0.2) || (m_driver->AxisRX() > 0.2)){
+			//arcade drive
+			;
+		}
+		else
+			//do not arcade drive
+			;
+	}
+
+	void TeleopArm ()
+	{
+		/*
+		 * BUTTON MAPPING
+		 *
+		 * right bumper & y-button - arm to climb, screw extend
+		 * right bumper & a-button - arm does nothing, screw retract
+		 *
+		 * left bumper & y-button - arm to medium low goal, prepares to shoot
+		 * left bumper & x-button - arm to obstacle
+		 * left button & a-button - arm to close low goal, prepares to shoot
+		 *
+		 * y-button - arm to far high goal
+		 * x-button - arm to carry
+		 * a-button - arm to floor pickup
+		 * b-button - arm to close high goal
+		 *
+		 */
+		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
+			//m_arm->SetArmPIDPoint(kClimb);
+			//m_arm->SetScrewPIDPoint(kClimb);
+			//m_arm->EnableArmPID();
+			//if (m_arm->ArmAtSetpoint()){
+				//m_arm->EnableScrewPID();
+			//if operator hits right bumper and the Y-button, arm goes to climbing position and screw extends fully
+			;
+		}
+		else if ((m_operator->ButtonRB()) && (m_operator->ButtonA())){
+			//m_arm->SetScrewPIDPoint(kRetractScrew);
+			//m_arm->EnableScrewPID();
+			//if operator hits right bumper and the A-button, screw goes to retract position
+			;
+		}
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonY())){
+			//m_arm->SetArmPIDPoint(kMediumLowGoal);
+			//m_arm->EnableArmPID();
+			//intake roller out for 0.1 seconds -> consider timer?
+			//if (m_arm->ArmAtSetpoint())
+				//shooter UP
+			//if operator hits left bumper and the Y-button, arm goes to medium low goal position and prepares to shoot
+			;
+		}
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
+			//m_arm->SetArmPIDPoint(kObstacle);
+			//m_arm->EnableArmPID();
+			//if operator hits left bumper and the X-button, arm goes to 'push-up for obstacles' position
+			;
+		}
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
+			//m_arm->SetArmPIDPoint(kCloseLowGoal);
+			//m_arm->EnableArmPID();
+			//intake roller out for 0.1 seconds -> consider timer?
+			//if (m_arm->ArmAtSetpoint())
+				//shooter UP
+			//if operator hits left bumper and the A-button, arm goes to close low goal position and prepares to shoot
+			;
+		}
+		else if (m_operator->ButtonY()){
+			//m_arm->SetArmPIDPoint(kFarHighGoal);
+			//m_arm->EnableArmPID();
+			//if operator presses button Y, arm will set to High Goal angle
+			;
+		}
+		else if (m_operator->ButtonX()){
+			//m_arm->SetArmPIDPoint(kCarry);
+			//m_arm->EnableArmPID();
+			//if operator presses button X, arm will set to Carry angle
+			;
+		}
+		else if (m_operator->ButtonA()){
+			//m_arm->SetArmPIDPoint(kPickup);
+			//m_arm->EnableArmPID();
+			//if operator presses button A, arm will set to Pickup angle
+			;
+		}
+		else if (m_operator->ButtonB()){
+			//m_arm->SetArmPIDPoint(kCloseHighGoal);
+			//m_arm->EnableArmPID();
+			//if operator presses button B, arm will set to Close High Goal angle
+			;
+		}
+	}
+
 };
 
 START_ROBOT_CLASS(johncena);
