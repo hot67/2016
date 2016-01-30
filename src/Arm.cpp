@@ -1,5 +1,6 @@
 #include <Arm.h>
 
+
 Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 
 
@@ -15,7 +16,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 	m_screwEncoder = new Encoder(ENCODER_CHANNEL1_SCREW,ENCODER_CHANNEL2_SCREW);
 	m_armEncoder = new Encoder(ENCODER_CHANNEL1_ARM,ENCODER_CHANNEL2_ARM);
 
-	m_armEncoder->SetDistancePerPulse(1.44);
+	m_armEncoder->SetDistancePerPulse(1); //360 pulses per revolution
 	// ToDo: SetDistancePerPulse for screw
 
 
@@ -27,6 +28,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
  */
 	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slavery is good
 	m_screwRightTalon->Set(SCREW_DRIVE_ID_LEFT);
+	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert???
 
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); // See Above
 	m_armRightTalon->Set(ARM_ID_LEFT);
@@ -117,3 +119,5 @@ bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 	return m_screwPIDController->OnTarget();
 }
+
+float Arm::RC(float degrees) {return ( (degrees/180) * 3.14159265358979323846);} //Radian Convertifier

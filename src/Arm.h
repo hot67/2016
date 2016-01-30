@@ -100,6 +100,7 @@ public:
 
 	void EnableScrewPID(); //Enable the Pid for the screw
 	void DisableScrewPID(); //Disable the Pid for the screw
+	float RC(float degrees); //
 
 
 };
