@@ -2,6 +2,8 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 
+//TO DO: Extra Parameters for the shoot function for driver/operator once written intake
+
 using namespace std;
 
 enum auton_t {
@@ -190,19 +192,22 @@ public:
 	void TeleopArm ()
 	{
 		/*
-		 * OPERATOR BUTTON MAPPING
+		 * ARM MAPPING
 		 *
-		 * right bumper & y-button - arm to climb, screw extend
-		 * right bumper & a-button - arm does nothing, screw retract
+		 * operator right bumper & y-button - arm to climb, screw extend
+		 * operator right bumper & a-button - arm does nothing, screw retract
 		 *
-		 * left bumper & y-button - arm to medium low goal, prepares to shoot
-		 * left bumper & x-button - arm to obstacle
-		 * left button & a-button - arm to close low goal, prepares to shoot
+		 * operator left bumper & y-button - arm to medium low goal, prepares to shoot
+		 * operator left bumper & x-button - arm to obstacle
+		 * operator left button & a-button - arm to close low goal, prepares to shoot
 		 *
-		 * y-button - arm to far high goal
-		 * x-button - arm to carry
-		 * a-button - arm to floor pickup
-		 * b-button - arm to close high goal
+		 * operator y-button - arm to far high goal
+		 * operator x-button - arm to carry
+		 * operator a-button - arm to floor pickup
+		 * operator b-button - arm to close high goal
+		 *
+		 * operator left joystick - manual screw
+		 * operator right joystick - manual pivot
 		 *
 		 */
 		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
@@ -212,13 +217,11 @@ public:
 			//if (m_arm->ArmAtSetpoint()){
 				//m_arm->EnableScrewPID();
 			//if operator hits right bumper and the Y-button, arm goes to climbing position and screw extends fully
-			;
 		}
 		else if ((m_operator->ButtonRB()) && (m_operator->ButtonA())){
 			//m_arm->SetScrewPIDPoint(kRetractScrew);
 			//m_arm->EnableScrewPID();
 			//if operator hits right bumper and the A-button, screw goes to retract position
-			;
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonY())){
 			//m_arm->SetArmPIDPoint(kMediumLowGoal);
@@ -227,13 +230,11 @@ public:
 			//if (m_arm->ArmAtSetpoint())
 				//shooter UP
 			//if operator hits left bumper and the Y-button, arm goes to medium low goal position and prepares to shoot
-			;
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
 			//m_arm->SetArmPIDPoint(kObstacle);
 			//m_arm->EnableArmPID();
 			//if operator hits left bumper and the X-button, arm goes to 'push-up for obstacles' position
-			;
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
 			//m_arm->SetArmPIDPoint(kCloseLowGoal);
@@ -242,34 +243,38 @@ public:
 			//if (m_arm->ArmAtSetpoint())
 				//shooter UP
 			//if operator hits left bumper and the A-button, arm goes to close low goal position and prepares to shoot
-			;
 		}
 		else if (m_operator->ButtonY()){
 			//m_arm->SetArmPIDPoint(kFarHighGoal);
 			//m_arm->EnableArmPID();
 			//if operator presses button Y, arm will set to High Goal angle
-			;
 		}
 		else if (m_operator->ButtonX()){
 			//m_arm->SetArmPIDPoint(kCarry);
 			//m_arm->EnableArmPID();
 			//if operator presses button X, arm will set to Carry angle
-			;
 		}
 		else if (m_operator->ButtonA()){
 			//m_arm->SetArmPIDPoint(kPickup);
 			//m_arm->EnableArmPID();
 			//if operator presses button A, arm will set to Pickup angle
-			;
 		}
 		else if (m_operator->ButtonB()){
 			//m_arm->SetArmPIDPoint(kCloseHighGoal);
 			//m_arm->EnableArmPID();
 			//if operator presses button B, arm will set to Close High Goal angle
-			;
+		}
+		else if (m_operator->AxisLY() > 0.2){
+			//m_arm->SetScrew(m_operator->AxisLY());
+			//if operator uses left joystick up and down, will set manual screw
+		}
+		else if (m_operator->AxisRY() > 0.2){
+			//m_arm->SetArm(m_operator->AxisLY());
+			//if operator uses right joystick up and down, will set manual arm
 		}
 	}
-	void TeleopIntake(){
+
+	void TeleopIntake (){
 		/*
 		 * INTAKE MAPPING
 		 *
@@ -286,32 +291,26 @@ public:
 		if (m_operator->AxisLT() > 0.2){
 			//m_intake->RollOut();
 			//if operator presses left trigger, intake rollers roll out
-			;
 		}
-		else if (m_operator->AxisRT() > 0.2){
+		else if ((m_operator->AxisRT()) > 0.2){
 			//m_intake->Intake();
 			//if operator presses right trigger, intake rollers roll in
-			;
 		}
-		else if (m_operator->GetPOV() == 0){
+		else if ((m_operator->GetPOV()) == 0){
 			//m_intake->IncreaseShooterSpeed();
 			//if operator presses up on DPAD, shooter speed increases by 1%
-			;
 		}
-		else if (m_operator->GetPOV() == 180){
+		else if ((m_operator->GetPOV()) == 180){
 			//m_intake->DecreaseShooterSpeed();
 			//if operator presses down on DPAD, shooter speed decreases by 1%
-			;
 		}
-		else if (m_driver->AxisRT() > 0.2){
+		else if ((m_driver->AxisRT()) > 0.2){
 			//m_intake->Shoot();
 			//if driver presses right trigger, shoots
-			;
 		}
-		else if (m_driver->AxisLT() > 0.2){
+		else if ((m_driver->AxisLT()) > 0.2){
 			//m_intake->Rollout();
 			//if driver presses left trigger, intake rollers roll out
-			;
 		}
 	}
 
