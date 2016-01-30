@@ -1,6 +1,8 @@
 #include <Arm.h>
 
 Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
+
+
 /*
  * Super simple init code. see Arm.h for constant declarations
  */
@@ -27,14 +29,33 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); // See Above
 	m_armRightTalon->Set(ARM_ID_LEFT);
+
+
 }
 
 Arm::~Arm() {
 	// TODO Auto-generated destructor stub // i thinks me will leave this heres
 }
 
-void Arm::SetExtend(float speed) {
 
+Arm::ShoulderPIDController::ShoulderPIDController(CANTalon* motorRight,CANTalon* motorLeft, Encoder* encoder) {
+	m_right = motorRight;
+	m_left = motorLeft;
+	m_encoder = encoder;
+}
+
+void Arm::ShoulderPIDController::PIDWrite(float speed) { //get output value of pid
+	Set(speed);
+}
+
+
+void Arm::ShoulderPIDController::Set(float speed) { //set speed of motor, and invert for other one
+
+	/*
+	 * flip around the motors if needed, depending on final robot design.
+	 */
+	m_right->Set(speed); // set the speed
+	m_left->Set(-speed); // set the inverted speed
 }
 
 void Arm::SetArm(float speed) {

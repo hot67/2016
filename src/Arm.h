@@ -101,6 +101,21 @@ public:
 	void EnableScrewPID(); //Enable the Pid for the screw
 	void DisableScrewPID(); //Disable the Pid for the screw
 
+private:
+
+
+	class ShoulderPIDController : public PIDOutput {
+	private:
+		CANTalon* m_right;
+		CANTalon* m_left;
+		Encoder* m_encoder;
+	public:
+		ShoulderPIDController(CANTalon* motorRight,CANTalon* motorLeft, Encoder* encoder);
+		void Set(float speed); //Set speed of shoulder
+		void PIDWrite(float speed); //Write pid value
+	};
+
+
 };
 
 #endif /* SRC_ARM_H_ */
