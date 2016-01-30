@@ -49,19 +49,19 @@
 #define ARM_ID_LEFT 11
 
 enum ArmSetPoint {
-	kFarHighGoal = 1,
-	kMediumLowGoal = 2, //I think. 50 degrees pulse roller for .1 seconds
-	kCloseHighGoal = 3,
-	kCarry = 4,
-	kCloseLowGoal = 5,
-	kPickup = 6,
-	kObstacle = 7,
-	kClimb = 8
+	kFarHighGoal = 1, //45 degrees
+	kMediumLowGoal = 2, //50 degrees
+	kCloseHighGoal = 3, //60 degrees
+	kCarry = 4, //10 degrees
+	kCloseLowGoal = 5, //15 degrees
+	kPickup = 6, //unknown
+	kObstacle = 7, //-10 degrees
+	kClimb = 8 //97 degrees
 };
 
 enum ScrewSetPoint {
-	kClimb = 1,
-	kRetractScrew = 2
+	kClimb = 1, //extend
+	kRetractScrew = 2 //retract
 };
 
 class Arm: public HotSubsystem {

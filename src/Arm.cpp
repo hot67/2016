@@ -30,7 +30,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); // See Above
 	m_armRightTalon->Set(ARM_ID_LEFT);
-	m_armRightTalon->SetClosedLoopOutputDirection(true);
+	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
 
 
 }
