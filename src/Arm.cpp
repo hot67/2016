@@ -61,22 +61,31 @@ void Arm::DisableScrewPID() {
 void Arm::SetPIDPoint(ArmSetPoint setpoint) {
 	switch (setpoint) {
 	case 1: //Far away high goal
+		m_armPIDController->SetSetpoint(FAR_HIGH_GOAL);
 		break;
 	case 2: //Climbing
+		m_screwPIDController->SetSetpoint(CLIMB);
 		break;
 	case 3: //Medium away low goal
+		m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL);
 		break;
 	case 4: //Close high goal
+		m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL);
 		break;
 	case 5: //Carry position
+		m_armPIDController->SetSetpoint(CARRY);
 		break;
 	case 6: //Close low goal
+		m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL);
 		break;
 	case 7: //Pickup position
+		m_armPIDController->SetSetpoint(PICKUP);
 		break;
 	case 8: //Retract the screw
+		m_screwPIDController->SetSetpoint(RETRACT_SCREW);
 		break;
 	case 9: //Obstacle self-lift position
+		m_armPIDController->SetSetpoint(OBSTACLE);
 		break;
 	}
 }
