@@ -22,7 +22,8 @@
 #define SCREW_D 0
 
 #define FAR_HIGH_GOAL 0
-#define CLIMB 0
+#define CLIMB_ARM 0
+#define CLIMB_SCREW 0
 #define MEDIUM_LOW_GOAL 0
 #define CLOSE_HIGH_GOAL 0
 #define CARRY 0
@@ -43,14 +44,18 @@
 
 enum ArmSetPoint {
 	kFarHighGoal = 1,
-	kClimb = 2,
-	kMediumLowGoal = 3, //I think. 50 degrees pulse roller for .1 seconds
-	kCloseHighGoal = 4,
-	kCarry = 5,
-	kCloseLowgoal = 6,
-	kPickup = 7,
-	kRetractScrew = 8,
-	kObstacle= 9
+	kMediumLowGoal = 2, //I think. 50 degrees pulse roller for .1 seconds
+	kCloseHighGoal = 3,
+	kCarry = 4,
+	kCloseLowGoal = 5,
+	kPickup = 6,
+	kObstacle = 7,
+	kClimb = 8
+};
+
+enum ScrewSetPoint {
+	kClimb = 1,
+	kRetractScrew = 2
 };
 
 class Arm: public HotSubsystem {
@@ -75,13 +80,17 @@ public:
 	void SetArm(float speed); //Set the Speed of the Arm
 	void SetExtend(float speed); //Set the Speed of the Screw Drive / Arm Extender
 
-	void SetPIDPoint(ArmSetPoint setpoint); //Set the desired pidcontroller setpoint, such as close_low_goal
+	void SetArmPIDPoint(ArmSetPoint setpoint); //Set the desired pidcontroller setpoint, such as close_low_goal
+	void SetScrewPIDPoint(ScrewSetPoint setpoint);
 
-	void EnableArmPID(); //Enable the Pids
-	void DisableArmPID(); //Disable the Pids
+	bool ArmAtSetPoint(); //Checks if arm is at given set point
+	bool ScrewAtSetPoint(); //Checks if screw is at given set point
 
-	void EnableScrewPID();
-	void DisableScrewPID();
+	void EnableArmPID(); //Enable the Pid for the arm
+	void DisableArmPID(); //Disable the Pid for the arm
+
+	void EnableScrewPID(); //Enable the Pid for the screw
+	void DisableScrewPID(); //Disable the Pid for the screw
 
 };
 

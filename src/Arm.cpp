@@ -58,34 +58,49 @@ void Arm::DisableScrewPID() {
 	m_screwPIDController->Disable();
 }
 
-void Arm::SetPIDPoint(ArmSetPoint setpoint) {
+void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 	switch (setpoint) {
-	case 1: //Far away high goal
+	case kFarHighGoal: //Far away high goal
 		m_armPIDController->SetSetpoint(FAR_HIGH_GOAL);
 		break;
-	case 2: //Climbing
-		m_screwPIDController->SetSetpoint(CLIMB);
-		break;
-	case 3: //Medium away low goal
+	case kMediumLowGoal: //Medium away low goal
 		m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL);
 		break;
-	case 4: //Close high goal
+	case kCloseHighGoal: //Close high goal
 		m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL);
 		break;
-	case 5: //Carry position
+	case kCarry: //Carry position
 		m_armPIDController->SetSetpoint(CARRY);
 		break;
-	case 6: //Close low goal
+	case kCloseLowGoal: //Close low goal
 		m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL);
 		break;
-	case 7: //Pickup position
+	case kPickup: //Pickup position
 		m_armPIDController->SetSetpoint(PICKUP);
 		break;
-	case 8: //Retract the screw
-		m_screwPIDController->SetSetpoint(RETRACT_SCREW);
-		break;
-	case 9: //Obstacle self-lift position
+	case kObstacle: //Obstacle self-lift position
 		m_armPIDController->SetSetpoint(OBSTACLE);
 		break;
+	case kClimb: //Climb position
+		m_armPIDController->SetSetpoint(CLIMB_ARM);
 	}
+}
+
+void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
+	switch (point) {
+	case kClimb: //Climb position
+		m_screwPIDController->SetSetpoint(CLIMB_SCREW);
+		break;
+	case kRetractScrew: //Retract the screw
+		m_screwPIDController->SetSetpoint(RETRACT_SCREW);
+		break;
+	}
+}
+
+bool ArmAtSetPoint() { //If arm is at the given set point
+
+}
+
+bool ScrewAtSetPoint() { //If screw is at the given set point
+
 }
