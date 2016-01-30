@@ -84,7 +84,7 @@ public:
 	virtual ~Arm();
 
 	void SetArm(float speed); //Set the Speed of the Arm
-	void SetExtend(float speed); //Set the Speed of the Screw Drive / Arm Extender
+	void SetScrew(float speed); //Set the Speed of the Screw Drive / Arm Extender
 
 	void SetArmPIDPoint(ArmSetPoint setpoint);
 	/*

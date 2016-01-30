@@ -45,7 +45,7 @@ void Arm::SetArm(float speed) {
 	m_armLeftTalon->Set(speed);
 }
 
-void Arm::SetExtend(float speed) {
+void Arm::SetScrew(float speed) {
 	m_screwLeftTalon->Set(speed);
 }
 
