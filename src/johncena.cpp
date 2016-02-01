@@ -2,7 +2,13 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 
-//TO DO: Extra Parameters for the shoot function for driver/operator once written intake
+/*TO DO
+ *
+ * Extra Parameters for the shoot function for driver/operator once written intake
+ * Potential timer for the pulsing rollers out for a 0.1 second time period in TeleopArm
+ * Driver Left bumper -> switching gears
+ *
+ */
 
 using namespace std;
 
