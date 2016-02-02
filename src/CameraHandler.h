@@ -5,7 +5,6 @@
  *      Author: Robo13
  */
 #include "wpilib.h"
-#include "nvision.h"
 
 #ifndef SRC_CAMERAHANDLER_H_
 #define SRC_CAMERAHANDLER_H_
