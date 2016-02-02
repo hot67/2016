@@ -56,11 +56,11 @@ enum ArmSetPoint {
 	kCloseLowGoal = 5, //15 degrees
 	kPickup = 6, //unknown
 	kObstacle = 7, //-10 degrees
-	kClimb = 8 //97 degrees
+	kClimbArm = 8 //97 degrees
 };
 
 enum ScrewSetPoint {
-	kClimb = 1, //extend
+	kClimbScrew = 1, //extend
 	kRetractScrew = 2 //retract
 };
 

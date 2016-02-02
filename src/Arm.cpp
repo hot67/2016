@@ -26,7 +26,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 /*
  * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
  */
-	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slavery is good
+	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Motor Slavery is good
 	m_screwRightTalon->Set(SCREW_DRIVE_ID_LEFT);
 	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert???
 
@@ -90,7 +90,7 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 	case kObstacle: //Obstacle self-lift position
 		m_armPIDController->SetSetpoint(OBSTACLE);
 		break;
-	case kClimb: //Climb position
+	case kClimbArm: //Climb position
 		m_armPIDController->SetSetpoint(CLIMB_ARM);
 	}
 
@@ -101,7 +101,7 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 
 
 	switch (point) {
-	case kClimb: //Climb position
+	case kClimbScrew: //Climb position
 		m_screwPIDController->SetSetpoint(CLIMB_SCREW);
 		break;
 	case kRetractScrew: //Retract the screw
