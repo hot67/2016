@@ -120,4 +120,4 @@ bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 	return m_screwPIDController->OnTarget();
 }
 
-float Arm::RC(float degrees) {return ( (degrees/180) * 3.14159265358979323846);} //Radian Convertifier
+float Arm::RC(float degrees){return((degrees/180)*3.14159265358979323846);} //Radian Convertifier
