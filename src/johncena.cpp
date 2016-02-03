@@ -197,6 +197,7 @@ public:
 
 	void TeleopArm ()
 	{
+
 		/*
 		 * ARM MAPPING
 		 *
@@ -216,12 +217,14 @@ public:
 		 * operator right joystick - manual pivot
 		 *
 		 */
+
 		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
-			//m_arm->SetArmPIDPoint(kClimb);
-			//m_arm->SetScrewPIDPoint(kClimb);
+			//m_arm->SetArmPIDPoint(kClimbArm);
+			//m_arm->SetScrewPIDPoint(kClimbScrew);
 			//m_arm->EnableArmPID();
 			//if (m_arm->ArmAtSetpoint()){
 				//m_arm->EnableScrewPID();
+				//}
 			//if operator hits right bumper and the Y-button, arm goes to climbing position and screw extends fully
 		}
 		else if ((m_operator->ButtonRB()) && (m_operator->ButtonA())){
@@ -281,6 +284,7 @@ public:
 	}
 
 	void TeleopIntake (){
+
 		/*
 		 * INTAKE MAPPING
 		 *
@@ -294,6 +298,7 @@ public:
 		 * driver left trigger - roll out
 		 *
 		 */
+
 		if (m_operator->AxisLT() > 0.2){
 			//m_intake->RollOut();
 			//if operator presses left trigger, intake rollers roll out
@@ -303,14 +308,15 @@ public:
 			//if operator presses right trigger, intake rollers roll in
 		}
 		else if ((m_operator->GetPOV()) == 0){
-			//m_intake->IncreaseShooterSpeed();
+			//livespeed + 0.01
 			//if operator presses up on DPAD, shooter speed increases by 1%
 		}
 		else if ((m_operator->GetPOV()) == 180){
-			//m_intake->DecreaseShooterSpeed();
+			//livespeed - 0.01
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
 		else if ((m_driver->AxisRT()) > 0.2){
+			//if (m_
 			//m_intake->Shoot();
 			//if driver presses right trigger, shoots
 		}
