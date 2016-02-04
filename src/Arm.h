@@ -7,11 +7,11 @@
 #define PRACTICE_BOT
 
 #ifdef PRACTICE_BOT
-//Do some practicing. stop reading my comments
+//Do some practicing.
 #endif
 
 #ifdef COMPETITION_BOT
-//Do some competing. why are you still reading these
+//Do some competing.
 #endif
 
 //PID values
@@ -100,7 +100,7 @@ public:
 
 	void EnableScrewPID(); //Enable the Pid for the screw
 	void DisableScrewPID(); //Disable the Pid for the screw
-	float RC(float degrees); //
+	float RC(float degrees); //Radian Convertifier. May not end up being used
 
 
 };

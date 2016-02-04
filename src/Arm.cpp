@@ -1,36 +1,37 @@
 #include <Arm.h>
 
 
-Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
+Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 
 /*
  * Super simple init code. see Arm.h for constant declarations
  */
-	m_armLeftTalon = new CANTalon(ARM_ID_LEFT);
-	m_armRightTalon = new CANTalon(ARM_ID_RIGHT);
+	m_armRightTalon = new CANTalon(ARM_ID_LEFT); //Arm Right Talon
+	m_armLeftTalon = new CANTalon(ARM_ID_RIGHT); //Arm Left Talon
 
-	m_screwRightTalon = new CANTalon(SCREW_DRIVE_ID_RIGHT);
-	m_screwLeftTalon = new CANTalon(SCREW_DRIVE_ID_LEFT);
+	m_screwRightTalon = new CANTalon(SCREW_DRIVE_ID_RIGHT); //Screw Right Talon
+	m_screwLeftTalon = new CANTalon(SCREW_DRIVE_ID_LEFT); //Screw Left Talon
 
-	m_screwEncoder = new Encoder(ENCODER_CHANNEL1_SCREW,ENCODER_CHANNEL2_SCREW);
-	m_armEncoder = new Encoder(ENCODER_CHANNEL1_ARM,ENCODER_CHANNEL2_ARM);
+	m_screwEncoder = new Encoder(ENCODER_CHANNEL1_SCREW,ENCODER_CHANNEL2_SCREW); //Screw Encoder
+	m_armEncoder = new Encoder(ENCODER_CHANNEL1_ARM,ENCODER_CHANNEL2_ARM); //Arm Encoder
 
 	m_armEncoder->SetDistancePerPulse(1); //360 pulses per revolution
 	m_screwEncoder->SetDistancePerPulse(1); //Same
 
 
-	m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon);
+	m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller
 
-	m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon);
+
+	m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller
 /*
  * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
  */
-	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Motor Slavery is good
+	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_screwRightTalon->Set(SCREW_DRIVE_ID_LEFT);
-	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert???
+	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert??? (we don't know yet)
 
-	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); // See Above
+	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_armRightTalon->Set(ARM_ID_LEFT);
 	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
 
@@ -38,7 +39,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 }
 
 Arm::~Arm() {
-	// TODO Auto-generated destructor stub // i thinks me will leave this heres
+	//Empty destructor. Also probably not used
 }
 
 void Arm::SetArm(float speed) {
