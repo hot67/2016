@@ -11,6 +11,19 @@
 #include "WPILib.h"
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
+#include "AHRS.h"
+#include "DistancePIDWrapper.h"
+#include "TurnPIDWrapper.h"
+
+const static double turnP = 0.03f;
+const static double turnI = 0.00f;
+const static double turnD = 0.00f;
+const static double turnF = 0.00f;
+const static double kToleranceDegrees = 2.0f;
+
+const static double distanceP = -2.5;
+const static double distanceI = 0.0;
+const static double distanceD = -0.1;
 
 class Drivetrain : public HotSubsystem {
 public:
@@ -40,6 +53,14 @@ private:
 	Timer* m_timer;
 
 	RobotDrive* m_drive;
+
+	DistancePIDWrapper* m_distancePIDWrapper;
+	TurnPIDWrapper* m_turnPIDWrapper;
+
+	AHRS* m_gyro;
+
+	PIDController* m_turnPID;
+	PIDController* m_distancePID;
 
 };
 
