@@ -22,7 +22,6 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller
 
-
 	m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller
 /*
  * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
