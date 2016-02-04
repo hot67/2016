@@ -14,6 +14,10 @@
 //Do some competing.
 #endif
 
+//PPRs
+#define ARM_ENCODER_PULSE_PER_REVOLUTION 1
+#define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
+
 //PID values
 #define ARM_P 0
 #define ARM_I 0

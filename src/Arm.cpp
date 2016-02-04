@@ -16,8 +16,8 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwEncoder = new Encoder(ENCODER_CHANNEL1_SCREW,ENCODER_CHANNEL2_SCREW); //Screw Encoder
 	m_armEncoder = new Encoder(ENCODER_CHANNEL1_ARM,ENCODER_CHANNEL2_ARM); //Arm Encoder
 
-	m_armEncoder->SetDistancePerPulse(1); //360 pulses per revolution
-	m_screwEncoder->SetDistancePerPulse(1); //Same
+	m_armEncoder->SetDistancePerPulse(ARM_ENCODER_PULSE_PER_REVOLUTION); //360 pulses per revolution
+	m_screwEncoder->SetDistancePerPulse(SCREW_ENCODER_PULSE_PER_REVOLUTION); //Same
 
 
 	m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller
