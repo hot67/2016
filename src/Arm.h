@@ -93,8 +93,10 @@ public:
 	void SetScrewPIDPoint(ScrewSetPoint setpoint);
 
 	float GetScrewSetPoint(); //Returns the Setpoint of the Screw PIDController
-
 	float GetArmSetPoint(); //Returns the Setpoint of the Arm PIDController
+
+	float GetScrewPos(); //Returns the current encoder value of the screw
+	float GetArmPos(); //Returns the current encoder value of the arm
 
 	bool ArmAtSetPoint(); //Checks if arm is at given set point
 	bool ScrewAtSetPoint(); //Checks if screw is at given set point

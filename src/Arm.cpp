@@ -122,6 +122,14 @@ float Arm::GetScrewSetPoint() {
 	return m_screwPIDController->GetSetpoint(); //returns setpoint
 }
 
+int Arm::GetScrewPos() {
+	return m_screwEncoder->Get();
+}
+
+int Arm::GetArmPos() {
+	return m_armEncoder->Get();
+}
+
 bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 	return m_armPIDController->OnTarget();
 }
