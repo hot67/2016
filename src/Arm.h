@@ -11,7 +11,7 @@
 #endif
 
 #ifdef COMPETITION_BOT
-//Do some competeting. why are you still reading these
+//Do some competing. why are you still reading these
 #endif
 
 //PID values
