@@ -106,11 +106,11 @@ public:
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
 
-	void EnableArmPID(); //Enable the Pid for the arm
-	void DisableArmPID(); //Disable the Pid for the arm
+	void EnableArmPID(); //Enable the PID for the arm
+	void DisableArmPID(); //Disable the PID for the arm
 
-	void EnableScrewPID(); //Enable the Pid for the screw
-	void DisableScrewPID(); //Disable the Pid for the screw
+	void EnableScrewPID(); //Enable the PID for the screw
+	void DisableScrewPID(); //Disable the PID for the screw
 	float RC(float degrees); //Radian Convertifier. May not end up being used
 
 
