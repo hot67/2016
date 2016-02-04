@@ -93,6 +93,9 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 		break;
 	case kClimbArm: //Climb position
 		m_armPIDController->SetSetpoint(CLIMB_ARM);
+		break;
+	case kResetArm:
+		m_armPIDController->SetSetpoint(0);
 	}
 
 
@@ -108,11 +111,20 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 	case kRetractScrew: //Retract the screw
 		m_screwPIDController->SetSetpoint(RETRACT_SCREW);
 		break;
+	case kResetScrew:
+		m_screwPIDController->SetSetpoint(0);
 	}
 
 
 }
 
+void Arm::ZeroArmEncoder() {
+	m_armEncoder->Reset();
+}
+
+void Arm::ZeroScrewEncoder() {
+	m_screwEncoder->Reset();
+}
 
 float Arm::GetArmSetPoint() {
 	return m_armPIDController->GetSetpoint(); //returns setpoint
@@ -122,12 +134,12 @@ float Arm::GetScrewSetPoint() {
 	return m_screwPIDController->GetSetpoint(); //returns setpoint
 }
 
-int Arm::GetScrewPos() {
-	return m_screwEncoder->Get();
+float Arm::GetScrewPos() {
+	return m_screwEncoder->Get(); //returns the current encoder value
 }
 
-int Arm::GetArmPos() {
-	return m_armEncoder->Get();
+float Arm::GetArmPos() {
+	return m_armEncoder->Get(); //returns the current encoder value
 }
 
 bool Arm::ArmAtSetPoint() { //If arm is at the given set point

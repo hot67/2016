@@ -56,12 +56,14 @@ enum ArmSetPoint {
 	kCloseLowGoal = 5, //15 degrees
 	kPickup = 6, //unknown
 	kObstacle = 7, //-10 degrees
-	kClimbArm = 8 //97 degrees
+	kClimbArm = 8, //97 degrees
+	kResetArm = 0
 };
 
 enum ScrewSetPoint {
 	kClimbScrew = 1, //extend
-	kRetractScrew = 2 //retract
+	kRetractScrew = 2, //retract
+	kResetScrew = 0
 };
 
 class Arm: public HotSubsystem {
@@ -100,6 +102,9 @@ public:
 
 	bool ArmAtSetPoint(); //Checks if arm is at given set point
 	bool ScrewAtSetPoint(); //Checks if screw is at given set point
+
+	void ZeroArmEncoder(); //zero the arm encoder
+	void ZeroScrewEncoder(); //zero the screw encoder
 
 	void EnableArmPID(); //Enable the Pid for the arm
 	void DisableArmPID(); //Disable the Pid for the arm
