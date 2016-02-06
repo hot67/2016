@@ -1,5 +1,4 @@
 #include <ArmMotionProfiling.h>
-#include "TestMotionProfile.h"
 
 void ArmMotionProfiling::BeginProfiling() {
 

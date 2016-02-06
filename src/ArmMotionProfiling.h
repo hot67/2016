@@ -9,6 +9,22 @@
 #define ArmMotionProfiling_H_
 
 #include "WPILib.h"
+#include "TestMotionProfile.h"
+#include "Trajectory.h"
+
+#define PRACTICE_BOT
+//#define COMPETITION_BOT
+
+#ifdef PRACTICE_BOT
+
+#define ARM_MAX_VELOCITY 0
+#define ARM_MAX_ACCELERATION 0
+#define ARM_DELTA_TIME 1 //ms
+
+#endif
+
+#ifdef COMPETITION_BOT
+#endif
 
 enum MotionProfileStates {
 	kBuffered = 0,
@@ -46,6 +62,12 @@ public:
 	void UnPause(); //Unpause the motion profiling
 
 	void Process(); //Process the motion profile buffer
+
+	void GenerateMotionProfiles(float targetPoint, float initialVelocity);
+	/*
+	 * Generate the motion profile for said point.
+	 * Can be used instead of passing an array to the constructor
+	 */
 
 	ArmMotionProfiling(CANTalon* inputTalon, int * inputPoints, int inputLength) : m_Talon(inputTalon), points(inputPoints), pointsLen(inputLength) {
 		talonStatus = 0;
