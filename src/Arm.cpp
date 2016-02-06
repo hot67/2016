@@ -60,7 +60,8 @@ void Arm::SetScrew(float speed) {
 }
 
 
-
+// get position and get speed
+//replace all the encoders with these and set the distance for pulse for the encoders.
 
 void Arm::EnableArmPID() {
 	m_armPIDController->Enable();
