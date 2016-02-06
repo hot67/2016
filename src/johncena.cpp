@@ -2,7 +2,13 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 
-//TO DO: Extra Parameters for the shoot function for driver/operator once written intake
+/*TO DO
+ *
+ * Extra Parameters for the shoot function for driver/operator once written intake
+ * Potential timer for the pulsing rollers out for a 0.1 second time period in TeleopArm
+ * Driver Left bumper -> switching gears
+ *
+ */
 
 using namespace std;
 
@@ -17,6 +23,8 @@ class johncena: public IterativeRobot
 private:
 	HotJoystick* m_driver;
 	HotJoystick* m_operator;
+
+	Timer* m_rollForShootTime;
 
 	PowerDistributionPanel* m_pdp;
 
@@ -36,6 +44,8 @@ public:
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
 
 		m_pdp = new PowerDistributionPanel;
+
+		m_rollForShootTime = new Timer;
 
 		f_armReset = false;
 
@@ -191,6 +201,7 @@ public:
 
 	void TeleopArm ()
 	{
+
 		/*
 		 * ARM MAPPING
 		 *
@@ -210,12 +221,14 @@ public:
 		 * operator right joystick - manual pivot
 		 *
 		 */
+
 		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
-			//m_arm->SetArmPIDPoint(kClimb);
-			//m_arm->SetScrewPIDPoint(kClimb);
+			//m_arm->SetArmPIDPoint(kClimbArm);
+			//m_arm->SetScrewPIDPoint(kClimbScrew);
 			//m_arm->EnableArmPID();
 			//if (m_arm->ArmAtSetpoint()){
 				//m_arm->EnableScrewPID();
+				//}
 			//if operator hits right bumper and the Y-button, arm goes to climbing position and screw extends fully
 		}
 		else if ((m_operator->ButtonRB()) && (m_operator->ButtonA())){
@@ -224,24 +237,45 @@ public:
 			//if operator hits right bumper and the A-button, screw goes to retract position
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonY())){
+
 			//m_arm->SetArmPIDPoint(kMediumLowGoal);
 			//m_arm->EnableArmPID();
-			//intake roller out for 0.1 seconds -> consider timer?
-			//if (m_arm->ArmAtSetpoint())
-				//shooter UP
+
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.1);
+
+			//if ((m_rollForShootTime->Get()) > 0.4){
+				//m_intake->SetRoller(0.0);
+				//m_rollForShootTime->Stop();
+				//m_rollForShootTime->Reset();
+			//}
+
+			//if (m_arm->ArmAtSetpoint()){
+				//m_intake->SetShooter(m_desiredShooterSpeed);
+				//}
 			//if operator hits left bumper and the Y-button, arm goes to medium low goal position and prepares to shoot
 		}
-		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
 			//m_arm->SetArmPIDPoint(kObstacle);
 			//m_arm->EnableArmPID();
 			//if operator hits left bumper and the X-button, arm goes to 'push-up for obstacles' position
 		}
-		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
 			//m_arm->SetArmPIDPoint(kCloseLowGoal);
 			//m_arm->EnableArmPID();
-			//intake roller out for 0.1 seconds -> consider timer?
-			//if (m_arm->ArmAtSetpoint())
-				//shooter UP
+
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.1);
+
+			//if ((m_rollForShootTime->Get()) > 0.4){
+				//m_intake->SetRoller(0.0);
+				//m_rollForShootTime->Stop();
+				//m_rollForShootTime->Reset();
+			//}
+
+			//if (m_arm->ArmAtSetpoint()){
+				//m_intake->SetShooter(m_desiredShooterSpeed);
+			//}
 			//if operator hits left bumper and the A-button, arm goes to close low goal position and prepares to shoot
 		}
 		else if (m_operator->ButtonY()){
@@ -275,6 +309,7 @@ public:
 	}
 
 	void TeleopIntake (){
+
 		/*
 		 * INTAKE MAPPING
 		 *
@@ -288,6 +323,7 @@ public:
 		 * driver left trigger - roll out
 		 *
 		 */
+
 		if (m_operator->AxisLT() > 0.2){
 			//m_intake->RollOut();
 			//if operator presses left trigger, intake rollers roll out
@@ -297,15 +333,16 @@ public:
 			//if operator presses right trigger, intake rollers roll in
 		}
 		else if ((m_operator->GetPOV()) == 0){
-			//m_intake->IncreaseShooterSpeed();
+			//livespeed + 0.01
 			//if operator presses up on DPAD, shooter speed increases by 1%
 		}
 		else if ((m_operator->GetPOV()) == 180){
-			//m_intake->DecreaseShooterSpeed();
+			//livespeed - 0.01
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
 		else if ((m_driver->AxisRT()) > 0.2){
-			//m_intake->Shoot();
+			//if ((m_arm->OnTarget())
+				//m_intake->Shoot();
 			//if driver presses right trigger, shoots
 		}
 		else if ((m_driver->AxisLT()) > 0.2){
