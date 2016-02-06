@@ -1,11 +1,11 @@
 #include <RobotUtils/RobotUtils.h>
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
+#include "Intake.h"
+#include "Drivetrain.h"
 
 /*TO DO
  *
- * Extra Parameters for the shoot function for driver/operator once written intake
- * Potential timer for the pulsing rollers out for a 0.1 second time period in TeleopArm
  * Driver Left bumper -> switching gears
  *
  */
@@ -325,7 +325,7 @@ public:
 		 */
 
 		if (m_operator->AxisLT() > 0.2){
-			//m_intake->RollOut();
+			//m_intake->SetRoller(1.0);
 			//if operator presses left trigger, intake rollers roll out
 		}
 		else if ((m_operator->AxisRT()) > 0.2){
