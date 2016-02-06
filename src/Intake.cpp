@@ -59,6 +59,6 @@ void Intake::DecreaseShooterSpeed(){
 	m_desiredShooterSpeed -= 0.01;
 }
 
-void Intake::GetShooterSpeed(){
-	m_shooterEncoder->GetRate();
+float Intake::GetShooterSpeed(){
+	return m_shooterEncoder->GetRate();
 }

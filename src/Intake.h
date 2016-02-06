@@ -65,7 +65,7 @@ public:
 	void IncreaseShooterSpeed(); // increase shooter speed by 0.01
 	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
 
-	void GetShooterSpeed();
+	float GetShooterSpeed();
 };
 
 
