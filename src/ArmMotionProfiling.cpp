@@ -1,11 +1,11 @@
-#include "MotionProfiling.h"
+#include <ArmMotionProfiling.h>
 
 
-void MotionProfiling::BeginProfiling() {
+void ArmMotionProfiling::BeginProfiling() {
 
 
-	m_Talon->SetControlMode(CANTalon::kMotionProfile);
 	EndProfiling();
+	m_Talon->SetControlMode(CANTalon::kMotionProfile);
 	mpState = kUnBuffered;
 	MP = true;
 	GiveBuffer();
@@ -14,7 +14,7 @@ void MotionProfiling::BeginProfiling() {
 
 
 
-void MotionProfiling::GiveBuffer() {
+void ArmMotionProfiling::GiveBuffer() {
 
 	if (mpState==kUnBuffered) {
 
@@ -58,7 +58,7 @@ void MotionProfiling::GiveBuffer() {
 
 
 
-void MotionProfiling::EndProfiling() {
+void ArmMotionProfiling::EndProfiling() {
 
 	mpState = kStopped; //Motion profiling has ended
 	m_Talon->ClearMotionProfileTrajectories();
@@ -67,13 +67,13 @@ void MotionProfiling::EndProfiling() {
 
 }
 
-void MotionProfiling::Pause() {
+void ArmMotionProfiling::Pause() {
 
 	mpState = kPaused;
 	m_Talon->SetControlMode(CANTalon::kVoltage);
 }
 
-void MotionProfiling::UnPause() {
+void ArmMotionProfiling::UnPause() {
 
 	mpState = kBuffered;
 	m_Talon->SetControlMode(CANTalon::kMotionProfile);
@@ -81,7 +81,7 @@ void MotionProfiling::UnPause() {
 
 
 
-void MotionProfiling::Iterate() {
+void ArmMotionProfiling::Iterate() {
 
 	switch (mpState) { //Do various things based on whats going on with motion profiling
 	case kUnBuffered:
@@ -99,6 +99,6 @@ void MotionProfiling::Iterate() {
 
 }
 
-void MotionProfiling::Process() {
+void ArmMotionProfiling::Process() {
 	m_Talon->ProcessMotionProfileBuffer();
 }

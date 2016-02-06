@@ -1,12 +1,12 @@
 /*
- * MotionProfiling.h
+ * ArmMotionProfiling.h
  *
  *  Created on: Feb 6, 2016
  *      Author: Jakob
  */
 
-#ifndef MOTIONPROFILING_H_
-#define MOTIONPROFILING_H_
+#ifndef ArmMotionProfiling_H_
+#define ArmMotionProfiling_H_
 
 #include "WPILib.h"
 
@@ -17,7 +17,7 @@ enum MotionProfileStates {
 	kPaused = 3
 };
 
-class MotionProfiling {
+class ArmMotionProfiling {
 
 	CANTalon * m_Talon; //The talon we are going to profile
 
@@ -47,7 +47,7 @@ public:
 
 	void Process(); //Process the motion profile buffer
 
-	MotionProfiling(CANTalon* inputTalon, int * inputPoints, int inputLength) : m_Talon(inputTalon), points(inputPoints), pointsLen(inputLength) {
+	ArmMotionProfiling(CANTalon* inputTalon, int * inputPoints, int inputLength) : m_Talon(inputTalon), points(inputPoints), pointsLen(inputLength) {
 		talonStatus = 0;
 		mpState = kStopped;
 		MP = false;
@@ -59,4 +59,4 @@ public:
 
 
 
-#endif /* MOTIONPROFILING_H_ */
+#endif /* ArmMotionProfiling_H_ */
