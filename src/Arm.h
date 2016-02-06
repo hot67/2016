@@ -114,6 +114,9 @@ public:
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
 
+	float GetArmEncoderRate(); //Returns the arm encoder rate
+	float GetScrewEncoderRate(); //Returns the screw encoder rate
+
 	void EnableArmPID(); //Enable the PID for the arm
 	void DisableArmPID(); //Disable the PID for the arm
 

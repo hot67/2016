@@ -117,6 +117,14 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 
 }
 
+float Arm::GetArmEncoderRate() {
+	return m_armEncoder->GetRate();
+}
+
+float Arm::GetScrewEncoderRate() {
+	return m_screwEncoder->GetRate();
+}
+
 void Arm::ZeroArmEncoder() {
 	m_armEncoder->Reset();
 }
