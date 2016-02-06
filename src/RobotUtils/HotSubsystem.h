@@ -4,6 +4,7 @@
 
 #include <RobotUtils/HotBot.h>
 #include <RobotUtils/HotJoystick.h>
+#include <string>
 
 class HotBot;
 
@@ -13,6 +14,7 @@ public:
 	 * 	Constructor
 	 * 		In this function, we connect subsystem and hot bot.
 	 ******************************/
+
 	HotSubsystem(HotBot* bot, std::string name);
 	virtual ~HotSubsystem();
 
