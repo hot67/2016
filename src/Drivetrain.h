@@ -15,7 +15,7 @@
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
 
-const static double turnP = 0.03f;
+const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
 const static double turnD = 0.00f;
 const static double turnF = 0.00f;
@@ -25,6 +25,9 @@ const static double distanceP = -2.5;
 const static double distanceI = 0.0;
 const static double distanceD = -0.1;
 
+class TurnPIDWrapper;
+class DistancePIDWrapper;
+
 class Drivetrain : public HotSubsystem {
 public:
 	Drivetrain(HotBot* bot);
@@ -32,14 +35,17 @@ public:
 	friend class HotSubsystemHandler;
 	virtual ~Drivetrain();
 
-	void ArcadeDrive(double speed, double angle, bool squaredinputs=true) {
-		m_drive->ArcadeDrive(speed, angle, squaredinputs);
+	double GetAngle(); //Encoder Functions
+	double GetDistancePos();
+	double GetDistanceL();
+	double GetDistanceR();
+	double GetSpeedL();
+	double GetSpeedR();
+	double GetAverageSpeed();
 
-		SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
-		SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-		SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
-		SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());
-	}
+	void SetTurn(double turn);
+	void SetSpeed(double speed);
+	void ArcadeDrive(double speed, double angle);
 
 private:
 	CANTalon* m_lDriveF;
@@ -61,6 +67,8 @@ private:
 
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;
+
+	float m_turning, m_speed;
 
 };
 

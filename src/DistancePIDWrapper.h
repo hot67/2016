@@ -9,18 +9,20 @@
 #define SRC_DISTANCEPIDWRAPPER_H_
 
 #include "WPILib.h"
+#include "Drivetrain.h"
+
+class Drivetrain;
 
 class DistancePIDWrapper: public PIDSource, public PIDOutput{
 public:
-	DistancePIDWrapper(Encoder* lEncode, Encoder* rEncode);
+	DistancePIDWrapper(Drivetrain* drivetrain);
 	virtual ~DistancePIDWrapper();
 
 	double PIDGet();
 	void PIDWrite(float output);
 
 private:
-	Encoder* m_lEncode;
-	Encoder* m_rEncode;
+	Drivetrain* m_drivetrain;
 };
 
 #endif /* SRC_DISTANCEPIDWRAPPER_H_ */

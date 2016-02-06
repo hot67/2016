@@ -7,9 +7,8 @@
 
 #include <TurnPIDWrapper.h>
 
-TurnPIDWrapper::TurnPIDWrapper(RobotDrive* drive) {
-	// TODO Auto-generated constructor stub
-	m_drive = drive;
+TurnPIDWrapper::TurnPIDWrapper(Drivetrain* drivetrain){
+	m_drivetrain = drivetrain;
 
 }
 
@@ -18,5 +17,9 @@ TurnPIDWrapper::~TurnPIDWrapper() {
 }
 
 void TurnPIDWrapper::PIDWrite(float output) {
-		m_drive->TankDrive(output,-output);
+	m_drivetrain->SetTurn(output);
+}
+
+double TurnPIDWrapper::PIDGet(){
+	return(m_drivetrain->GetAngle());
 }
