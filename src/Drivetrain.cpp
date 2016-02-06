@@ -9,13 +9,13 @@
 
 Drivetrain::Drivetrain(HotBot* bot)
 	: HotSubsystem(bot, "Drivetrain") {
-	m_lDriveF = new CANTalon(20);
-	m_lDriveR = new CANTalon(21);
-	m_rDriveF = new CANTalon(22);
-	m_rDriveR = new CANTalon(23);
+	m_lDriveF = new CANTalon(TALON_DRIVE_LF);
+	m_lDriveR = new CANTalon(TALON_DRIVE_LR);
+	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
+	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_lEncode = new Encoder(0, 1);
-	m_rEncode = new Encoder(2, 3);
+	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
+	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
 
 	m_timer = new Timer;
 

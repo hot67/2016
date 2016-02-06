@@ -15,6 +15,16 @@
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
 
+#define TALON_DRIVE_LF 20
+#define TALON_DRIVE_LR 21
+#define TALON_DRIVE_RF 22
+#define TALON_DRIVE_RR 23
+
+#define DRIVE_ENCODER_LF 0
+#define DRIVE_ENCODER_LR 1
+#define DRIVE_ENCODER_RF 2
+#define DRIVE_ENCODER_RR 3
+
 const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
 const static double turnD = 0.00f;
