@@ -65,4 +65,5 @@ float Intake::GetShooterSpeed(){
 
 void Intake::IntakePrintData(){
 	SmartDashboard::PutNumber("Current Shooter Rate", m_shooterEncoder->GetRate());
+	SmartDashboard::PutNumber("Desired ShooterRate", m_desiredShooterSpeed);
 }
