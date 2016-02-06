@@ -26,11 +26,11 @@ void MotionProfiling::GiveBuffer() {
 			/*
 			 * transfer the data into the trajectory point
 			 */
-			ArmTrajectory.position = (points + i)[0];
+			ArmTrajectory.position = points[i][0];
 
-			ArmTrajectory.velocity = (points + i)[1];
+			ArmTrajectory.velocity = points[i][1];
 
-			ArmTrajectory.timeDurMs = (points + i)[2];
+			ArmTrajectory.timeDurMs = points[i][2];
 
 			ArmTrajectory.profileSlotSelect = 1;
 
