@@ -1,6 +1,7 @@
 #include <Arm.h>
 
 
+
 Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 
@@ -37,33 +38,57 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 }
 
+
+
+
 Arm::~Arm() {
 	//Empty destructor. Also probably not used
 }
+
+
+
 
 void Arm::SetArm(float speed) {
 	m_armLeftTalon->Set(speed);
 }
 
+
+
+
 void Arm::SetScrew(float speed) {
 	m_screwLeftTalon->Set(speed);
 }
+
+
+
 
 void Arm::EnableArmPID() {
 	m_armPIDController->Enable();
 }
 
+
+
+
 void Arm::DisableArmPID() {
 	m_armPIDController->Disable();
 }
+
+
+
 
 void Arm::EnableScrewPID() {
 	m_screwPIDController->Enable();
 }
 
+
+
+
 void Arm::DisableScrewPID() {
 	m_screwPIDController->Disable();
 }
+
+
+
 
 void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 
@@ -100,6 +125,9 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 
 }
 
+
+
+
 void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 
 
@@ -117,44 +145,77 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 
 }
 
+
+
+
 float Arm::GetArmEncoderRate() {
 	return m_armEncoder->GetRate();
 }
+
+
+
 
 float Arm::GetScrewEncoderRate() {
 	return m_screwEncoder->GetRate();
 }
 
+
+
+
 void Arm::ZeroArmEncoder() {
 	m_armEncoder->Reset();
 }
+
+
+
 
 void Arm::ZeroScrewEncoder() {
 	m_screwEncoder->Reset();
 }
 
+
+
+
 float Arm::GetArmSetPoint() {
 	return m_armPIDController->GetSetpoint(); //returns setpoint
 }
+
+
+
 
 float Arm::GetScrewSetPoint() {
 	return m_screwPIDController->GetSetpoint(); //returns setpoint
 }
 
+
+
+
 float Arm::GetScrewPos() {
 	return m_screwEncoder->Get(); //returns the current encoder value
 }
+
+
+
 
 float Arm::GetArmPos() {
 	return m_armEncoder->Get(); //returns the current encoder value
 }
 
+
+
+
 bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 	return m_armPIDController->OnTarget();
 }
 
+
+
+
 bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 	return m_screwPIDController->OnTarget();
 }
+
+
+
 
 float Arm::RC(float degrees){return((degrees/180)*3.14159265358979323846);} //Radian Convertifier
