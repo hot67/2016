@@ -28,6 +28,8 @@ private:
 
 	PowerDistributionPanel* m_pdp;
 
+	Drivetrain* m_drivetrain;
+
 	bool f_armReset;
 
 	auton_t m_autonChoice;
@@ -39,6 +41,8 @@ public:
 	{
 		m_driver = new HotJoystick(0);
 		m_operator = new HotJoystick(1);
+
+		m_drivetrain = new Drivetrain(this);
 
 		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.2);
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
@@ -182,6 +186,7 @@ public:
 
 	void TeleopPeriodic()
 	{
+		TeleopDrive();
 	}
 
 	void TestPeriodic()
@@ -190,13 +195,7 @@ public:
 
 	void TeleopDrive ()
 	{
-		if ((m_driver->AxisLY() > 0.2) || (m_driver->AxisRX() > 0.2)){
-			//arcade drive
-			;
-		}
-		else
-			//do not arcade drive
-			;
+		m_drivetrain->ArcadeDrive(m_driver->AxisLX(), m_driver->AxisRX());
 	}
 
 	void TeleopArm ()
