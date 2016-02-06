@@ -45,16 +45,16 @@
 #define RETRACT_SCREW 0
 
 //Encoder ids
-#define ENCODER_CHANNEL1_ARM 4
-#define ENCODER_CHANNEL2_ARM 5
-#define ENCODER_CHANNEL1_SCREW 6
-#define ENCODER_CHANNEL2_SCREW 7
+#define ENCODER_ARM1 4
+#define ENCODER_ARM2 5
+#define ENCODER_SCREW1 6
+#define ENCODER_SCREW2 7
 
 //Motor ids
-#define SCREW_DRIVE_ID_LEFT 14
-#define SCREW_DRIVE_ID_RIGHT 15
-#define ARM_ID_RIGHT 12
-#define ARM_ID_LEFT 11
+#define TALON_SCREW_L 14
+#define TALON_SCREW_R 15
+#define TALON_ARM_R 12
+#define TALON_ARM_L 11
 
 enum ArmSetPoint {
 	kFarHighGoal = 1, //45 degrees
