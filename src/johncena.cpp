@@ -1,4 +1,3 @@
-#include <RobotUtils/RobotUtils.h>
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Intake.h"
@@ -18,7 +17,7 @@ enum auton_t {
 	kLowBarBack
 };
 
-class johncena: public IterativeRobot
+class johncena: public HotBot
 {
 private:
 	HotJoystick* m_driver;
