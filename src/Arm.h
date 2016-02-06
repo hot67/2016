@@ -7,17 +7,6 @@
 #define PRACTICE_BOT
 
 #ifdef PRACTICE_BOT
-//Do some practicing.
-#endif
-
-#ifdef COMPETITION_BOT
-//Do some competing.
-#endif
-
-//PPRs
-#define ARM_ENCODER_PULSE_PER_REVOLUTION 1
-#define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
-
 //PID values
 #define ARM_P 0
 #define ARM_I 0
@@ -25,6 +14,21 @@
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
+#endif
+
+#ifdef COMPETITION_BOT
+//PID values
+#define ARM_P 0
+#define ARM_I 0
+#define ARM_D 0
+#define SCREW_P 0
+#define SCREW_I 0
+#define SCREW_D 0
+#endif
+
+//PPRs
+#define ARM_ENCODER_PULSE_PER_REVOLUTION 1
+#define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
 
 //Values for angles of Arm Positioning (degrees)
 #define FAR_HIGH_GOAL 45
