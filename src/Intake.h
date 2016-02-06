@@ -36,6 +36,8 @@
 #define ENCODER_CHANNEL1 8
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
+#define DEFAULT_SHOOTER_SPEED 0.8
+
 class Intake: public HotSubsystem {
 private:
 	CANTalon* m_rollerTalon;
@@ -44,11 +46,6 @@ private:
 	Encoder* m_shooterEncoder;
 
 	PIDController* m_shooterSpeedPID;
-
-	//sets default speed of roller to 0.8
-	float DEFAULT_SHOOTER_SPEED = 0.8;
-
-	//sets minimum shooter speed to 95% of the speed ordered by the talon
 
 public:
 	Intake(HotBot* bot);
@@ -67,6 +64,8 @@ public:
 
 	void IncreaseShooterSpeed(); // increase shooter speed by 0.01
 	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
+
+	void GetShooterSpeed();
 };
 
 
