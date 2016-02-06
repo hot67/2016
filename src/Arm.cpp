@@ -217,5 +217,10 @@ bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 
 
 
+void Arm::ArmPrintData() {
+	SmartDashboard::PutNumber("Arm Encoder", m_armEncoder->GetDistance()); //Brandon told me to write these. idk what they do.
+	SmartDashboard::PutNumber("Screw Encoder", m_screwEncoder->GetDistance());
+}
+
 
 float Arm::RC(float degrees){return((degrees/180)*3.14159265358979323846);} //Radian Convertifier

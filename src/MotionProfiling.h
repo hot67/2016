@@ -10,6 +10,13 @@
 
 #include "WPILib.h"
 
+enum MotionProfileStates {
+	kBuffered = 0,
+	kUnBuffered = 1,
+	kStopped = 2,
+	kPaused = 3
+};
+
 class MotionProfiling {
 
 	CANTalon * m_Talon; //The talon we are going to profile
@@ -20,10 +27,12 @@ class MotionProfiling {
 
 	float * points; //Motion Profile Trajectory points (should point to the beginning of an array)
 
-	bool startMP; //Start motion profiling yet?
+	MotionProfileStates mpState; //State of the motion profiling
 
 
 public:
+
+	bool MP; //Want to profile yet?
 
 	void BeginProfiling(); //Begin the motion profiling
 
@@ -33,9 +42,15 @@ public:
 
 	void Iterate(); //A control function to happen every teleop iteration
 
+	void Pause(); //Pause the motion profiling
+	void UnPause(); //Unpause the motion profiling
+
+	void Process(); //Process the motion profile buffer
+
 	MotionProfiling(CANTalon* inputTalon, int * inputPoints, int inputLength) : m_Talon(inputTalon), points(inputPoints), pointsLen(inputLength) {
 		talonStatus = 0;
-		startMP = false;
+		mpState = kStopped;
+		MP = false;
 	}
 
 

@@ -113,7 +113,9 @@ public:
 
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
-
+protected:
+	void ArmPrintData();
+public:
 	float GetArmEncoderRate(); //Returns the arm encoder rate
 	float GetScrewEncoderRate(); //Returns the screw encoder rate
 
