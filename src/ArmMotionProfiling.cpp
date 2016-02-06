@@ -1,7 +1,13 @@
 #include <ArmMotionProfiling.h>
-
+#include "TestMotionProfile.h"
 
 void ArmMotionProfiling::BeginProfiling() {
+
+
+	//Comment these out eventually
+	points = &kMotionProfile;
+	pointsLen = kMotionProfileLen;
+	//For now im leaving them in
 
 
 	EndProfiling();
