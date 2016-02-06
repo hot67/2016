@@ -33,7 +33,7 @@
 #define SHOOTER_ID 16
 
 //encoder DIO location
-#define ENCODER_CHANNEL1 8
+#define SHOOTER_ENCODER1 8
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
 #define DEFAULT_SHOOTER_SPEED 0.8
@@ -66,6 +66,8 @@ public:
 	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
 
 	float GetShooterSpeed();
+
+	void IntakePrintData();
 };
 
 

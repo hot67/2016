@@ -13,7 +13,7 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 	m_rollerTalon = new CANTalon(ROLLER_ID);
 	m_shooterTalon = new CANTalon(SHOOTER_ID);
 
-	m_shooterEncoder = new Encoder(ENCODER_CHANNEL1, ENCODER_CHANNEL1, true);
+	m_shooterEncoder = new Encoder(SHOOTER_ENCODER1, SHOOTER_ENCODER1, true);
 	m_shooterEncoder->SetDistancePerPulse(1);
 	//what is distance per pulse (ask jim/rodney)
 
@@ -61,4 +61,8 @@ void Intake::DecreaseShooterSpeed(){
 
 float Intake::GetShooterSpeed(){
 	return m_shooterEncoder->GetRate();
+}
+
+void Intake::IntakePrintData(){
+	SmartDashboard::PutNumber("Shooter Rate", m_shooterEncoder->GetRate());
 }
