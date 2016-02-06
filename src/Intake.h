@@ -15,9 +15,9 @@
 
 #ifdef PRACTICE_BOT
 //shooter PID
-#define SHOOTER_SPEED_P 0.0
-#define SHOOTER_SPEED_I 0.0
-#define SHOOTER_SPEED_D 0.0
+#define SHOOTER_SPEED_P 0.0 //code from 2012 was 0.01
+#define SHOOTER_SPEED_I 0.0 //code from 2012 was 0.0
+#define SHOOTER_SPEED_D 0.0 //code from 2012 was 0.05
 #endif
 
 #ifdef COMPETITION_BOT
