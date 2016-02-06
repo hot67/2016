@@ -24,6 +24,8 @@ private:
 	HotJoystick* m_driver;
 	HotJoystick* m_operator;
 
+	Timer* m_rollForShootTime;
+
 	PowerDistributionPanel* m_pdp;
 
 	bool f_armReset;
@@ -42,6 +44,8 @@ public:
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
 
 		m_pdp = new PowerDistributionPanel;
+
+		m_rollForShootTime = new Timer;
 
 		f_armReset = false;
 
@@ -233,24 +237,45 @@ public:
 			//if operator hits right bumper and the A-button, screw goes to retract position
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonY())){
+
 			//m_arm->SetArmPIDPoint(kMediumLowGoal);
 			//m_arm->EnableArmPID();
-			//intake roller out for 0.1 seconds -> consider timer?
-			//if (m_arm->ArmAtSetpoint())
-				//shooter UP
+
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.1);
+
+			//if ((m_rollForShootTime->Get()) > 0.4){
+				//m_intake->SetRoller(0.0);
+				//m_rollForShootTime->Stop();
+				//m_rollForShootTime->Reset();
+			//}
+
+			//if (m_arm->ArmAtSetpoint()){
+				//m_intake->SetShooter(m_desiredShooterSpeed);
+				//}
 			//if operator hits left bumper and the Y-button, arm goes to medium low goal position and prepares to shoot
 		}
-		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
 			//m_arm->SetArmPIDPoint(kObstacle);
 			//m_arm->EnableArmPID();
 			//if operator hits left bumper and the X-button, arm goes to 'push-up for obstacles' position
 		}
-		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
+		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
 			//m_arm->SetArmPIDPoint(kCloseLowGoal);
 			//m_arm->EnableArmPID();
-			//intake roller out for 0.1 seconds -> consider timer?
-			//if (m_arm->ArmAtSetpoint())
-				//shooter UP
+
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.1);
+
+			//if ((m_rollForShootTime->Get()) > 0.4){
+				//m_intake->SetRoller(0.0);
+				//m_rollForShootTime->Stop();
+				//m_rollForShootTime->Reset();
+			//}
+
+			//if (m_arm->ArmAtSetpoint()){
+				//m_intake->SetShooter(m_desiredShooterSpeed);
+			//}
 			//if operator hits left bumper and the A-button, arm goes to close low goal position and prepares to shoot
 		}
 		else if (m_operator->ButtonY()){
@@ -316,8 +341,8 @@ public:
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
 		else if ((m_driver->AxisRT()) > 0.2){
-			//if (m_
-			//m_intake->Shoot();
+			//if ((m_arm->OnTarget())
+				//m_intake->Shoot();
 			//if driver presses right trigger, shoots
 		}
 		else if ((m_driver->AxisLT()) > 0.2){

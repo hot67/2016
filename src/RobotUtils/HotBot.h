@@ -1,8 +1,8 @@
 #ifndef SRC_HOTBOT_H_
 #define SRC_HOTBOT_H_
 
+#include <RobotUtils/HotSubsystem.h>
 #include "WPILib.h"
-#include "HotSubsystem.h"
 
 class HotSubsystem;
 

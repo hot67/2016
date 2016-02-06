@@ -14,9 +14,13 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 	m_shooterTalon = new CANTalon(SHOOTER_ID);
 
 	m_shooterEncoder = new Encoder(ENCODER_CHANNEL1, ENCODER_CHANNEL1, true);
+	m_shooterEncoder->SetDistancePerPulse(1);
+	//what is distance per pulse (ask jim/rodney)
+
 	//seems like encoder but is actually white-black sensor
 
 	m_shooterSpeedPID = new PIDController(SHOOTER_SPEED_P, SHOOTER_SPEED_I, SHOOTER_SPEED_D, m_shooterEncoder, m_shooterTalon);
+	m_shooterSpeedPID->SetPercentTolerance(0.05);
 }
 
 Intake::~Intake() {
@@ -40,7 +44,17 @@ void Intake::SetShooterDefault(){
 
 void Intake::Shoot(){
 	//if minimum shooter speed is 95% of the speed that the talon is saying, then roll in
-	if (m_shooterEncoder->GetRate() > MINIMUM_SHOOTER_SPEED)
+	if (m_shooterSpeedPID->OnTarget()) {
 		m_rollerTalon->Set(-0.3);
-	//in main cpp, this must go with 'if arm is 95% to setpoint'
+	}
+}
+
+void Intake::IncreaseShooterSpeed(){
+	//updates desired shooter speed by a positive 0.01
+	m_desiredShooterSpeed += 0.01;
+}
+
+void Intake::DecreaseShooterSpeed(){
+	//updates desired shooter speed by a negative 0.01
+	m_desiredShooterSpeed -= 0.01;
 }

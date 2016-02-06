@@ -2,8 +2,9 @@
 #ifndef SRC_HOTSUBSYSTEM_H_
 #define SRC_HOTSUBSYSTEM_H_
 
-#include "HotBot.h"
-#include "HotJoystick.h"
+#include <string>
+#include <RobotUtils/HotBot.h>
+#include <RobotUtils/HotJoystick.h>
 
 class HotBot;
 

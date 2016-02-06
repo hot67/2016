@@ -49,11 +49,14 @@ private:
 	float DEFAULT_SHOOTER_SPEED = 0.8;
 
 	//sets minimum shooter speed to 95% of the speed ordered by the talon
-	float MINIMUM_SHOOTER_SPEED = ((0.95 * m_shooterTalon->Get()));
 
 public:
 	Intake(HotBot* bot);
+
 	virtual ~Intake();
+
+	float m_desiredShooterSpeed = DEFAULT_SHOOTER_SPEED; // sets initial shooter speed to default speed
+
 
 	void SetRoller(float speed); //set roller speed
 	void SetShooter(float speed); //set shooter speed
@@ -61,6 +64,9 @@ public:
 	void SetShooterDefault(); //sets default shooter speed
 
 	void Shoot(); //if shooter speed is at 95% of what the shooter talon asks it to be, then roll in
+
+	void IncreaseShooterSpeed(); // increase shooter speed by 0.01
+	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
 };
 
 
