@@ -1,5 +1,5 @@
 
-#include "HotSubsystem.h"
+#include <RobotUtils/HotSubsystem.h>
 
 HotSubsystem::HotSubsystem(HotBot* bot, std::string name) {
 	m_bot = bot;

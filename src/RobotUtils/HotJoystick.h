@@ -1,8 +1,8 @@
 #ifndef SRC_HOTJOYSTICK_H_
 #define SRC_HOTJOYSTICK_H_
 
+#include <RobotUtils/HotBot.h>
 #include "WPILib.h"
-#include "HotBot.h"
 
 class HotBot;
 
