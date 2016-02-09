@@ -26,8 +26,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_turnPIDWrapper = new TurnPIDWrapper (this);
 
     m_drive->SetExpiration(0.1);
-    m_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true); //Inverts left side motors
-    m_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
+
     try {
         m_gyro = new AHRS(SPI::Port::kMXP);
     } catch (std::exception ex ) {
