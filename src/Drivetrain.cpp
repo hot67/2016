@@ -83,14 +83,14 @@ double Drivetrain::GetAverageSpeed(){
 	return((m_lEncode->GetRate() + m_rEncode->GetRate()) / 2);
 }
 
-Drivetrain::~Drivetrain() {
-
-}
-
 void Drivetrain::SetSpeed(double speed) {
 	ArcadeDrive(speed, m_turning);
 }
 
 void Drivetrain::SetTurn(double turn) {
 	ArcadeDrive(m_speed, turn);
+}
+
+Drivetrain::~Drivetrain() {
+
 }

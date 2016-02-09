@@ -112,7 +112,8 @@ public:
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
 
-		/*switch(m_autonCase)
+		/*
+		switch(m_autonCase)
 		{
 			case 0:
 				if (f_armReset)
@@ -135,7 +136,7 @@ public:
 
 				m_autonCase++;
 
-		}*/
+		} */
 
 	}
 
