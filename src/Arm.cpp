@@ -23,7 +23,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	//m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller REMOVED FOR NOW
 
-	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
+/*	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
 	m_armLeftTalon->SetI(ARM_I);
 	m_armLeftTalon->SetD(ARM_D);
 	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
@@ -33,7 +33,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwLeftTalon->SetD(SCREW_D);
 	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 
-	//m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller REMOVED FOR NOW
+	//m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller REMOVED FOR NOW */
 
 
 /*
@@ -78,14 +78,14 @@ void Arm::SetScrew(float speed) {
 
 void Arm::EnableArmPID() {
 	//m_armPIDController->Enable(); REMOVED FOR NOW
-	m_armLeftTalon->Enable(); //i think this is how we enable pid controllers.
+//	m_armLeftTalon->Enable(); //i think this is how we enable pid controllers.
 }
 
 
 
 void Arm::DisableArmPID() {
 	//m_armPIDController->Disable(); REMOVED FOR NOW
-	m_armLeftTalon->Disable(); //disable the pidcontroller
+	//m_armLeftTalon->Disable(); //disable the pidcontroller
 }
 
 
@@ -93,7 +93,7 @@ void Arm::DisableArmPID() {
 
 void Arm::EnableScrewPID() {
 	//m_screwPIDController->Enable(); REMOVED FOR NOW
-	m_screwLeftTalon->Enable();
+//	m_screwLeftTalon->Enable();
 }
 
 
@@ -101,7 +101,7 @@ void Arm::EnableScrewPID() {
 
 void Arm::DisableScrewPID() {
 	//m_screwPIDController->Disable(); REMOVED FOR NOW
-	m_screwLeftTalon->Disable();
+//	m_screwLeftTalon->Disable();
 }
 
 
@@ -243,12 +243,12 @@ float Arm::GetArmPos() {
 
 bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 	//return m_armPIDController->OnTarget(); REMOVED FOR NOW
-	int error = m_armLeftTalon->GetClosedLoopError();
+/*	int error = m_armLeftTalon->GetClosedLoopError();
 	switch (error) { //check the error
 	case 0: //if it's zero, we are there
 		return true;
 	default:
-		return false;
+		return false; */
 	}
 }
 
@@ -257,12 +257,12 @@ bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 
 bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 	//return m_screwPIDController->OnTarget(); REMOVED FOR NOW
-	int error = m_armLeftTalon->GetClosedLoopError();
+	/* int error = m_armLeftTalon->GetClosedLoopError();
 	switch (error) { //check the error
 	case 0: //if it's zero, we are there
 		return true;
 	default:
-		return false;
+		return false; */
 	}
 }
 
