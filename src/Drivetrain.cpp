@@ -28,7 +28,7 @@ Drivetrain::Drivetrain(HotBot* bot)
     m_drive->SetExpiration(0.1);
 
     try {
-        m_gyro = new AHRS(SPI::Port::kMXP);
+        m_euro = new AHRS(SPI::Port::kMXP);
     } catch (std::exception ex ) {
         std::string err_string = "Error instantiating navX MXP:  ";
         err_string += ex.what();
@@ -37,7 +37,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
 
-	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_gyro, m_turnPIDWrapper);
+	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	        m_turnPID->SetInputRange(-180.0f,  180.0f);
 	        m_turnPID->SetOutputRange(-1.0, 1.0);
 	        m_turnPID->SetAbsoluteTolerance(kToleranceDegrees);
@@ -56,7 +56,7 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 }
 
 double Drivetrain::GetAngle(){
-	return(m_gyro->GetAngle());
+	return(m_euro->GetAngle());
 }
 
 double Drivetrain::GetDistancePos(){
