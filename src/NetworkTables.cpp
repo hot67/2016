@@ -2,27 +2,39 @@
 #include "NetworkTables/NetworkTable.h"
 using namespace std;
 
-// This code will be test the applications of Network Tables for camera use
-class Robot: public IterativeRobot
+// This code will test the applications of Network Tables for camera use
+class Camera: public IterativeRobot
 {
-	Joystick* stick; // only joystick
+	Joystick* driver;
 	Relay* light;
 public:
 	shared_ptr<NetworkTable> cameraTable;
-	Robot()
+	Camera()
 	{
-		stick = new Joystick(1);
+		driver = new Joystick(1);
 		light = new Relay(0);
-		cameraTable = NetworkTable::GetTable("GRIP/ContoursTest"); // Get values from set location in network table
+		cameraTable = NetworkTable::GetTable("GRIP/ContoursResults"); // Get values from set location in network table
 	}
 void TeleopPeriodic(){
+	if (driver->GetRawButton(1)){
+	int valo; // Placeholder value on pending actual values
+	int valf; // Second placeholder
 
 	double area = cameraTable->GetNumber("area"); // Reads value from table
 	double height = cameraTable->GetNumber("height"); // Reads value from table
 	double width = cameraTable->GetNumber("width"); // Reads value from table
+	double proportion = height/width;
 
-	while (area == 4322.5){
-	light->Set(Relay::kForward); // Tests correctness of readings
+	if ((valo <= area <= valf) && (valo <= proportion <= valf)){
+
+	} // Gets values and lines up accordingly (gonna need drivetrain)
+	else if ((valo <= area <= valf) && (valo <= proportion <= valf)){
+
+	} // Gonna need a lot more of these to accommodate for all viable shooting positions
+	else {
+
 	}
-}
+	};
+	}
 };
+
