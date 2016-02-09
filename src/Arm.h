@@ -4,6 +4,13 @@
 #include <RobotUtils/HotSubsystem.h>
 
 
+/*
+ * Notice: Currently a lot of PIDs, and simple math, is commented out.
+ * This is due to the fact that encoders will most likely be wired directly
+ * into the talon srx.
+ */
+
+
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
 
@@ -83,11 +90,11 @@ class Arm: public HotSubsystem {
 	CANTalon* m_screwLeftTalon; //Initializes Talons for Screwdrive
 	CANTalon* m_screwRightTalon;
 
-	Encoder* m_screwEncoder; //Initializes Encoders
-	Encoder* m_armEncoder;
+	//Encoder* m_screwEncoder; //Initializes Encoders. REMOVED FOR NOW
+	//Encoder* m_armEncoder;
 
-	PIDController* m_armPIDController; //Initializes PID Controllers
-	PIDController* m_screwPIDController;
+	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
+	//PIDController* m_screwPIDController;
 
 public:
 
