@@ -14,6 +14,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwRightTalon = new CANTalon(TALON_SCREW_R); //Screw Right Talon
 	m_screwLeftTalon = new CANTalon(TALON_SCREW_L); //Screw Left Talon
 
+
 	//m_screwEncoder = new Encoder(ENCODER_SCREW1,ENCODER_SCREW2); //Screw Encoder REMOVED FOR NOW
 	//m_armEncoder = new Encoder(ENCODER_ARM1,ENCODER_ARM2); //Arm Encoder REMOVED FOR NOW
 
@@ -23,15 +24,17 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	//m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller REMOVED FOR NOW
 
+	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
+	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 /*	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
 	m_armLeftTalon->SetI(ARM_I);
 	m_armLeftTalon->SetD(ARM_D);
-	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
+
 
 	m_screwLeftTalon->SetP(SCREW_P); //set the p, i and d
 	m_screwLeftTalon->SetI(SCREW_I);
 	m_screwLeftTalon->SetD(SCREW_D);
-	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
+
 
 	//m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller REMOVED FOR NOW */
 
@@ -271,6 +274,19 @@ bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 void Arm::ArmPrintData() {
 	//SmartDashboard::PutNumber("Arm Encoder", m_armEncoder->GetDistance()); //Brandon told me to write these. idk what they do. REMOVED FOR NOW
 	//SmartDashboard::PutNumber("Screw Encoder", m_screwEncoder->GetDistance()); REMOVED FOR NOW
+}
+
+void Arm::EnableArmMotionProfiling() {
+
+	float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
+	float position = m_armLeftTalon/4; //position in degrees
+	m_armTrajectoryPoints = Trajectory(current_velocity, position, m_armTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
+	m_armMotionProfile = MotionProfiling(m_armTrajectoryPoints, m_armLeftTalon,ARM_DELTA_TIME);
+
+}
+
+void Arm::SetArmMotionProfilePoint(float target) {
+	m_armTargetPos = target; //temporary code, sets the profile target to target
 }
 
 

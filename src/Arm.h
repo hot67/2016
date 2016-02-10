@@ -2,7 +2,7 @@
 #define SRC_ARM_H_
 
 #include <RobotUtils/HotSubsystem.h>
-
+#include "MotionProfiling.h"
 
 /*
  * Notice: Currently a lot of PIDs, and simple math, is commented out.
@@ -22,6 +22,11 @@
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
+
+#define ARM_MAX_A 1
+#define ARM_MAX_V 1
+#define ARM_DELTA_TIME 20
+
 #endif
 
 #ifdef COMPETITION_BOT
@@ -32,6 +37,11 @@
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
+
+#define ARM_MAX_A 1
+#define ARM_MAX_V 1
+#define ARM_DELTA_TIME 20
+
 #endif
 
 //PPRs
@@ -96,6 +106,10 @@ class Arm: public HotSubsystem {
 	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
 	//PIDController* m_screwPIDController;
 
+	MotionProfiling m_armMotionProfile;
+	Trajectory m_armTrajectoryPoints;
+	float m_armTargetPos;
+
 public:
 
 	Arm(HotBot* bot); //Constructor
@@ -121,6 +135,21 @@ public:
 
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
+
+	void EnableScrewMotionProfiling();
+	void SetScrewMotionProfilePoint(float target);
+	void DisableScrewMotionProfiling();
+	void PeriodicScrewTask();
+	void PauseScrewMotionProfiling();
+	void ResumeScrewMotionProfiling();
+
+	void EnableArmMotionProfiling();
+	void SetArmMotionProfilePoint(float target);
+	void DisableArmMotionProfiling();
+	void PeriodicArmTask();
+	void PauseArmMotionProfiling();
+	void ResumeArmMotionProfiling();
+
 protected:
 	void ArmPrintData();
 public:
