@@ -28,6 +28,7 @@ private:
 	PowerDistributionPanel* m_pdp;
 
 	Drivetrain* m_drivetrain;
+	Intake* m_intake;
 
 	bool f_armReset;
 
@@ -42,6 +43,7 @@ public:
 		m_operator = new HotJoystick(1);
 
 		m_drivetrain = new Drivetrain(this);
+		m_intake = new Intake(this);
 
 		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.2);
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
@@ -55,7 +57,7 @@ public:
 		m_autonChoice = kNothing;
 		//default auton choice is nothing
 
-		m_autonCase= 0;
+		m_autonCase = 0;
 		m_autonLoop = 0;
 	}
 
@@ -241,13 +243,13 @@ public:
 			//m_arm->EnableArmPID();
 
 			//m_rollForShootTime->Start();
-			//m_intake->SetRoller(0.1);
+			m_intake->SetRoller(0.1);
 
-			//if ((m_rollForShootTime->Get()) > 0.4){
-				//m_intake->SetRoller(0.0);
-				//m_rollForShootTime->Stop();
-				//m_rollForShootTime->Reset();
-			//}
+			if ((m_rollForShootTime->Get()) > 0.4){
+				m_intake->SetRoller(0.0);
+				m_rollForShootTime->Stop();
+				m_rollForShootTime->Reset();
+			}
 
 			//if (m_arm->ArmAtSetpoint()){
 				//m_intake->SetShooter(m_desiredShooterSpeed);
@@ -263,14 +265,14 @@ public:
 			//m_arm->SetArmPIDPoint(kCloseLowGoal);
 			//m_arm->EnableArmPID();
 
-			//m_rollForShootTime->Start();
-			//m_intake->SetRoller(0.1);
+			m_rollForShootTime->Start();
+			m_intake->SetRoller(0.1);
 
-			//if ((m_rollForShootTime->Get()) > 0.4){
-				//m_intake->SetRoller(0.0);
-				//m_rollForShootTime->Stop();
-				//m_rollForShootTime->Reset();
-			//}
+			if ((m_rollForShootTime->Get()) > 0.4){
+				m_intake->SetRoller(0.0);
+				m_rollForShootTime->Stop();
+				m_rollForShootTime->Reset();
+			}
 
 			//if (m_arm->ArmAtSetpoint()){
 				//m_intake->SetShooter(m_desiredShooterSpeed);
@@ -324,19 +326,19 @@ public:
 		 */
 
 		if (m_operator->AxisLT() > 0.2){
-			//m_intake->SetRoller(1.0);
+			m_intake->SetRoller(1.0);
 			//if operator presses left trigger, intake rollers roll out
 		}
 		else if ((m_operator->AxisRT()) > 0.2){
-			//m_intake->Intake();
+			m_intake->SetRoller(-1.0);
 			//if operator presses right trigger, intake rollers roll in
 		}
 		else if ((m_operator->GetPOV()) == 0){
-			//livespeed + 0.01
+			m_intake->IncreaseShooterSpeed();
 			//if operator presses up on DPAD, shooter speed increases by 1%
 		}
 		else if ((m_operator->GetPOV()) == 180){
-			//livespeed - 0.01
+			m_intake->DecreaseShooterSpeed();
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
 		else if ((m_driver->AxisRT()) > 0.2){
@@ -345,7 +347,7 @@ public:
 			//if driver presses right trigger, shoots
 		}
 		else if ((m_driver->AxisLT()) > 0.2){
-			//m_intake->Rollout();
+			m_intake->SetRoller(1.0);
 			//if driver presses left trigger, intake rollers roll out
 		}
 	}
