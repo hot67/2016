@@ -73,7 +73,7 @@ private:
 	DistancePIDWrapper* m_distancePIDWrapper;
 	TurnPIDWrapper* m_turnPIDWrapper;
 
-	AHRS* m_euro;
+	AHRS* m_gyro;
 
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;
