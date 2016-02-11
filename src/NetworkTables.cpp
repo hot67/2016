@@ -9,32 +9,37 @@ class Camera: public IterativeRobot
 	Relay* light;
 public:
 	shared_ptr<NetworkTable> cameraTable;
+	shared_ptr<CameraServer> camera;
 	Camera()
 	{
 		driver = new Joystick(1);
 		light = new Relay(0);
 		cameraTable = NetworkTable::GetTable("GRIP/ContoursResults"); // Get values from set location in network table
+		camera = CameraServer::GetInstance();
+		camera->SetQuality(50);
+		camera->SetSize(100);
 	}
 void TeleopPeriodic(){
+
 	if (driver->GetRawButton(1)){
-	int valo; // Placeholder value on pending actual values
-	int valf; // Second placeholder
+		float valo; // Placeholder value on pending actual values
+		float valf; // Second placeholder
 
-	double area = cameraTable->GetNumber("area"); // Reads value from table
-	double height = cameraTable->GetNumber("height"); // Reads value from table
-	double width = cameraTable->GetNumber("width"); // Reads value from table
-	double proportion = height/width;
+		double area = cameraTable->GetNumber("area"); // Reads value from table
+		double height = cameraTable->GetNumber("height"); // Reads value from table
+		double width = cameraTable->GetNumber("width"); // Reads value from table
+		double proportion = height/width;
 
-	if ((valo <= area <= valf) && (valo <= proportion <= valf)){
+		if ((valo <= area <= valf) && (valo <= proportion <= valf)){
 
-	} // Gets values and lines up accordingly (gonna need drivetrain)
-	else if ((valo <= area <= valf) && (valo <= proportion <= valf)){
+		} // Gets values and lines up accordingly (gonna need drivetrain)
+		else if ((valo <= area <= valf) && (valo <= proportion <= valf)){
 
-	} // Gonna need a lot more of these to accommodate for all viable shooting positions
-	else {
+		} // Gonna need a lot more of these to accommodate for all viable shooting positions
+		else {
 
-	}
+		}
 	};
-	}
+}
 };
 
