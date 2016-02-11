@@ -1,8 +1,8 @@
-#include <MotionProfiling.h>
+#include <ArmMotionProfiling.h>
 
 
 
-void MotionProfiling::MotionProfiling(Trajectory talonTrajectory,
+ArmMotionProfiling::ArmMotionProfiling(Trajectory* talonTrajectory,
 		CANTalon* inputTalon,
 		float deltaTime=ARM_DELTA_TIME) {
 	talonStatus = 0; //Initialize all of our default variables.
@@ -12,7 +12,7 @@ void MotionProfiling::MotionProfiling(Trajectory talonTrajectory,
 	m_deltaTime = deltaTime;
 }
 
-void MotionProfiling::BeginProfiling() {
+void ArmMotionProfiling::BeginProfiling() {
 
 	GenerateMotionProfiles();
 
@@ -25,7 +25,7 @@ void MotionProfiling::BeginProfiling() {
 
 
 
-void MotionProfiling::GiveBuffer() {
+void ArmMotionProfiling::GiveBuffer() {
 
 	CANTalon::TrajectoryPoint talonTrajectory;
 	for (int i = 0;i<pointsLen;++i) { //Iterate through the points
@@ -66,7 +66,7 @@ void MotionProfiling::GiveBuffer() {
 
 
 
-void MotionProfiling::EndProfiling() {
+void ArmMotionProfiling::EndProfiling() {
 
 	mpState = kStopped; //Motion profiling has ended
 	m_Talon->ClearMotionProfileTrajectories();
@@ -75,13 +75,13 @@ void MotionProfiling::EndProfiling() {
 
 }
 
-void MotionProfiling::Pause() { //Unpause the profile movement
+void ArmMotionProfiling::Pause() { //Unpause the profile movement
 
 	mpState = kPaused;
 	m_Talon->SetControlMode(CANTalon::kVoltage);
 }
 
-void MotionProfiling::UnPause() { //Pause the profile movement
+void ArmMotionProfiling::UnPause() { //Pause the profile movement
 
 	mpState = kBuffered;
 	m_Talon->SetControlMode(CANTalon::kMotionProfile); //Turns off motion profiling for now. Note this will NOT clear the buffer.
@@ -95,7 +95,7 @@ void MotionProfiling::UnPause() { //Pause the profile movement
 
 
 
-void MotionProfiling::Iterate() {
+void ArmMotionProfiling::Iterate() {
 	/*
 	 * Call this about half of the delta time, needs to process data before the most recent trajectory point finishes
 	 * Examples seem to show things wont work out if its called too much (teleop mode) so I think we will need to handle
@@ -117,12 +117,12 @@ void MotionProfiling::Iterate() {
 
 
 
-void MotionProfiling::Process() {
+void ArmMotionProfiling::Process() {
 	m_Talon->ProcessMotionProfileBuffer(); //Push top to bottom. Not super clear on usage of this, hopefully this is correctly used here.
 }
 
 
-void MotionProfiling::GenerateMotionProfiles() { //used with constructor where trajectory is a parameter.
+void ArmMotionProfiling::GenerateMotionProfiles() { //used with constructor where trajectory is a parameter.
 
 	int time = 0; //will be in increments of ARM_DELTA_TIME
 	int times_incremented = 0; //will be increments of 1
@@ -131,7 +131,7 @@ void MotionProfiling::GenerateMotionProfiles() { //used with constructor where t
 	do { //figure out how many points there will be. this will be equal to times_incremented.
 		times_incremented++;
 		time += m_deltaTime;
-	} while (m_trajectory.Position(time)!=0);
+	} while (m_trajectory->Position(time)!=0);
 
 	points = new float[times_incremented][3];
 
@@ -145,13 +145,13 @@ void MotionProfiling::GenerateMotionProfiles() { //used with constructor where t
 		 *Actual time. this will probably be in milliseconds, which should be considered with the units of m_trajectory's functions
 		 */
 
-		(*points)[times_incremented][0] = m_trajectory.Position(time*1000); //Put the data points into the motion profile array
-		(*points)[times_incremented][1] = m_trajectory.Velocity(time*1000);
+		(*points)[times_incremented][0] = m_trajectory->Position(time*1000); //Put the data points into the motion profile array
+		(*points)[times_incremented][1] = m_trajectory->Velocity(time*1000);
 		(*points)[times_incremented][2] = m_deltaTime;
 
 		times_incremented++; //Keeps track of the number of points. a bit simpler than a division problem.
 		time +=	m_deltaTime;
 
-	} while (m_trajectory.Position(time)!=0);
+	} while (m_trajectory->Position(time)!=0);
 
 }

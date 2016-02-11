@@ -14,6 +14,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwRightTalon = new CANTalon(TALON_SCREW_R); //Screw Right Talon
 	m_screwLeftTalon = new CANTalon(TALON_SCREW_L); //Screw Left Talon
 
+	m_armLightSensor = new DigitalInput(LIGHT_ARM);
 
 	//m_screwEncoder = new Encoder(ENCODER_SCREW1,ENCODER_SCREW2); //Screw Encoder REMOVED FOR NOW
 	//m_armEncoder = new Encoder(ENCODER_ARM1,ENCODER_ARM2); //Arm Encoder REMOVED FOR NOW
@@ -120,39 +121,49 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 	switch (setpoint) {
 	case kFarHighGoal: //Far away high goal
 		//m_armPIDController->SetSetpoint(FAR_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL);
+		//m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL);
+		m_armTargetPos = FAR_HIGH_GOAL;
 		break;
 	case kMediumLowGoal: //Medium away low goal
 		//m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL);
+		//m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL);
+		m_armTargetPos = MEDIUM_LOW_GOAL;
 		break;
 	case kCloseHighGoal: //Close high goal
 		//m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL);
+		//m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL);
+		m_armTargetPos = CLOSE_HIGH_GOAL;
 		break;
 	case kCarry: //Carry position
 		//m_armPIDController->SetSetpoint(CARRY); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CARRY);
+		//m_armLeftTalon->SetSetpoint(CARRY);
+		m_armTargetPos = CARRY;
 		break;
 	case kCloseLowGoal: //Close low goal
 		//m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL);
+		//m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL);
+		m_armTargetPos = CLOSE_LOW_GOAL;
 		break;
 	case kPickup: //Pickup position
 		//m_armPIDController->SetSetpoint(PICKUP); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(PICKUP);
+		//m_armLeftTalon->SetSetpoint(PICKUP);
+		m_armTargetPos = PICKUP;
 		break;
 	case kObstacle: //Obstacle self-lift position
 		//m_armPIDController->SetSetpoint(OBSTACLE); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(OBSTACLE);
+		//m_armLeftTalon->SetSetpoint(OBSTACLE);
+		m_armTargetPos = OBSTACLE;
+
 		break;
 	case kClimbArm: //Climb position
 		//m_armPIDController->SetSetpoint(CLIMB_ARM); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLIMB_ARM);
+		//m_armLeftTalon->SetSetpoint(CLIMB_ARM);
+		m_armTargetPos = CLIMB_ARM;
 		break;
 	case kResetArm: //put it back in the starting position
 		//m_armPIDController->SetSetpoint(0); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(0);
+		//m_armLeftTalon->SetSetpoint(0);
+		m_armTargetPos = 0;
 	}
 
 
@@ -167,15 +178,19 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 	switch (point) {
 	case kClimbScrew: //Climb position
 		//m_screwPIDController->SetSetpoint(CLIMB_SCREW); REMOVED FOR NOW
-		m_screwLeftTalon->SetSetpoint(CLIMB_SCREW);
+		//m_armLeftTalon->SetSetpoint(CLIMB_SCREW);
+		m_screwTargetPos = CLIMB_SCREW;
 		break;
 	case kRetractScrew: //Retract the screw
 		//m_screwPIDController->SetSetpoint(RETRACT_SCREW); REMOVED FOR NOW
-		m_screwLeftTalon->SetSetpoint(RETRACT_SCREW);
+		//m_armLeftTalon->SetSetpoint(RETRACT_SCREW);
+		m_screwTargetPos = RETRACT_SCREW;
 		break;
 	case kResetScrew: //put it back in the starting position
 		//m_screwPIDController->SetSetpoint(0); REMOVED FOR NOW
-		m_screwLeftTalon->SetSetpoint(0);
+		//m_armLeftTalon->SetSetpoint(0);
+		m_screwTargetPos = 0;
+
 	}
 
 
@@ -282,6 +297,16 @@ void Arm::ArmPrintData() {
 	//SmartDashboard::PutNumber("Screw Encoder", m_screwEncoder->GetDistance()); REMOVED FOR NOW
 }
 
+void Arm::EnableScrewMotionProfiling() {
+
+	delete m_screwTrajectoryPoints;
+	delete m_screwMotionProfile;
+	float current_velocity = (m_screwLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
+	float position = m_screwLeftTalon/4; //position in degrees
+	m_screwTrajectoryPoints = new Trajectory(current_velocity, position, m_screwTargetPos, SCREW_MAX_V, SCREW_MAX_A);
+	m_armMotionProfile = new ArmMotionProfiling(m_armTrajectoryPoints, m_screwLeftTalon, SCREW_DELTA_TIME);
+}
+
 void Arm::EnableArmMotionProfiling() {
 
 
@@ -290,7 +315,7 @@ void Arm::EnableArmMotionProfiling() {
 	float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
 	float position = m_armLeftTalon/4; //position in degrees
 	m_armTrajectoryPoints = new Trajectory(current_velocity, position, m_armTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
-	m_armMotionProfile = new MotionProfiling((*m_armTrajectoryPoints), m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
+	m_armMotionProfile = new ArmMotionProfiling((*m_armTrajectoryPoints), m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
 	m_armMotionProfile->BeginProfiling();
 }
 
@@ -300,6 +325,12 @@ void Arm::SetArmMotionProfilePoint(float target) {
 
 void Arm::PeriodicArmTask() {
 	m_armMotionProfile->Iterate(); //call this at about half the delta time.
+}
+
+bool Arm::IsLightSensorTriggered() {
+
+	return m_armLightSensor->Get();
+
 }
 
 

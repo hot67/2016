@@ -32,7 +32,7 @@ enum MotionProfileStates { //States of the motion profile. used during iteration
 	kPaused = 2
 };
 
-class MotionProfiling {
+class ArmMotionProfiling {
 
 	CANTalon * m_Talon; //The talon we are going to profile
 
@@ -44,7 +44,7 @@ class MotionProfiling {
 
 	MotionProfileStates mpState; //State of the motion profiling
 
-	Trajectory m_trajectory;
+	Trajectory* m_trajectory;
 
 	float m_deltaTime; //Delta Time!! Change in time over time.
 
@@ -73,7 +73,7 @@ public:
 	 * Generate the motion profile for said point.
 	 * Can be used instead of passing an array to the constructor
 	 */
-	MotionProfiling(Trajectory talonTrajectory,
+	ArmMotionProfiling(Trajectory* talonTrajectory,
 			CANTalon* inputTalon,
 			float deltaTime=ARM_DELTA_TIME);
 	/*

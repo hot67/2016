@@ -1,8 +1,8 @@
 #ifndef SRC_ARM_H_
 #define SRC_ARM_H_
 
+#include <ArmMotionProfiling.h>
 #include <RobotUtils/HotSubsystem.h>
-#include "MotionProfiling.h"
 
 /*
  * Notice: Currently a lot of PIDs, and simple math, is commented out.
@@ -27,6 +27,10 @@
 #define ARM_MAX_V 1
 #define ARM_DELTA_TIME 20
 
+#define SCREW_MAX_A 1
+#define SCREW_MAX_V 1
+#define SCREW_DELTA_TIME 20
+
 #endif
 
 #ifdef COMPETITION_BOT
@@ -41,6 +45,10 @@
 #define ARM_MAX_A 1
 #define ARM_MAX_V 1
 #define ARM_DELTA_TIME 20
+
+#define SCREW_MAX_A 1
+#define SCREW_MAX_V 1
+#define SCREW_DELTA_TIME 1
 
 #endif
 
@@ -74,6 +82,9 @@
 #define TALON_ARM_R 12
 #define TALON_ARM_L 11
 
+//Light sensor id
+#define LIGHT_ARM 9
+
 enum ArmSetPoint {
 	kFarHighGoal = 1, //45 degrees
 	kMediumLowGoal = 2, //50 degrees
@@ -100,15 +111,22 @@ class Arm: public HotSubsystem {
 	CANTalon* m_screwLeftTalon; //Initializes Talons for Screwdrive
 	CANTalon* m_screwRightTalon;
 
+	DigitalInput* m_armLightSensor;
+
 	//Encoder* m_screwEncoder; //Initializes Encoders. REMOVED FOR NOW
 	//Encoder* m_armEncoder;
 
 	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
 	//PIDController* m_screwPIDController;
 
-	MotionProfiling *m_armMotionProfile;
+	ArmMotionProfiling *m_armMotionProfile; //Initialize the motion profile variables
 	Trajectory *m_armTrajectoryPoints;
 	float m_armTargetPos;
+
+	ArmMotionProfiling *m_screwMotionProfile; //Initialize the motion profile variables
+	Trajectory *m_screwTrajectoryPoints;
+	float m_screwTargetPos;
+
 
 public:
 
@@ -136,23 +154,22 @@ public:
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
 
-	void EnableScrewMotionProfiling();
+	void EnableScrewMotionProfiling(); //A series of functions to enable, disable, and manage motion profiling.
 	void SetScrewMotionProfilePoint(float target);
 	void DisableScrewMotionProfiling();
 	void PeriodicScrewTask();
 	void PauseScrewMotionProfiling();
 	void ResumeScrewMotionProfiling();
 
-	void EnableArmMotionProfiling();
+	void EnableArmMotionProfiling(); //A series of functions to enable, disable, and manage motion profiling.
 	void SetArmMotionProfilePoint(float target);
 	void DisableArmMotionProfiling();
 	void PeriodicArmTask();
 	void PauseArmMotionProfiling();
 	void ResumeArmMotionProfiling();
 
-protected:
-	void ArmPrintData();
-public:
+	void ArmPrintData(); //Print the encoder values to smart dashboard.
+
 	float GetArmEncoderRate(); //Returns the arm encoder rate
 	float GetScrewEncoderRate(); //Returns the screw encoder rate
 
@@ -163,6 +180,7 @@ public:
 	void DisableScrewPID(); //Disable the PID for the screw
 	float RC(float degrees); //Radian Convertifier. May not end up being used
 
+	bool IsLightSensorTriggered();
 
 };
 
