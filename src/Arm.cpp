@@ -26,6 +26,10 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
+
+	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
+	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
+
 /*	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
 	m_armLeftTalon->SetI(ARM_I);
 	m_armLeftTalon->SetD(ARM_D);
@@ -251,8 +255,10 @@ bool Arm::ArmAtSetPoint() { //If arm is at the given set point
 	case 0: //if it's zero, we are there
 		return true;
 	default:
-		return false; */
-	}
+		return false;
+	} */
+
+
 }
 
 
@@ -265,8 +271,8 @@ bool Arm::ScrewAtSetPoint() { //If screw is at the given set point
 	case 0: //if it's zero, we are there
 		return true;
 	default:
-		return false; */
-	}
+		return false;
+	} */
 }
 
 
@@ -278,15 +284,22 @@ void Arm::ArmPrintData() {
 
 void Arm::EnableArmMotionProfiling() {
 
+
+	delete m_armTrajectoryPoints;
+	delete m_armMotionProfile;
 	float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
 	float position = m_armLeftTalon/4; //position in degrees
-	m_armTrajectoryPoints = Trajectory(current_velocity, position, m_armTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
-	m_armMotionProfile = MotionProfiling(m_armTrajectoryPoints, m_armLeftTalon,ARM_DELTA_TIME);
-
+	m_armTrajectoryPoints = new Trajectory(current_velocity, position, m_armTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
+	m_armMotionProfile = new MotionProfiling((*m_armTrajectoryPoints), m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
+	m_armMotionProfile->BeginProfiling();
 }
 
 void Arm::SetArmMotionProfilePoint(float target) {
 	m_armTargetPos = target; //temporary code, sets the profile target to target
+}
+
+void Arm::PeriodicArmTask() {
+	m_armMotionProfile->Iterate(); //call this at about half the delta time.
 }
 
 

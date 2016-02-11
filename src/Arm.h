@@ -106,8 +106,8 @@ class Arm: public HotSubsystem {
 	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
 	//PIDController* m_screwPIDController;
 
-	MotionProfiling m_armMotionProfile;
-	Trajectory m_armTrajectoryPoints;
+	MotionProfiling *m_armMotionProfile;
+	Trajectory *m_armTrajectoryPoints;
 	float m_armTargetPos;
 
 public:

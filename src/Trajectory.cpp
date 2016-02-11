@@ -32,6 +32,7 @@ Trajectory::Trajectory(float initialV, float initialPos, float goal, float maxV,
 
 }
 
+
 float Trajectory::Velocity(float time) { //returns the velocity given a time.
 
 	if (time<time_1) { //Accelerating
