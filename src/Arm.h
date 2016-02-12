@@ -127,7 +127,6 @@ class Arm: public HotSubsystem {
 	Trajectory *m_screwTrajectoryPoints;
 	float m_screwTargetPos;
 
-
 public:
 
 	Arm(HotBot* bot); //Constructor
@@ -181,6 +180,19 @@ public:
 	float RC(float degrees); //Radian Convertifier. May not end up being used
 
 	bool IsLightSensorTriggered();
+
+	class ARMPIDController : PIDOutput { //A PIDOutput wrapper to handle all autonomous output to the motors.
+
+		CANTalon * m_talonLeft;
+		CANTalon* m_talonRight;
+	public:
+
+		ARMPIDController(CANTalon * talonLeft, CANTalon * talonRight); //just going to set the talons
+		void PIDWrite(float output); //actually does the output handling.
+	};
+private:
+	ARMPIDController * m_armController; //The shoulder output wrapper
+	ARMPIDController * m_screwController; //The screwdrive output wrapper
 
 };
 

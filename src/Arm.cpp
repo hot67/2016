@@ -16,6 +16,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	m_armLightSensor = new DigitalInput(LIGHT_ARM);
 
+
 	//m_screwEncoder = new Encoder(ENCODER_SCREW1,ENCODER_SCREW2); //Screw Encoder REMOVED FOR NOW
 	//m_armEncoder = new Encoder(ENCODER_ARM1,ENCODER_ARM2); //Arm Encoder REMOVED FOR NOW
 
@@ -48,7 +49,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
  * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
  */
 
-
+/*
 	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_screwRightTalon->Set(TALON_SCREW_L);
 	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert??? (we don't know yet)
@@ -56,7 +57,10 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_armRightTalon->Set(TALON_ARM_L);
 	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
+*/
 
+	m_armController = new ARMPIDController(m_armLeftTalon, m_armRightTalon); //Initialize our output controller
+	m_screwController = new ARMPIDController(m_screwLeftTalon, m_screwRightTalon); //Initialize the other one
 
 }
 
@@ -71,14 +75,14 @@ Arm::~Arm() {
 
 
 void Arm::SetArm(float speed) {
-	m_armLeftTalon->Set(speed);
+	m_armController->PIDWrite(speed);
 }
 
 
 
 
 void Arm::SetScrew(float speed) {
-	m_screwLeftTalon->Set(speed);
+	m_screwController->PIDWrite(speed);
 }
 
 
@@ -115,7 +119,7 @@ void Arm::DisableScrewPID() {
 
 
 
-void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
+void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILING POINTS
 
 
 	switch (setpoint) {
@@ -172,7 +176,7 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 
 
 
-void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
+void Arm::SetScrewPIDPoint(ScrewSetPoint point) { //CURRENTLY DOES MOTION PROFILING POINTS
 
 
 	switch (point) {
@@ -297,6 +301,8 @@ void Arm::ArmPrintData() {
 	//SmartDashboard::PutNumber("Screw Encoder", m_screwEncoder->GetDistance()); REMOVED FOR NOW
 }
 
+
+
 void Arm::EnableScrewMotionProfiling() {
 
 	delete m_screwTrajectoryPoints;
@@ -306,6 +312,8 @@ void Arm::EnableScrewMotionProfiling() {
 	m_screwTrajectoryPoints = new Trajectory(current_velocity, position, m_screwTargetPos, SCREW_MAX_V, SCREW_MAX_A);
 	m_armMotionProfile = new ArmMotionProfiling(m_armTrajectoryPoints, m_screwLeftTalon, SCREW_DELTA_TIME);
 }
+
+
 
 void Arm::EnableArmMotionProfiling() {
 
@@ -319,17 +327,94 @@ void Arm::EnableArmMotionProfiling() {
 	m_armMotionProfile->BeginProfiling();
 }
 
+void Arm::DisableScrewMotionProfiling() {
+
+
+	m_screwMotionProfile->EndProfiling();
+	delete m_screwTrajectoryPoints; //Clean out our motion profile.
+	delete m_screwMotionProfile;
+
+}
+
+
+
+void Arm::DisableArmMotionProfiling() {
+
+
+	m_armMotionProfile->EndProfiling();
+	delete m_armTrajectoryPoints; //Clean out our motion profile
+	delete m_screwMotionProfile;
+}
+
+
+
+void Arm::PauseArmMotionProfiling() {
+
+	m_armMotionProfile->Pause();
+
+}
+
+
+void Arm::PauseScrewMotionProfiling() {
+
+	m_screwMotionProfile->Pause();
+
+}
+
+
+void Arm::ResumeScrewMotionProfiling() {
+
+	m_screwMotionProfile->UnPause();
+
+}
+
+
+void Arm::ResumeArmMotionProfiling() {
+
+	m_armMotionProfile->UnPause();
+
+}
+
+
+
 void Arm::SetArmMotionProfilePoint(float target) {
 	m_armTargetPos = target; //temporary code, sets the profile target to target
 }
+
+
+
+void Arm::SetScrewMotionProfilePoint(float target) {
+	m_screwTargetPos = target; //same
+}
+
+
 
 void Arm::PeriodicArmTask() {
 	m_armMotionProfile->Iterate(); //call this at about half the delta time.
 }
 
+void Arm::PeriodicScrewTask() {
+	m_screwMotionProfile->Iterate();
+}
+
 bool Arm::IsLightSensorTriggered() {
 
 	return m_armLightSensor->Get();
+
+}
+
+
+Arm::ARMPIDController::ARMPIDController(CANTalon * talonLeft, CANTalon * talonRight) {
+
+	m_talonLeft = talonLeft;
+	m_talonRight = talonRight;
+
+}
+
+void Arm::ARMPIDController::PIDWrite(float output) {
+
+	m_talonLeft->Set(-output);
+	m_talonRight->Set(output);
 
 }
 
