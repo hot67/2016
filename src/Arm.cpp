@@ -2,6 +2,7 @@
 
 
 
+
 Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 
@@ -29,7 +30,8 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 
-	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
+
+	m_armLeftTalon->ConfigEncoderCodesPerRev(.1); //Math might be off here?  We are setting how many times the encoder ticks per motor revolution.
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
 	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
@@ -92,14 +94,14 @@ void Arm::SetScrew(float speed) {
 
 void Arm::EnableArmPID() {
 	//m_armPIDController->Enable(); REMOVED FOR NOW
-//	m_armLeftTalon->Enable(); //i think this is how we enable pid controllers.
+	m_armLeftTalon->Enable(); //i think this is how we enable pid controllers.
 }
 
 
 
 void Arm::DisableArmPID() {
 	//m_armPIDController->Disable(); REMOVED FOR NOW
-	//m_armLeftTalon->Disable(); //disable the pidcontroller
+	m_armLeftTalon->Disable(); //disable the pidcontroller
 }
 
 
@@ -107,7 +109,7 @@ void Arm::DisableArmPID() {
 
 void Arm::EnableScrewPID() {
 	//m_screwPIDController->Enable(); REMOVED FOR NOW
-//	m_screwLeftTalon->Enable();
+	m_screwLeftTalon->Enable();
 }
 
 
@@ -115,7 +117,7 @@ void Arm::EnableScrewPID() {
 
 void Arm::DisableScrewPID() {
 	//m_screwPIDController->Disable(); REMOVED FOR NOW
-//	m_screwLeftTalon->Disable();
+	m_screwLeftTalon->Disable();
 }
 
 

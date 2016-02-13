@@ -27,9 +27,11 @@
 #define ARM_MAX_V 1
 #define ARM_DELTA_TIME 20
 
+//THESE CONSTANTS MUST BE IN ENCODER TICKS!!
 #define SCREW_MAX_A 1
 #define SCREW_MAX_V 1
 #define SCREW_DELTA_TIME 20
+
 #define LIGHT_SENSOR_POS 1
 
 #endif
@@ -43,6 +45,7 @@
 #define SCREW_I 0
 #define SCREW_D 0
 
+//THESE CONSTANTS MUST BE IN ENCODER TICKS!!
 #define ARM_MAX_A 1
 #define ARM_MAX_V 1
 #define ARM_DELTA_TIME 20
@@ -58,7 +61,7 @@
 #define ARM_ENCODER_PULSE_PER_REVOLUTION 1
 #define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
 
-//Values for angles of Arm Positioning (degrees)
+//Values for angles of Arm Positioning (ENCODER TICKS)
 #define FAR_HIGH_GOAL 45
 #define CLIMB_ARM 97.126
 #define MEDIUM_LOW_GOAL 50
@@ -88,14 +91,14 @@
 #define LIGHT_ARM 9
 
 enum ArmSetPoint {
-	kFarHighGoal = 1, //45 degrees
-	kMediumLowGoal = 2, //50 degrees
-	kCloseHighGoal = 3, //60 degrees
-	kCarry = 4, //10 degrees
-	kCloseLowGoal = 5, //15 degrees
-	kPickup = 6, //unknown
-	kObstacle = 7, //-10 degrees
-	kClimbArm = 8, //97 degrees
+	kFarHighGoal = 1, //45 degrees 			(relative, we need this to be finally in ENCODER TICKS)
+	kMediumLowGoal = 2, //50 degrees 		(relative, we need this to be finally in ENCODER TICKS)
+	kCloseHighGoal = 3, //60 degrees 		(relative, we need this to be finally in ENCODER TICKS)
+	kCarry = 4, //10 degrees 				(relative, we need this to be finally in ENCODER TICKS)
+	kCloseLowGoal = 5, //15 degrees 		(relative, we need this to be finally in ENCODER TICKS)
+	kPickup = 6, //unknown 					(relative, we need this to be finally in ENCODER TICKS)
+	kObstacle = 7, //-10 degrees 			(relative, we need this to be finally in ENCODER TICKS)
+	kClimbArm = 8, //97 degrees				(relative, we need this to be finally in ENCODER TICKS)
 	kResetArm = 0
 };
 
