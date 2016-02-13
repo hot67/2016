@@ -14,12 +14,12 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
+	m_shift = new Solenoid(SHIFT_ID);
+
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
 
 	m_timer = new Timer;
-
-	//m_gyro = new Gyro;
 
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
 	m_drive->SetSafetyEnabled(false);
@@ -29,15 +29,21 @@ Drivetrain::Drivetrain(HotBot* bot)
 
     m_drive->SetExpiration(0.1);
 
-    //m_gyro = new AHRS(SPI::Port::kMXP);
+    try {
+        m_euro = new AHRS(SPI::Port::kMXP);
+    } catch (std::exception ex ) {
+        std::string err_string = "Error instantiating navX MXP:  ";
+        err_string += ex.what();
+        DriverStation::ReportError(err_string.c_str());
+    }
 
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
 
-	/*m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_gyro, m_turnPIDWrapper);
+	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	        m_turnPID->SetInputRange(-180.0f,  180.0f);
 	        m_turnPID->SetOutputRange(-1.0, 1.0);
 	        m_turnPID->SetAbsoluteTolerance(kToleranceDegrees);
-	        m_turnPID->SetContinuous(true); */
+	        m_turnPID->SetContinuous(true);
 }
 
 void Drivetrain::ArcadeDrive(double speed, double angle){
@@ -52,7 +58,7 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 }
 
 double Drivetrain::GetAngle(){
-	return 0; //(m_gyro->GetAngle());
+	return(m_euro->GetAngle());
 }
 
 double Drivetrain::GetDistancePos(){
@@ -85,6 +91,47 @@ void Drivetrain::SetSpeed(double speed) {
 
 void Drivetrain::SetTurn(double turn) {
 	ArcadeDrive(m_speed, turn);
+}
+
+double Drivetrain::GetDistancePID () {
+	return (m_distancePIDWrapper->PIDGet());
+}
+
+bool Drivetrain::DistanceAtSetpoint () {
+	return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2;
+}
+
+void Drivetrain::SetShift(bool on){
+	m_shift->Set(on);
+}
+
+void Drivetrain::EnableAngle(){
+	m_turnPID->Enable();
+}
+
+void Drivetrain::DisableAngle(){
+	m_turnPID->Disable();
+}
+
+void Drivetrain::ResetGyroAngle(){
+	m_euro->Reset();
+}
+
+void Drivetrain::EnableDistance(){
+	m_distancePID->Enable();
+}
+
+void Drivetrain::DisableDistance(){
+	m_distancePID->Disable();
+}
+
+bool Drivetrain::IsEnabledDistance(){
+	return (m_distancePID->IsEnabled());
+}
+
+void Drivetrain::ResetPIDs(){
+	DisableDistance();
+	DisableAngle();
 }
 
 Drivetrain::~Drivetrain() {
