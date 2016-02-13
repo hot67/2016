@@ -32,7 +32,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
-/*	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
+	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
 	m_armLeftTalon->SetI(ARM_I);
 	m_armLeftTalon->SetD(ARM_D);
 
@@ -49,7 +49,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
  * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
  */
 
-/*
+
 	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_screwRightTalon->Set(TALON_SCREW_L);
 	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert??? (we don't know yet)
@@ -57,7 +57,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
 	m_armRightTalon->Set(TALON_ARM_L);
 	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
-*/
+
 
 	m_armController = new ARMPIDController(m_armLeftTalon, m_armRightTalon); //Initialize our output controller
 	m_screwController = new ARMPIDController(m_screwLeftTalon, m_screwRightTalon); //Initialize the other one
