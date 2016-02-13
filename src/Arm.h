@@ -2,7 +2,7 @@
 #define SRC_ARM_H_
 
 #include <RobotUtils/HotSubsystem.h>
-#include "MotionProfiling.h"
+//#include "MotionProfiling.h"
 
 /*
  * Notice: Currently a lot of PIDs, and simple math, is commented out.
@@ -106,8 +106,8 @@ class Arm: public HotSubsystem {
 	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
 	//PIDController* m_screwPIDController;
 
-	MotionProfiling *m_armMotionProfile;
-	Trajectory *m_armTrajectoryPoints;
+	//MotionProfiling *m_armMotionProfile;
+	//Trajectory *m_armTrajectoryPoints;
 	float m_armTargetPos;
 
 public:
@@ -135,6 +135,8 @@ public:
 
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
+
+	float GetArmRate(); //returns the arm encoder speed
 
 	void EnableScrewMotionProfiling();
 	void SetScrewMotionProfilePoint(float target);

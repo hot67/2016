@@ -11,7 +11,7 @@
 #include "WPILib.h"
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
-#include "AHRS.h"
+//#include "AHRS.h"
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
 
@@ -73,7 +73,7 @@ private:
 	DistancePIDWrapper* m_distancePIDWrapper;
 	TurnPIDWrapper* m_turnPIDWrapper;
 
-	AHRS* m_gyro;
+	//AHRS* m_gyro;
 
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;

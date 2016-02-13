@@ -52,9 +52,9 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwRightTalon->Set(TALON_SCREW_L);
 	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert??? (we don't know yet)
 
-	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
-	m_armRightTalon->Set(TALON_ARM_L);
-	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
+	// m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
+	// m_armRightTalon->Set(TALON_ARM_L);
+	// m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
 
 
 }
@@ -70,7 +70,8 @@ Arm::~Arm() {
 
 
 void Arm::SetArm(float speed) {
-	m_armLeftTalon->Set(speed);
+	m_armLeftTalon->Set(-speed);
+	m_armRightTalon->Set(speed);
 }
 
 
@@ -230,7 +231,9 @@ float Arm::GetScrewSetPoint() {
 }
 
 
-
+float Arm::GetArmRate() {
+	return m_screwLeftTalon->GetSpeed();
+}
 
 float Arm::GetScrewPos() {
 	//return m_screwEncoder->Get(); //returns the current encoder value REMOVED FOR NOW
@@ -285,13 +288,13 @@ void Arm::ArmPrintData() {
 void Arm::EnableArmMotionProfiling() {
 
 
-	delete m_armTrajectoryPoints;
+	/* delete m_armTrajectoryPoints;
 	delete m_armMotionProfile;
 	float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
 	float position = m_armLeftTalon/4; //position in degrees
 	m_armTrajectoryPoints = new Trajectory(current_velocity, position, m_armTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
 	m_armMotionProfile = new MotionProfiling((*m_armTrajectoryPoints), m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
-	m_armMotionProfile->BeginProfiling();
+	m_armMotionProfile->BeginProfiling(); */
 }
 
 void Arm::SetArmMotionProfilePoint(float target) {
@@ -299,7 +302,7 @@ void Arm::SetArmMotionProfilePoint(float target) {
 }
 
 void Arm::PeriodicArmTask() {
-	m_armMotionProfile->Iterate(); //call this at about half the delta time.
+	/* m_armMotionProfile->Iterate(); //call this at about half the delta time. */
 }
 
 
