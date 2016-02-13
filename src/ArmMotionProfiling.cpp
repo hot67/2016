@@ -10,6 +10,7 @@ ArmMotionProfiling::ArmMotionProfiling(Trajectory* talonTrajectory,
 	MP = false; //probably going to be removed. redundant
 	m_trajectory = talonTrajectory;
 	m_deltaTime = deltaTime;
+	m_Talon = inputTalon;
 }
 
 void ArmMotionProfiling::BeginProfiling() {
