@@ -409,12 +409,10 @@ void Arm::EnableArmMotionProfiling() {
 
 	if ( (!armMPEnabled) && (!armPIDEnabled) ) {
 
-		delete m_armTrajectoryPoints;
-		delete m_armMotionProfile;
 		float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
 		float position = m_armLeftTalon/4; //position in degrees
 		m_armTrajectoryPoints = new Trajectory(current_velocity, position, m_armMPTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
-		m_armMotionProfile = new ArmMotionProfiling((*m_armTrajectoryPoints), m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
+		m_armMotionProfile = new ArmMotionProfiling(m_armTrajectoryPoints, m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
 		m_armMotionProfile->BeginProfiling();
 		armMPEnabled = true;
 

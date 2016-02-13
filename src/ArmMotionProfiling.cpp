@@ -156,3 +156,8 @@ void ArmMotionProfiling::GenerateMotionProfiles() { //used with constructor wher
 	} while (m_trajectory->Position(time)!=0);
 
 }
+
+
+bool ArmMotionProfiling::IsEnabled() {
+	return MP;
+}

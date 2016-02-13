@@ -66,6 +66,8 @@ public:
 
 	void Process(); //Process the motion profile buffer
 
+	bool IsEnabled();
+
 
 	void GenerateMotionProfiles(); //Generate the motion profile points
 
