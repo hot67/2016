@@ -30,6 +30,7 @@
 #define SCREW_MAX_A 1
 #define SCREW_MAX_V 1
 #define SCREW_DELTA_TIME 20
+#define LIGHT_SENSOR_POS 1
 
 #endif
 
@@ -49,6 +50,7 @@
 #define SCREW_MAX_A 1
 #define SCREW_MAX_V 1
 #define SCREW_DELTA_TIME 1
+#define LIGHT_SENSOR_POS 1
 
 #endif
 
@@ -121,11 +123,17 @@ class Arm: public HotSubsystem {
 
 	ArmMotionProfiling *m_armMotionProfile; //Initialize the motion profile variables
 	Trajectory *m_armTrajectoryPoints;
-	float m_armTargetPos;
+	float m_armMPTargetPos;
 
 	ArmMotionProfiling *m_screwMotionProfile; //Initialize the motion profile variables
 	Trajectory *m_screwTrajectoryPoints;
-	float m_screwTargetPos;
+	float m_screwMPTargetPos;
+
+	bool armMPEnabled;
+	bool screwMPEnabled;
+
+	bool armPIDEnabled;
+	bool screwPIDEnabled;
 
 public:
 
@@ -141,14 +149,26 @@ public:
 	 */
 	void SetScrewPIDPoint(ScrewSetPoint setpoint);
 
-	float GetScrewSetPoint(); //Returns the Setpoint of the Screw PIDController
-	float GetArmSetPoint(); //Returns the Setpoint of the Arm PIDController
+	void SetArmMPPoint(ArmSetPoint setpoint);
+	/*
+	 * same functions, but using motion profiling!
+	 */
+	void SetScrewMpPoint(ScrewSetPoint setpoint);
+
+	float GetScrewPIDSetPoint(); //Returns the Setpoint of the Screw PIDController
+	float GetArmPIDSetPoint(); //Returns the Setpoint of the Arm PIDController
+
+	float GetArmMPSetPoint(); //same functions, but for motion profiling.
+	float GetScrewMPSetPoint(); //same functions, but for motion profiling.
 
 	float GetScrewPos(); //Returns the current encoder value of the screw
 	float GetArmPos(); //Returns the current encoder value of the arm
 
-	bool ArmAtSetPoint(); //Checks if arm is at given set point
-	bool ScrewAtSetPoint(); //Checks if screw is at given set point
+	bool ArmAtPIDSetPoint(); //Checks if arm is at given set point (pid)
+	bool ScrewAtPIDSetPoint(); //Checks if screw is at given set point (pid)
+
+	bool ArmAtMPSetPoint(); //checks if the arm is at the given set point (motion profiling)
+	bool ScrewAtMPSetPoint(); //checks if the screw is at the given set point (motion profiling)
 
 	void ZeroArmEncoder(); //zero the arm encoder
 	void ZeroScrewEncoder(); //zero the screw encoder
