@@ -1,7 +1,6 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Intake.h"
-#include "Arm.h"
 #include "Drivetrain.h"
 
 /*TO DO
@@ -30,7 +29,6 @@ private:
 
 	Drivetrain* m_drivetrain;
 	Intake* m_intake;
-	Arm* m_arm;
 
 	bool f_armReset;
 
@@ -46,7 +44,6 @@ public:
 
 		m_drivetrain = new Drivetrain(this);
 		m_intake = new Intake(this);
-		m_arm = new Arm(this);
 
 		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.2);
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
@@ -135,9 +132,12 @@ public:
 				//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
 				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
+
 				if (m_drivetrain->DistanceAtSetpoint())
 					m_drivetrain->DisableDistance();
+
 				m_autonCase++;
+
 		} */
 
 	}
@@ -161,17 +161,22 @@ public:
 					//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
 					if (!m_drivetrain->IsEnabledDistance())
 						m_drivetrain->EnableDistance();
+
 					if (m_drivetrain->DistanceAtSetpoint())
 						m_drivetrain->DisableDistance();
+
 					m_autonCase++;
 				case 3:
 					//m_drivetrain->SetDistance(); -1 ft, -4 ft for outerworks, -1 ft into neutral zone
 					//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
 					if (!m_drivetrain->IsEnabledDistance())
 						m_drivetrain->EnableDistance();
+
 					if (m_drivetrain->DistanceAtSetpoint())
 						m_drivetrain->DisableDistance();
+
 					m_autonCase++;
+
 			*/
 	}
 
@@ -184,20 +189,6 @@ public:
 	void TeleopPeriodic()
 	{
 		TeleopDrive();
-		TeleopArm();
-		TeleopIntake();
-
-		if (m_operator->ButtonX())
-		{
-			m_intake->SetShooter(1.0);
-		}
-		else
-			m_intake->SetShooter(0.0);
-
-		SmartDashboard::PutNumber("Arm Encoder Value", m_arm->GetArmPos());
-		SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmEncoderRate());
-
-
 	}
 
 	void TestPeriodic()
@@ -207,6 +198,10 @@ public:
 	void TeleopDrive ()
 	{
 		m_drivetrain->ArcadeDrive(m_driver->AxisLX(), m_driver->AxisRX());
+		if ((m_driver->ButtonLB())){
+			m_drivetrain->SetShift(false);
+			//if driver holds left bumper, downshift is active
+		}
 	}
 
 	void TeleopArm ()
@@ -293,6 +288,11 @@ public:
 			//m_arm->EnableArmPID();
 			//if operator presses button Y, arm will set to High Goal angle
 		}
+		else if (m_operator->ButtonX()){
+			//m_arm->SetArmPIDPoint(kCarry);
+			//m_arm->EnableArmPID();
+			//if operator presses button X, arm will set to Carry angle
+		}
 		else if (m_operator->ButtonA()){
 			//m_arm->SetArmPIDPoint(kPickup);
 			//m_arm->EnableArmPID();
@@ -304,16 +304,13 @@ public:
 			//if operator presses button B, arm will set to Close High Goal angle
 		}
 		else if (m_operator->AxisLY() > 0.2){
-			//m_arm->SetScrew(m_operator->AxisRY());
+			//m_arm->SetScrew(m_operator->AxisLY());
 			//if operator uses left joystick up and down, will set manual screw
 		}
-		else if (fabs(m_operator->AxisRY()) > 0.2){
-			m_arm->SetArm(m_operator->GetRawAxis(5));
+		else if (m_operator->AxisRY() > 0.2){
+			//m_arm->SetArm(m_operator->AxisLY());
 			//if operator uses right joystick up and down, will set manual arm
 		}
-		else
-			m_arm->SetArm(0);
-			//m_intake->SetShooter(0.);
 	}
 
 	void TeleopIntake (){

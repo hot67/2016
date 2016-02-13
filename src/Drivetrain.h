@@ -25,7 +25,7 @@
 #define DRIVE_ENCODER_RF 2
 #define DRIVE_ENCODER_RR 3
 
-#define SHIFT_ID 17
+#define TALON_SHIFT 17
 
 const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
@@ -59,6 +59,9 @@ public:
 	void SetSpeed(double speed);
 	void ArcadeDrive(double speed, double angle);
 	void SetShift(bool on);
+	void SetAngle(float angle);
+	void SetDistance(float distance);
+	void ResetGyro();
 
 	void EnableAngle();
 	void DisableAngle();
