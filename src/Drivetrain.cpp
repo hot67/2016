@@ -14,7 +14,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_shift = new Solenoid(SHIFT_ID);
+	m_shift = new Solenoid(TALON_SHIFT);
 
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
@@ -59,6 +59,23 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 
 double Drivetrain::GetAngle(){
 	return(m_euro->GetAngle());
+}
+
+void Drivetrain::SetAngle(float angle){
+	if (fabs(angle) < 30)
+		m_turnPID->SetPID(-0.5, turnI, turnD);
+	else
+		m_turnPID->SetPID(turnP, turnI, turnD);
+
+	m_turnPID->SetSetpoint(angle);
+}
+
+void Drivetrain::ResetGyro(){
+	m_euro->ResetDisplacement();
+}
+
+void Drivetrain::SetDistance (float distance){
+	m_distancePID->SetSetpoint(distance);
 }
 
 double Drivetrain::GetDistancePos(){
