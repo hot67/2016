@@ -198,6 +198,10 @@ public:
 	void TeleopDrive ()
 	{
 		m_drivetrain->ArcadeDrive(m_driver->AxisLX(), m_driver->AxisRX());
+		if ((m_driver->ButtonLB())){
+			m_drivetrain->SetShift(false);
+			//if driver holds left bumper, downshift is active
+		}
 	}
 
 	void TeleopArm ()

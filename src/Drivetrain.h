@@ -25,6 +25,8 @@
 #define DRIVE_ENCODER_RF 2
 #define DRIVE_ENCODER_RR 3
 
+#define SHIFT_ID 17
+
 const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
 const static double turnD = 0.00f;
@@ -56,6 +58,17 @@ public:
 	void SetTurn(double turn);
 	void SetSpeed(double speed);
 	void ArcadeDrive(double speed, double angle);
+	void SetShift(bool on);
+
+	void EnableAngle();
+	void DisableAngle();
+	void ResetGyroAngle();
+	bool DistanceAtSetpoint();
+	void EnableDistance();
+	void DisableDistance();
+	bool IsEnabledDistance();
+	double GetDistancePID();
+	void ResetPIDs();
 
 private:
 	CANTalon* m_lDriveF;
@@ -65,6 +78,8 @@ private:
 
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
+
+	Solenoid* m_shift;
 
 	Timer* m_timer;
 

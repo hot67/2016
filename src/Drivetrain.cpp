@@ -14,6 +14,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
+	m_shift = new Solenoid(SHIFT_ID);
+
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
 
@@ -89,6 +91,47 @@ void Drivetrain::SetSpeed(double speed) {
 
 void Drivetrain::SetTurn(double turn) {
 	ArcadeDrive(m_speed, turn);
+}
+
+double Drivetrain::GetDistancePID () {
+	return (m_distancePIDWrapper->PIDGet());
+}
+
+bool Drivetrain::DistanceAtSetpoint () {
+	return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2;
+}
+
+void Drivetrain::SetShift(bool on){
+	m_shift->Set(on);
+}
+
+void Drivetrain::EnableAngle(){
+	m_turnPID->Enable();
+}
+
+void Drivetrain::DisableAngle(){
+	m_turnPID->Disable();
+}
+
+void Drivetrain::ResetGyroAngle(){
+	m_euro->Reset();
+}
+
+void Drivetrain::EnableDistance(){
+	m_distancePID->Enable();
+}
+
+void Drivetrain::DisableDistance(){
+	m_distancePID->Disable();
+}
+
+bool Drivetrain::IsEnabledDistance(){
+	return (m_distancePID->IsEnabled());
+}
+
+void Drivetrain::ResetPIDs(){
+	DisableDistance();
+	DisableAngle();
 }
 
 Drivetrain::~Drivetrain() {
