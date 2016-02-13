@@ -42,7 +42,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	        m_turnPID->SetInputRange(-180.0f,  180.0f);
 	        m_turnPID->SetOutputRange(-1.0, 1.0);
-	        m_turnPID->SetAbsoluteTolerance(kToleranceDegrees);
+	        m_turnPID->SetAbsoluteTolerance(ToleranceDegrees);
 	        m_turnPID->SetContinuous(true);
 }
 

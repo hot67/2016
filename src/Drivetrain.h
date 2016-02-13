@@ -31,7 +31,7 @@ const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
 const static double turnD = 0.00f;
 const static double turnF = 0.00f;
-const static double kToleranceDegrees = 2.0f;
+const static double ToleranceDegrees = 2.0f;
 
 const static double distanceP = -2.5;
 const static double distanceI = 0.0;

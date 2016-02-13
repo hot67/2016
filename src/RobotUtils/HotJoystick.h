@@ -68,16 +68,6 @@ public:
 	 */
 	bool Button(kButton btn);
 
-	/**
-	 * 	Combined Button Access
-	 */
-	bool Button(int btns);
-
-	/**
-	 * 	Simply Access Axis With Access Selector
-	 */
-	float Axis(kAxis axis);
-
 
 	/**
 	 * 	Access Button Press
@@ -87,9 +77,9 @@ public:
 	bool ButtonPressed(kButton btn);
 
 	/**
-	 * 	Combined Button Pressed
+	 * 	Simply Access Axis With Access Selector
 	 */
-	bool ButtonPressed(int btns);
+	float Axis(kAxis axis);
 
 	/******************************
 	 * 	Access Individual
