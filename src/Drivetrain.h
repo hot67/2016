@@ -82,7 +82,7 @@ private:
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 
-	Solenoid* m_shift;
+	CANTalon* m_shift;
 
 	Timer* m_timer;
 
