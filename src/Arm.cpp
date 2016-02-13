@@ -64,10 +64,9 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armController = new ARMPIDController(m_armLeftTalon, m_armRightTalon); //Initialize our output controller
 	m_screwController = new ARMPIDController(m_screwLeftTalon, m_screwRightTalon); //Initialize the other one
 
-	armPIDEnabled = false;
-	screwPIDEnabled = false;
-	screwMPEnabled = false;
-	armMPEnabled = false;
+	m_armMPController = new ArmMotionProfiling(m_armLeftTalon); //pass it ot the motion profile.
+
+	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon); //pass it to the motion profile.
 
 }
 
@@ -390,44 +389,48 @@ void Arm::ArmPrintData() {
 
 void Arm::EnableScrewMotionProfiling() {
 
-	if ( (!screwMPEnabled) && (!screwPIDEnabled) ) {
+	if (!(m_screwMPController->IsEnabled())) {
 
-		delete m_screwTrajectoryPoints;
-		delete m_screwMotionProfile;
-		float current_velocity = (m_screwLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
-		float position = m_screwLeftTalon/4; //position in degrees
-		m_screwTrajectoryPoints = new Trajectory(current_velocity, position, m_screwMPTargetPos, SCREW_MAX_V, SCREW_MAX_A); //make a trajecotry object
-		m_armMotionProfile = new ArmMotionProfiling(m_armTrajectoryPoints, m_screwLeftTalon, SCREW_DELTA_TIME); //pass it to the motion profile.
-		screwMPEnabled = true;
+		float current_position = (m_screwLeftTalon->GetPosition()/4)*9.52; //position in units of the motor shaft.
+		float current_velocity = (m_screwLeftTalon->GetSpeed()/4)*9.52;
+		m_screwMPController->Generate(
+				current_position,
+				current_velocity,
+				m_screwMPTargetPos,
+				SCREW_MAX_V,
+				SCREW_MAX_A,
+				SCREW_DELTA_TIME);
+		m_screwMPController->BeginProfiling();
 
 	}
+
 }
 
 
 
 void Arm::EnableArmMotionProfiling() {
 
-	if ( (!armMPEnabled) && (!armPIDEnabled) ) {
+	if (!(m_armMPController->IsEnabled())) {
 
-		float current_velocity = (m_armLeftTalon->GetSpeed/4)*10; //initial velocity in degrees per second
-		float position = m_armLeftTalon/4; //position in degrees
-		m_armTrajectoryPoints = new Trajectory(current_velocity, position, m_armMPTargetPos, ARM_MAX_V, ARM_MAX_A); //setup the trajectory class
-		m_armMotionProfile = new ArmMotionProfiling(m_armTrajectoryPoints, m_armLeftTalon,ARM_DELTA_TIME); //setup the actual motion profiling
-		m_armMotionProfile->BeginProfiling();
-		armMPEnabled = true;
+		float current_position = m_armLeftTalon->GetPosition();
+		float current_velocity = m_armLeftTalon->GetSpeed();
+		m_screwMPController->Generate(
+				current_position,
+				current_velocity,
+				m_armMPTargetPos,
+				ARM_MAX_V,
+				ARM_MAX_A,
+				ARM_DELTA_TIME);
+		m_armMPController->BeginProfiling(); //Starts moving
 
 	}
+
 }
 
 void Arm::DisableScrewMotionProfiling() {
 
-	if (screwMPEnabled) {
-
-		m_screwMotionProfile->EndProfiling();
-		delete m_screwTrajectoryPoints; //Clean out our motion profile.
-		delete m_screwMotionProfile;
-		screwMPEnabled = false;
-
+	if (m_screwMPController->IsEnabled()) {
+		m_screwMPController->EndProfiling(); //End movement.
 	}
 
 }
@@ -436,42 +439,38 @@ void Arm::DisableScrewMotionProfiling() {
 
 void Arm::DisableArmMotionProfiling() {
 
-	if (armMPEnabled) {
-
-		m_armMotionProfile->EndProfiling();
-		delete m_armTrajectoryPoints; //Clean out our motion profile
-		delete m_screwMotionProfile;
-		armMPEnabled = false;
-
+	if (m_armMPController->IsEnabled()) {
+		m_armMPController->EndProfiling(); //End the motion profiling
 	}
+
 }
 
 
 
 void Arm::PauseArmMotionProfiling() {
 
-	m_armMotionProfile->Pause();
+	m_armMPController->Pause();
 
 }
 
 
 void Arm::PauseScrewMotionProfiling() {
 
-	m_screwMotionProfile->Pause();
+	m_screwMPController->Pause();
 
 }
 
 
 void Arm::ResumeScrewMotionProfiling() {
 
-	m_screwMotionProfile->UnPause();
+	m_screwMPController->UnPause();
 
 }
 
 
 void Arm::ResumeArmMotionProfiling() {
 
-	m_armMotionProfile->UnPause();
+	m_armMPController->UnPause();
 
 }
 
@@ -490,11 +489,11 @@ void Arm::SetScrewMotionProfilePoint(float target) {
 
 
 void Arm::PeriodicArmTask() {
-	m_armMotionProfile->Iterate(); //call this at about half the delta time.
+	m_armMPController->Iterate(); //call this at about half the delta time.
 }
 
 void Arm::PeriodicScrewTask() {
-	m_screwMotionProfile->Iterate();
+	m_screwMPController->Iterate();
 }
 
 bool Arm::IsLightSensorTriggered() {
@@ -510,7 +509,7 @@ Arm::ARMPIDController::ARMPIDController(CANTalon * talonLeft, CANTalon * talonRi
 	m_talonRight = talonRight;
 
 }
-
+/*
 void Arm::ARMPIDController::PIDWrite(float output) {
 
 	m_talonLeft->Set(-output);
@@ -520,3 +519,4 @@ void Arm::ARMPIDController::PIDWrite(float output) {
 
 
 float Arm::RC(float degrees){return((degrees/180)*3.14159265358979323846);} //Radian Convertifier
+*/

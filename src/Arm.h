@@ -124,19 +124,12 @@ class Arm: public HotSubsystem {
 	//PIDController* m_armPIDController; //Initializes PID Controllers REMOVED FOR NOW
 	//PIDController* m_screwPIDController;
 
-	ArmMotionProfiling *m_armMotionProfile; //Initialize the motion profile variables
-	Trajectory *m_armTrajectoryPoints;
+	ArmMotionProfiling *m_armMPController; //Initialize the motion profile variables
 	float m_armMPTargetPos;
 
-	ArmMotionProfiling *m_screwMotionProfile; //Initialize the motion profile variables
-	Trajectory *m_screwTrajectoryPoints;
+	ArmMotionProfiling *m_screwMPController; //Initialize the motion profile variables
 	float m_screwMPTargetPos;
 
-	bool armMPEnabled;
-	bool screwMPEnabled;
-
-	bool armPIDEnabled;
-	bool screwPIDEnabled;
 
 public:
 

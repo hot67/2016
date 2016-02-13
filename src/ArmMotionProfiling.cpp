@@ -2,20 +2,15 @@
 
 
 
-ArmMotionProfiling::ArmMotionProfiling(Trajectory* talonTrajectory,
-		CANTalon* inputTalon,
-		float deltaTime=ARM_DELTA_TIME) {
+ArmMotionProfiling::ArmMotionProfiling(CANTalon* inputTalon) {
+
 	talonStatus = 0; //Initialize all of our default variables.
 	mpState = kStopped; //Used for handling the pausing and stopping of motion profiling
 	MP = false; //probably going to be removed. redundant
-	m_trajectory = talonTrajectory;
-	m_deltaTime = deltaTime;
-	m_Talon = inputTalon;
+
 }
 
 void ArmMotionProfiling::BeginProfiling() {
-
-	GenerateMotionProfiles();
 
 	EndProfiling(); //Cleans out the buffer, just in case
 	m_Talon->SetControlMode(CANTalon::kMotionProfile); //Make it start profiling
@@ -123,19 +118,20 @@ void ArmMotionProfiling::Process() {
 }
 
 
-void ArmMotionProfiling::GenerateMotionProfiles() { //used with constructor where trajectory is a parameter.
+void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajectory is a parameter.
 
 	int time = 0; //will be in increments of ARM_DELTA_TIME
 	int times_incremented = 0; //will be increments of 1
 	bool reached = false; //are we done yet?
 
+	delete points;
 	do { //figure out how many points there will be. this will be equal to times_incremented.
 		times_incremented++;
 		time += m_deltaTime;
 	} while (m_trajectory->Position(time)!=0);
 
 	points = new float[times_incremented][3];
-
+	pointsLen = times_incremented;
 	times_incremented = 0;
 	time = 0;
 
@@ -146,15 +142,28 @@ void ArmMotionProfiling::GenerateMotionProfiles() { //used with constructor wher
 		 *Actual time. this will probably be in milliseconds, which should be considered with the units of m_trajectory's functions
 		 */
 
-		(*points)[times_incremented][0] = m_trajectory->Position(time*1000); //Put the data points into the motion profile array
-		(*points)[times_incremented][1] = m_trajectory->Velocity(time*1000);
-		(*points)[times_incremented][2] = m_deltaTime;
+		points[times_incremented][0] = m_trajectory->Position(time*1000); //Put the data points into the motion profile array
+		points[times_incremented][1] = m_trajectory->Velocity(time*1000);
+		points[times_incremented][2] = m_deltaTime;
 
 		times_incremented++; //Keeps track of the number of points. a bit simpler than a division problem.
 		time +=	m_deltaTime;
 
 	} while (m_trajectory->Position(time)!=0);
 
+}
+
+void ArmMotionProfiling::Generate( //recreate our motion profile points.
+		float current_position,
+		float current_velocity,
+		float target_position,
+		float max_V,
+		float max_A,
+		float deltaTime) {
+
+	m_deltaTime = deltaTime;
+	m_trajectory = new Trajectory(current_velocity, current_position, target_position, maxA, maxV); //make a new set of trajectory points
+	GeneratePoints();
 }
 
 

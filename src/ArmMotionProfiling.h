@@ -69,15 +69,21 @@ public:
 	bool IsEnabled();
 
 
-	void GenerateMotionProfiles(); //Generate the motion profile points
+
+	void GeneratePoints(); //Generate the motion profile points
+	void Generate( //Actually set up creation.
+			float current_position,
+			float current_velocity,
+			float target_position,
+			float max_V,
+			float max_A,
+			float deltaTime);
 
 	/*
 	 * Generate the motion profile for said point.
 	 * Can be used instead of passing an array to the constructor
 	 */
-	ArmMotionProfiling(Trajectory* talonTrajectory,
-			CANTalon* inputTalon,
-			float deltaTime=ARM_DELTA_TIME);
+	ArmMotionProfiling(CANTalon* inputTalon);
 	/*
 	 * Constructor. maxA, maxV, and deltaTime will be defaulted to the constants at the top of this header
 	 */
