@@ -64,6 +64,11 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armController = new ARMPIDController(m_armLeftTalon, m_armRightTalon); //Initialize our output controller
 	m_screwController = new ARMPIDController(m_screwLeftTalon, m_screwRightTalon); //Initialize the other one
 
+	armPIDEnabled = false;
+	screwPIDEnabled = false;
+	screwMPEnabled = false;
+	armMPEnabled = false;
+
 }
 
 
