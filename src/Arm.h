@@ -72,7 +72,7 @@
 #define OBSTACLE -10
 
 //Values of distance to reach, in feet
-#define CLIMB_SCREW 0
+#define CLIMB_SCREW 37440
 #define RETRACT_SCREW 0
 
 //Encoder ids
@@ -150,6 +150,10 @@ public:
 	 * same functions, but using motion profiling!
 	 */
 	void SetScrewMpPoint(ScrewSetPoint setpoint);
+
+	void SetArmPIDPoint(double setpoint);
+
+	void SetScrewPIDPoint(double setpoint);
 
 	float GetScrewPIDSetPoint(); //Returns the Setpoint of the Screw PIDController
 	float GetArmPIDSetPoint(); //Returns the Setpoint of the Arm PIDController

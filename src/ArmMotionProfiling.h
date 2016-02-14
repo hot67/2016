@@ -48,10 +48,9 @@ class ArmMotionProfiling {
 
 	float m_deltaTime; //Delta Time!! Change in time over time.
 
+	bool MP; //Want to profile yet?
 
 public:
-
-	bool MP; //Want to profile yet?
 
 	void BeginProfiling(); //Begin the motion profiling
 
@@ -59,7 +58,7 @@ public:
 
 	void EndProfiling(); //End the motion profiling
 
-	void Iterate(); //A control function to happen every teleop iteration
+	void Iterate(); //A control function to happen half the delta time
 
 	void Pause(); //Pause the motion profiling
 	void UnPause(); //Unpause the motion profiling

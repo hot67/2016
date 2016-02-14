@@ -31,7 +31,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
 
 
-	m_armLeftTalon->ConfigEncoderCodesPerRev(.1); //Math might be off here?  We are setting how many times the encoder ticks per motor revolution.
+	m_armLeftTalon->ConfigEncoderCodesPerRev(1636.363636); //Math might be off here?  We are setting how many times the encoder ticks per motor revolution.
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
 	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
@@ -233,6 +233,17 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILI
 
 }
 
+void Arm::SetScrewPIDPoint(double setpoint) {
+
+	m_screwLeftTalon->SetSetpoint(setpoint * 4 * 360);
+
+}
+
+void Arm::SetArmPIDPoint(double setpoint) {
+
+	m_armLeftTalon->SetSetpoint(setpoint);
+
+}
 
 
 
@@ -391,8 +402,8 @@ void Arm::EnableScrewMotionProfiling() {
 
 	if (!(m_screwMPController->IsEnabled())) {
 
-		float current_position = (m_screwLeftTalon->GetPosition()/4)*9.52; //position in units of the motor shaft.
-		float current_velocity = (m_screwLeftTalon->GetSpeed()/4)*9.52;
+		float current_position = m_screwLeftTalon->GetPosition(); //position in units of the motor shaft.
+		float current_velocity = m_screwLeftTalon->GetSpeed();
 		m_screwMPController->Generate(
 				current_position,
 				current_velocity,

@@ -162,7 +162,7 @@ void ArmMotionProfiling::Generate( //recreate our motion profile points.
 		float deltaTime) {
 
 	m_deltaTime = deltaTime;
-	m_trajectory = new Trajectory(current_velocity, current_position, target_position, maxA, maxV); //make a new set of trajectory points
+	m_trajectory = new Trajectory(current_velocity, current_position, target_position, max_A, max_V); //make a new set of trajectory points
 	GeneratePoints();
 }
 
