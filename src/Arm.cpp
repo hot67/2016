@@ -271,7 +271,7 @@ void Arm::SetScrewPIDPoint(ScrewSetPoint point) { //CURRENTLY DOES MOTION PROFIL
 
 }
 
-void Arm::SetScrewMpPoint(ScrewSetPoint point) {
+void Arm::SetScrewMPPoint(ScrewSetPoint point) {
 
 
 	switch (point) {
