@@ -496,8 +496,8 @@ void Arm::SetScrewMotionProfilePoint(float target) {
 
 
 
-void Arm::PeriodicArmTask() {
-	m_armMPController->Iterate(); //call this at about half the delta time.
+void Arm::PeriodicArmTask() { //call me every half delta time. probably 10 ms
+	m_screwMPController->Iterate();
 }
 
 void Arm::PeriodicScrewTask() {

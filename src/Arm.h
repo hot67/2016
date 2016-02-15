@@ -176,14 +176,14 @@ public:
 	void EnableScrewMotionProfiling(); //A series of functions to enable, disable, and manage motion profiling.
 	void SetScrewMotionProfilePoint(float target);
 	void DisableScrewMotionProfiling();
-	void PeriodicScrewTask();
+	void PeriodicScrewTask(); //call this every half of delta time.
 	void PauseScrewMotionProfiling();
 	void ResumeScrewMotionProfiling();
 
 	void EnableArmMotionProfiling(); //A series of functions to enable, disable, and manage motion profiling.
 	void SetArmMotionProfilePoint(float target);
 	void DisableArmMotionProfiling();
-	void PeriodicArmTask();
+	void PeriodicArmTask(); //call this 1/2 of delta time.
 	void PauseArmMotionProfiling();
 	void ResumeArmMotionProfiling();
 
