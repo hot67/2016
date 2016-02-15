@@ -153,7 +153,7 @@ void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajec
 
 }
 
-void ArmMotionProfiling::Generate( //recreate our motion profile points.
+void ArmMotionProfiling::BeginProfiling( //recreate our motion profile points.
 		float current_position,
 		float current_velocity,
 		float target_position,
@@ -164,6 +164,7 @@ void ArmMotionProfiling::Generate( //recreate our motion profile points.
 	m_deltaTime = deltaTime;
 	m_trajectory = new Trajectory(current_velocity, current_position, target_position, max_A, max_V); //make a new set of trajectory points
 	GeneratePoints();
+	PrepProfiling();
 }
 
 

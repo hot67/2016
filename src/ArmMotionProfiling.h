@@ -52,7 +52,7 @@ class ArmMotionProfiling {
 
 public:
 
-	void BeginProfiling(); //Begin the motion profiling
+	void PrepProfiling(); //Begin the motion profiling
 
 	void GiveBuffer(); //Pass the motion profile points to the talon's buffer
 
@@ -70,7 +70,7 @@ public:
 
 
 	void GeneratePoints(); //Generate the motion profile points
-	void Generate( //Actually set up creation.
+	void BeginProfiling( //Actually set up creation. Calls PrepProfiling() and GeneratePoints()
 			float current_position,
 			float current_velocity,
 			float target_position,

@@ -403,14 +403,13 @@ void Arm::EnableScrewMotionProfiling() {
 
 		float current_position = m_screwLeftTalon->GetPosition(); //position in units of the motor shaft.
 		float current_velocity = m_screwLeftTalon->GetSpeed();
-		m_screwMPController->Generate(
+		m_screwMPController->BeginProfiling(
 				current_position,
 				current_velocity,
 				m_screwMPTargetPos,
 				SCREW_MAX_V,
 				SCREW_MAX_A,
 				SCREW_DELTA_TIME);
-		m_screwMPController->BeginProfiling();
 
 	}
 
@@ -424,14 +423,13 @@ void Arm::EnableArmMotionProfiling() {
 
 		float current_position = m_armLeftTalon->GetPosition();
 		float current_velocity = m_armLeftTalon->GetSpeed();
-		m_screwMPController->Generate(
+		m_screwMPController->BeginProfiling( //start the moving!!
 				current_position,
 				current_velocity,
 				m_armMPTargetPos,
 				ARM_MAX_V,
 				ARM_MAX_A,
 				ARM_DELTA_TIME);
-		m_armMPController->BeginProfiling(); //Starts moving
 
 	}
 
