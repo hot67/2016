@@ -149,7 +149,7 @@ public:
 	/*
 	 * same functions, but using motion profiling!
 	 */
-	void SetScrewMpPoint(ScrewSetPoint setpoint);
+	void SetScrewMPPoint(ScrewSetPoint setpoint);
 
 	void SetArmPIDPoint(double setpoint);
 

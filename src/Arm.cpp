@@ -132,48 +132,48 @@ void Arm::SetArmMPPoint(ArmSetPoint setpoint) {
 		case kFarHighGoal: //Far away high goal
 			//m_armPIDController->SetSetpoint(FAR_HIGH_GOAL); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL);
-			m_armMPTargetPos = FAR_HIGH_GOAL;
+			m_armMPTargetPos = FAR_HIGH_GOAL-LIGHT_SENSOR_POS;
 			break;
 		case kMediumLowGoal: //Medium away low goal
 			//m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL);
-			m_armMPTargetPos = MEDIUM_LOW_GOAL;
+			m_armMPTargetPos = MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS;
 			break;
 		case kCloseHighGoal: //Close high goal
 			//m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL);
-			m_armMPTargetPos = CLOSE_HIGH_GOAL;
+			m_armMPTargetPos = CLOSE_HIGH_GOAL-LIGHT_SENSOR_POS;
 			break;
 		case kCarry: //Carry position
 			//m_armPIDController->SetSetpoint(CARRY); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(CARRY);
-			m_armMPTargetPos = CARRY;
+			m_armMPTargetPos = CARRY-LIGHT_SENSOR_POS;
 			break;
 		case kCloseLowGoal: //Close low goal
 			//m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL);
-			m_armMPTargetPos = CLOSE_LOW_GOAL;
+			m_armMPTargetPos = CLOSE_LOW_GOAL-LIGHT_SENSOR_POS;
 			break;
 		case kPickup: //Pickup position
 			//m_armPIDController->SetSetpoint(PICKUP); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(PICKUP);
-			m_armMPTargetPos = PICKUP;
+			m_armMPTargetPos = PICKUP-LIGHT_SENSOR_POS;
 			break;
 		case kObstacle: //Obstacle self-lift position
 			//m_armPIDController->SetSetpoint(OBSTACLE); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(OBSTACLE);
-			m_armMPTargetPos = OBSTACLE;
+			m_armMPTargetPos = OBSTACLE-LIGHT_SENSOR_POS;
 
 			break;
 		case kClimbArm: //Climb position
 			//m_armPIDController->SetSetpoint(CLIMB_ARM); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(CLIMB_ARM);
-			m_armMPTargetPos = CLIMB_ARM;
+			m_armMPTargetPos = CLIMB_ARM-LIGHT_SENSOR_POS;
 			break;
 		case kResetArm: //put it back in the starting position
 			//m_armPIDController->SetSetpoint(0); REMOVED FOR NOW
 			//m_armLeftTalon->SetSetpoint(0);
-			m_armMPTargetPos = 0;
+			m_armMPTargetPos = -LIGHT_SENSOR_POS;
 		}
 
 }
@@ -185,48 +185,48 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILI
 	switch (setpoint) {
 	case kFarHighGoal: //Far away high goal
 		//m_armPIDController->SetSetpoint(FAR_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL);
+		m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL-LIGHT_SENSOR_POS); //Adjusts for Light Sensor Position! (because this is where the encoder will be)
 		//m_armTargetPos = FAR_HIGH_GOAL;
 		break;
 	case kMediumLowGoal: //Medium away low goal
 		//m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL);
+		m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS);
 		//m_armTargetPos = MEDIUM_LOW_GOAL;
 		break;
 	case kCloseHighGoal: //Close high goal
 		//m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL);
+		m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL-LIGHT_SENSOR_POS);
 		//m_armTargetPos = CLOSE_HIGH_GOAL;
 		break;
 	case kCarry: //Carry position
 		//m_armPIDController->SetSetpoint(CARRY); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CARRY);
+		m_armLeftTalon->SetSetpoint(CARRY-LIGHT_SENSOR_POS);
 		//m_armTargetPos = CARRY;
 		break;
 	case kCloseLowGoal: //Close low goal
 		//m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL);
+		m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL-LIGHT_SENSOR_POS);
 		//m_armTargetPos = CLOSE_LOW_GOAL;
 		break;
 	case kPickup: //Pickup position
 		//m_armPIDController->SetSetpoint(PICKUP); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(PICKUP);
+		m_armLeftTalon->SetSetpoint(PICKUP-LIGHT_SENSOR_POS);
 		//m_armTargetPos = PICKUP;
 		break;
 	case kObstacle: //Obstacle self-lift position
 		//m_armPIDController->SetSetpoint(OBSTACLE); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(OBSTACLE);
+		m_armLeftTalon->SetSetpoint(OBSTACLE-LIGHT_SENSOR_POS);
 		//m_armTargetPos = OBSTACLE;
 
 		break;
 	case kClimbArm: //Climb position
 		//m_armPIDController->SetSetpoint(CLIMB_ARM); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLIMB_ARM);
+		m_armLeftTalon->SetSetpoint(CLIMB_ARM-LIGHT_SENSOR_POS);
 		//m_armTargetPos = CLIMB_ARM;
 		break;
 	case kResetArm: //put it back in the starting position
 		//m_armPIDController->SetSetpoint(0); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(0);
+		m_armLeftTalon->SetSetpoint(-LIGHT_SENSOR_POS); //for true 180 degrees
 		//m_armTargetPos = 0;
 	}
 
@@ -235,13 +235,13 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILI
 
 void Arm::SetScrewPIDPoint(double setpoint) {
 
-	m_screwLeftTalon->SetSetpoint(setpoint * 4 * 360);
+	m_screwLeftTalon->SetSetpoint(setpoint * 4 * 360); //adjust for gearbox ratios.
 
 }
 
 void Arm::SetArmPIDPoint(double setpoint) {
 
-	m_armLeftTalon->SetSetpoint(setpoint);
+	m_armLeftTalon->SetSetpoint(setpoint-LIGHT_SENSOR_POS); //adjust for light sensor pos
 
 }
 
@@ -350,7 +350,6 @@ float Arm::GetScrewPos() {
 	//return m_screwEncoder->Get(); //returns the current encoder value REMOVED FOR NOW
 	return m_screwLeftTalon->GetPosition(); //may need to be divided by four. Going to be in distance eventually
 }
-
 
 
 
