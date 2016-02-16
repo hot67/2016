@@ -27,7 +27,7 @@
 #endif
 
 enum MotionProfileStates { //States of the motion profile. used during iteration to see what we should be doing.
-	kBuffered = 0,
+	kRunning = 0,
 	kStopped = 1,
 	kPaused = 2
 };
@@ -37,10 +37,6 @@ class ArmMotionProfiling {
 	CANTalon * m_Talon; //The talon we are going to profile
 
 	float talonStatus; //Used for checking status of talon in rest of code. dont feed it points when its busy!
-
-	int pointsLen; //Length of the array that points points to
-
-	float * points; //Pointer to an array of arrays which contains data about trajectory points.
 
 	MotionProfileStates mpState; //State of the motion profiling
 
@@ -53,8 +49,6 @@ class ArmMotionProfiling {
 	void GeneratePoints(); //Generate the motion profile points
 
 	void PrepProfiling(); //Begin the motion profiling.
-
-	void GiveBuffer(); //Pass the motion profile points to the talon's buffer
 public:
 
 	void EndProfiling(); //End the motion profiling
