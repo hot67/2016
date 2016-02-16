@@ -88,15 +88,15 @@ void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajec
 		 *Actual time. this will probably be in milliseconds, which should be considered with the units of m_trajectory's functions
 		 */
 
-		TalonTrajectory.velocity = m_trajectory->Velocity(time/1000);
+		TalonTrajectory.velocity = m_trajectory->Velocity(time/1000); //creates our trajectory points
 		TalonTrajectory.position = m_trajectory->Position(time/1000);
-		TalonTrajectory.timeDurMs = m_deltaTime;
+		TalonTrajectory.timeDurMs = m_deltaTime; //always delta time
 
-		TalonTrajectory.velocityOnly = false;
+		TalonTrajectory.velocityOnly = false; //always false
 		TalonTrajectory.zeroPos = false;
 
 
-		if (first) {
+		if (first) { //this will only be true once. the first time this loop runs
 
 			first=false;
 			TalonTrajectory.zeroPos = true;
@@ -105,20 +105,20 @@ void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajec
 
 		TalonTrajectory.isLastPoint = false;
 
-		m_Talon->PushMotionProfileTrajectory(TalonTrajectory);
+		m_Talon->PushMotionProfileTrajectory(TalonTrajectory); //give them to the talon
 
 		time += m_deltaTime;
 
-	} while (m_trajectory->Position(time)!=0);
+	} while (m_trajectory->Position(time)!=0); //when we hit the position, there will be a trajectory point for this
 
-	TalonTrajectory.velocity = m_trajectory->Velocity(time/1000);
+	TalonTrajectory.velocity = m_trajectory->Velocity(time/1000); //create our last trajectory point
 	TalonTrajectory.position = m_trajectory->Velocity(time/1000);
 	TalonTrajectory.timeDurMs = m_deltaTime;
 
 	TalonTrajectory.velocityOnly = false;
 	TalonTrajectory.zeroPos = false;
-	TalonTrajectory.isLastPoint = true;
-	m_Talon->PushMotionProfileTrajectory(TalonTrajectory);
+	TalonTrajectory.isLastPoint = true; //actually the last one
+	m_Talon->PushMotionProfileTrajectory(TalonTrajectory); //give it to the talon
 
 
 }
@@ -131,9 +131,9 @@ void ArmMotionProfiling::BeginProfiling( //recreate our motion profile points.
 		float max_A,
 		float deltaTime) {
 
-	m_deltaTime = deltaTime;
+	m_deltaTime = deltaTime; //the delta time
 	m_trajectory = new Trajectory(current_velocity, current_position, target_position, max_A, max_V); //make a new set of trajectory points
-	GeneratePoints();
+	GeneratePoints(); //calls functions that setup motion profiling
 	PrepProfiling();
 }
 
