@@ -11,7 +11,7 @@
 #include "WPILib.h"
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
-#include "AHRS.h"
+//#include "AHRS.h"
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
 
@@ -25,13 +25,11 @@
 #define DRIVE_ENCODER_RF 2
 #define DRIVE_ENCODER_RR 3
 
-#define TALON_SHIFT 17
-
 const static double turnP = 0.03f; //PID Variables
 const static double turnI = 0.00f;
 const static double turnD = 0.00f;
 const static double turnF = 0.00f;
-const static double ToleranceDegrees = 2.0f;
+const static double kToleranceDegrees = 2.0f;
 
 const static double distanceP = -2.5;
 const static double distanceI = 0.0;
@@ -58,20 +56,6 @@ public:
 	void SetTurn(double turn);
 	void SetSpeed(double speed);
 	void ArcadeDrive(double speed, double angle);
-	void SetShift(bool on);
-	void SetAngle(float angle);
-	void SetDistance(float distance);
-	void ResetGyro();
-
-	void EnableAngle();
-	void DisableAngle();
-	void ResetGyroAngle();
-	bool DistanceAtSetpoint();
-	void EnableDistance();
-	void DisableDistance();
-	bool IsEnabledDistance();
-	double GetDistancePID();
-	void ResetPIDs();
 
 private:
 	CANTalon* m_lDriveF;
@@ -82,8 +66,6 @@ private:
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 
-	CANTalon* m_shift;
-
 	Timer* m_timer;
 
 	RobotDrive* m_drive;
@@ -91,7 +73,7 @@ private:
 	DistancePIDWrapper* m_distancePIDWrapper;
 	TurnPIDWrapper* m_turnPIDWrapper;
 
-	AHRS* m_euro;
+	//AHRS* m_gyro;
 
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;

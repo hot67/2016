@@ -10,16 +10,14 @@
 
 #include "RobotUtils/HotSubsystem.h"
 
-#include "ShooterPIDWrapper.h"
-
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
 
 #ifdef PRACTICE_BOT
 //shooter PID
-#define SHOOTER_SPEED_P 0.01 //code from 2012 was 0.01
+#define SHOOTER_SPEED_P 0.0 //code from 2012 was 0.01
 #define SHOOTER_SPEED_I 0.0 //code from 2012 was 0.0
-#define SHOOTER_SPEED_D 0.0 //code from 2012 was 0.00
+#define SHOOTER_SPEED_D 0.0 //code from 2012 was 0.05
 #endif
 
 #ifdef COMPETITION_BOT
@@ -38,10 +36,9 @@
 #define SHOOTER_ENCODER1 8
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
-#define DEFAULT_SHOOTER_SPEED 0.8
+#define DEFAULT_SHOOTER_SPEED 1.0
 
-//	ToDo: Find This
-#define SHOOTER_MAX_SPEED 2.0
+#define SHOOTER_MAX_SPEED 1.0
 
 class Intake: public HotSubsystem {
 private:
@@ -50,7 +47,6 @@ private:
 
 	Encoder* m_shooterEncoder;
 
-	ShooterPIDWrapper *m_shooterPIDWrapper;
 	PIDController* m_shooterSpeedPID;
 
 public:
@@ -71,23 +67,11 @@ public:
 	void IncreaseShooterSpeed(); // increase shooter speed by 0.01
 	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
 
-	void SetDesiredShooterSpeed();
-
 	float GetShooterSpeed();
 
+	float GetShooterPIDSetPoint();
+
 	void IntakePrintData();
-
-	/**
-	 * 	PID
-	 */
-
-	void EnableShooterPID();
-	void DisableShooterPID();
-	bool IsShooterPIDEnabled();
-	void SetShooterPIDSetPoint(float speed);
-	double GetShooterPIDSetPoint();
-
-
 };
 
 
