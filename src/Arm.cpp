@@ -391,8 +391,8 @@ bool Arm::ScrewAtPIDSetPoint() { //If screw is at the given set point
 
 
 void Arm::ArmPrintData() {
-	//SmartDashboard::PutNumber("Arm Encoder", m_armEncoder->GetDistance()); //Brandon told me to write these. idk what they do. REMOVED FOR NOW
-	//SmartDashboard::PutNumber("Screw Encoder", m_screwEncoder->GetDistance()); REMOVED FOR NOW
+	SmartDashboard::PutNumber("Arm Encoder", m_armLeftTalon->GetPosition()/4); //write encoder values to smart dashboard.
+	SmartDashboard::PutNumber("Screw Encoder", m_armLeftTalon->GetPosition()/4);
 }
 
 
