@@ -24,14 +24,14 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
 	m_drive->SetSafetyEnabled(false);
 
-	m_distancePIDWrapper = new DistancePIDWrapper(this);
-	m_turnPIDWrapper = new TurnPIDWrapper (this);
+	//m_distancePIDWrapper = new DistancePIDWrapper(this);
+	//m_turnPIDWrapper = new TurnPIDWrapper (this);
 
     m_drive->SetExpiration(0.1);
 
     //m_gyro = new AHRS(SPI::Port::kMXP);
 
-    m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
+    //m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
 
 	/*m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_gyro, m_turnPIDWrapper);
 	m_turnPID->SetInputRange(-180.0f,  180.0f);

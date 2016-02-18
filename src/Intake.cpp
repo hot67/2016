@@ -19,8 +19,8 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 
 	//seems like encoder but is actually white-black sensor
 
-	m_shooterSpeedPID = new PIDController(SHOOTER_SPEED_P, SHOOTER_SPEED_I, SHOOTER_SPEED_D, m_shooterEncoder, m_shooterTalon);
-	m_shooterSpeedPID->SetPercentTolerance(0.05);
+	//m_shooterSpeedPID = new PIDController(SHOOTER_SPEED_P, SHOOTER_SPEED_I, SHOOTER_SPEED_D, m_shooterEncoder, m_shooterTalon);
+	//m_shooterSpeedPID->SetPercentTolerance(0.05);
 }
 
 Intake::~Intake() {
@@ -69,6 +69,3 @@ void Intake::IntakePrintData(){
 	SmartDashboard::PutNumber("Desired Shooter Rate", m_desiredShooterSpeed);
 }
 
-float Intake::GetShooterPIDSetPoint(){
-	return m_shooterSpeedPID->GetSetpoint();
-}

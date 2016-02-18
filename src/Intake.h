@@ -69,7 +69,7 @@ public:
 
 	float GetShooterSpeed();
 
-	float GetShooterPIDSetPoint();
+	//float GetShooterPIDSetPoint();
 
 	void IntakePrintData();
 };

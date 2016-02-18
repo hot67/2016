@@ -200,13 +200,6 @@ public:
 		TeleopArm();
 		TeleopIntake();
 
-		if (m_operator->GetRawButton(1))
-		{
-			m_intake->SetShooter(1.0);
-		}
-		else
-			m_intake->SetShooter(0.0);
-
 		SmartDashboard::PutNumber("Arm Encoder Value", m_arm->GetArmPos());
 		SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmRate());
 
@@ -219,7 +212,7 @@ public:
 
 	void TeleopDrive ()
 	{
-		m_drivetrain->ArcadeDrive(m_driver->AxisLX(), m_driver->AxisRX());
+		m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
 	}
 
 	void TeleopArm ()
@@ -265,13 +258,13 @@ public:
 			//m_arm->EnableArmPID();
 
 			//m_rollForShootTime->Start();
-			m_intake->SetRoller(0.1);
+			/*m_intake->SetRoller(0.1);
 
 			if ((m_rollForShootTime->Get()) > 0.4){
 				m_intake->SetRoller(0.0);
 				m_rollForShootTime->Stop();
 				m_rollForShootTime->Reset();
-			}
+			} */
 
 			//if (m_arm->ArmAtSetpoint()){
 				//m_intake->SetShooter(m_desiredShooterSpeed);
@@ -287,14 +280,14 @@ public:
 			//m_arm->SetArmPIDPoint(kCloseLowGoal);
 			//m_arm->EnableArmPID();
 
-			m_rollForShootTime->Start();
+			/*m_rollForShootTime->Start();
 			m_intake->SetRoller(0.1);
 
 			if ((m_rollForShootTime->Get()) > 0.4){
 				m_intake->SetRoller(0.0);
 				m_rollForShootTime->Stop();
 				m_rollForShootTime->Reset();
-			}
+			}*/
 
 			//if (m_arm->ArmAtSetpoint()){
 				//m_intake->SetShooter(m_desiredShooterSpeed);
@@ -305,16 +298,6 @@ public:
 			//m_arm->SetArmPIDPoint(kFarHighGoal);
 			//m_arm->EnableArmPID();
 			//if operator presses button Y, arm will set to High Goal angle
-		}
-		else if (m_operator->ButtonA()){
-			//m_arm->SetArmPIDPoint(kPickup);
-			//m_arm->EnableArmPID();
-			//if operator presses button A, arm will set to Pickup angle
-		}
-		else if (m_operator->ButtonB()){
-			//m_arm->SetArmPIDPoint(kCloseHighGoal);
-			//m_arm->EnableArmPID();
-			//if operator presses button B, arm will set to Close High Goal angle
 		}
 		else if (m_operator->AxisLY() > 0.2){
 			//m_arm->SetScrew(m_operator->AxisRY());
@@ -327,6 +310,17 @@ public:
 		else
 			m_arm->SetArm(0);
 			//m_intake->SetShooter(0.);
+
+		if (m_operator->GetRawButton(2))
+		{
+			m_intake->SetRoller(1.);
+		}
+		else if (m_operator->GetRawButton(3))
+		{
+			m_intake->SetRoller(-1.);
+		}
+		else
+			m_intake->SetRoller(0);
 	}
 
 	void TeleopIntake (){
@@ -345,20 +339,43 @@ public:
 		 *
 		 */
 
-		if (m_operator->AxisLT() > 0.2){
+
+		if (m_operator->ButtonA())
+			m_intake->SetShooter(1.0);
+		else {
+			m_intake->SetShooter(0.0);
+		}
+
+		if (m_operator->ButtonB())
 			m_intake->SetRoller(1.0);
+		else if (m_operator->ButtonX())
+			m_intake->SetRoller(-1.0);
+		else
+			m_intake->SetRoller(0.0);
+
+		/*
+		 *
+		 if (m_operator->GetRawButton(1))
+		{
+			m_intake->SetShooter(1.0);
+		}
+		else
+			m_intake->SetShooter(0.0);
+
+		if (m_operator->AxisLT() > 0.2){
+			//m_intake->SetRoller(1.0);
 			//if operator presses left trigger, intake rollers roll out
 		}
 		else if ((m_operator->AxisRT()) > 0.2){
-			m_intake->SetRoller(-1.0);
+			//m_intake->SetRoller(-1.0);
 			//if operator presses right trigger, intake rollers roll in
 		}
 		else if ((m_operator->GetPOV()) == 0){
-			m_intake->IncreaseShooterSpeed();
+			//m_intake->IncreaseShooterSpeed();
 			//if operator presses up on DPAD, shooter speed increases by 1%
 		}
 		else if ((m_operator->GetPOV()) == 180){
-			m_intake->DecreaseShooterSpeed();
+			//m_intake->DecreaseShooterSpeed();
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
 		else if ((m_driver->AxisRT()) > 0.2){
@@ -370,6 +387,9 @@ public:
 			m_intake->SetRoller(1.0);
 			//if driver presses left trigger, intake rollers roll out
 		}
+		else
+			m_intake->SetRoller(0.0);
+		*/
 	}
 
 };

@@ -12,8 +12,8 @@
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
 //#include "AHRS.h"
-#include "DistancePIDWrapper.h"
-#include "TurnPIDWrapper.h"
+//#include "DistancePIDWrapper.h"
+//#include "TurnPIDWrapper.h"
 
 #define TALON_DRIVE_LF 20
 #define TALON_DRIVE_LR 21
@@ -35,8 +35,8 @@ const static double distanceP = -2.5;
 const static double distanceI = 0.0;
 const static double distanceD = -0.1;
 
-class TurnPIDWrapper;
-class DistancePIDWrapper;
+//class TurnPIDWrapper;
+//class DistancePIDWrapper;
 
 class Drivetrain : public HotSubsystem {
 public:
@@ -70,8 +70,8 @@ private:
 
 	RobotDrive* m_drive;
 
-	DistancePIDWrapper* m_distancePIDWrapper;
-	TurnPIDWrapper* m_turnPIDWrapper;
+	//DistancePIDWrapper* m_distancePIDWrapper;
+	//TurnPIDWrapper* m_turnPIDWrapper;
 
 	//AHRS* m_gyro;
 
