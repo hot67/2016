@@ -564,11 +564,3 @@ bool Arm::IsLightSensorTriggered() {
 	return m_armLightSensor->Get();
 
 }
-
-
-Arm::ARMPIDController::ARMPIDController(CANTalon * talonLeft, CANTalon * talonRight) {
-
-	m_talonLeft = talonLeft;
-	m_talonRight = talonRight;
-
-}

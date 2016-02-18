@@ -1,24 +1,34 @@
 #include <ArmMotionProfiling.h>
 
 
-
+/*
+ * Motion Profiling
+ */
 ArmMotionProfiling::ArmMotionProfiling(CANTalon* inputTalon) {
 
-	talonStatus = 0; //Initialize all of our default variables.
-	mpState = kStopped; //Used for handling the pausing and stopping of motion profiling
-	MP = false; //probably going to be removed. redundant
+	/*
+	 * Default Variables
+	 */
+	mpState = kStopped;
+	MP = false;
 
 }
 
+/*
+ * Prepare Motion Profiling
+ */
 void ArmMotionProfiling::PrepProfiling() {
 
-	EndProfiling(); //Cleans out the buffer, just in case
-	m_Talon->SetControlMode(CANTalon::kMotionProfile); //Make it start profiling
-	MP = true; //We are using motion profiling
+	EndProfiling();
+	m_Talon->SetControlMode(CANTalon::kMotionProfile);
+	MP = true;
 	mpState = kRunning;
 }
 
-
+/*
+ * End Profiling. Clean out the Talon Buffer. Set back to
+ * voltage mode.
+ */
 void ArmMotionProfiling::EndProfiling() {
 
 	mpState = kStopped; //Motion profiling has ended
@@ -28,26 +38,35 @@ void ArmMotionProfiling::EndProfiling() {
 
 }
 
-void ArmMotionProfiling::Pause() { //Unpause the profile movement
+/*
+ *	Temporarily pause Motion Profiling.
+ *	Does this by using kVoltage mode.
+ */
+void ArmMotionProfiling::Pause() {
 
 	mpState = kPaused;
 	m_Talon->SetControlMode(CANTalon::kVoltage);
 }
 
-void ArmMotionProfiling::UnPause() { //Pause the profile movement
+/*
+ * Resume moving
+ */
+void ArmMotionProfiling::UnPause() {
 
 	mpState = kRunning;
-	m_Talon->SetControlMode(CANTalon::kMotionProfile); //Turns off motion profiling for now. Note this will NOT clear the buffer.
+	m_Talon->SetControlMode(CANTalon::kMotionProfile);
 	/*
-	 * If you do want to clear the buffer, use MotionProfiling::EndProfiling().
+	 * If you do want to clear the buffer, use MotionProfiling::EndProfiling(). Pause does not do this.
 	 *  Or you can simply run MotionProfiling::BeginProfiling() the next time you want to use motion profiling
 	 *  this calls EndProfiling() also.
 	 */
 
 }
 
-
-
+/*
+ * Processes stuff.
+ * Call this half of delta time (10 ms)
+ */
 void ArmMotionProfiling::Iterate() {
 	/*
 	 * Call this about half of the delta time, needs to process data before the most recent trajectory point finishes
@@ -55,33 +74,36 @@ void ArmMotionProfiling::Iterate() {
 	 * time.
 	 */
 
-	switch (mpState) { //Do various things based on whats going on with motion profiling
-	case kRunning: //Data is buffered
+	switch (mpState) {
+	case kRunning:
 		Process();
 		break;
-	case kStopped: //Data is dead
-		if (MP) {EndProfiling();} //Clean things up if things are still trying to happen.
+	case kStopped:
+		if (MP) {EndProfiling();}
 		break;
-	case kPaused: //Data is paused
+	case kPaused:
 		break;
 	}
 
 }
 
-
-
+/*
+ * Push the top trajectory points to the bottom for the talon.
+ */
 void ArmMotionProfiling::Process() {
-	m_Talon->ProcessMotionProfileBuffer(); //Push top to bottom. Not super clear on usage of this, hopefully this is correctly used here.
+	m_Talon->ProcessMotionProfileBuffer();
 }
 
+/*
+ * Generate the Motion profile points. Give them to the talon.
+ */
+void ArmMotionProfiling::GeneratePoints() {
 
-void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajectory is a parameter.
-
-	int time = 0; //will be in increments of ARM_DELTA_TIME
+	int time = 0;
 	bool first = true;
 
 	CANTalon::TrajectoryPoint TalonTrajectory;
-	do { //actually create our list. its a do while loop because we want a trajectory point at 0.
+	do {
 
 
 		/*
@@ -123,7 +145,10 @@ void ArmMotionProfiling::GeneratePoints() { //used with constructor where trajec
 
 }
 
-void ArmMotionProfiling::BeginProfiling( //recreate our motion profile points.
+/*
+ * Begin moving the CANTalon through the motion profile points.
+ */
+void ArmMotionProfiling::BeginProfiling(
 		float current_position,
 		float current_velocity,
 		float target_position,
@@ -131,13 +156,16 @@ void ArmMotionProfiling::BeginProfiling( //recreate our motion profile points.
 		float max_A,
 		float deltaTime) {
 
-	m_deltaTime = deltaTime; //the delta time
-	m_trajectory = new Trajectory(current_velocity, current_position, target_position, max_A, max_V); //make a new set of trajectory points
-	GeneratePoints(); //calls functions that setup motion profiling
+	delete m_trajectory;
+	m_deltaTime = deltaTime;
+	m_trajectory = new Trajectory(current_velocity, current_position, target_position, max_A, max_V);
+	GeneratePoints();
 	PrepProfiling();
 }
 
-
+/*
+ * Is the motion profiling enabled?
+ */
 bool ArmMotionProfiling::IsEnabled() {
 	return MP;
 }

@@ -11,22 +11,10 @@
 #include "WPILib.h"
 #include "Trajectory.h"
 
-#define PRACTICE_BOT
-//#define COMPETITION_BOT
-
-#ifdef PRACTICE_BOT
-
-#define ARM_DELTA_TIME 20 //ms
-
-#endif
-
-#ifdef COMPETITION_BOT
-
-#define ARM_DELTA_TIME 20 //ms
-
-#endif
-
-enum MotionProfileStates { //States of the motion profile. used during iteration to see what we should be doing.
+/*
+ * An Enum used to handle the state of the motion profiling of the talon.
+ */
+enum MotionProfileStates {
 	kRunning = 0,
 	kStopped = 1,
 	kPaused = 2
@@ -34,36 +22,47 @@ enum MotionProfileStates { //States of the motion profile. used during iteration
 
 class ArmMotionProfiling {
 
-	CANTalon * m_Talon; //The talon we are going to profile
+	/*
+	 * The Talon
+	 */
+	CANTalon * m_Talon;
 
-	float talonStatus; //Used for checking status of talon in rest of code. dont feed it points when its busy!
+	/*
+	 * Utilizes the previou Enums.
+	 * handle the state of motion profiling
+	 */
+	MotionProfileStates mpState;
 
-	MotionProfileStates mpState; //State of the motion profiling
-
+	/*
+	 * A class for our trajectory points.
+	 * Will be handled in dynamic memory
+	 */
 	Trajectory* m_trajectory;
 
-	float m_deltaTime; //Delta Time!! Change in time over time.
+	/*
+	 * The delta time. Change in time over time.
+	 */
+	float m_deltaTime;
 
-	bool MP; //Want to profile yet?
+	/*
+	 * A simpler form of mpState,
+	 * for IsEnabled();
+	 */
+	bool MP;
 
-	void GeneratePoints(); //Generate the motion profile points
+	/*
+	 * Internal Functions for generating points
+	 * and for giving them to the talon
+	 */
+	void GeneratePoints();
+	void PrepProfiling();
 
-	void PrepProfiling(); //Begin the motion profiling.
 public:
 
-	void EndProfiling(); //End the motion profiling
-
-	void Iterate(); //A control function to happen half the delta time
-
-	void Pause(); //Pause the motion profiling
-	void UnPause(); //Unpause the motion profiling
-
-	void Process(); //Process the motion profile buffer
-
-	bool IsEnabled();
-
-
-	void BeginProfiling( //Actually set up creation. Calls PrepProfiling() and GeneratePoints()
+	/*
+	 * Setup the points and begin profiling
+	 */
+	void BeginProfiling(
 			float current_position,
 			float current_velocity,
 			float target_position,
@@ -72,13 +71,43 @@ public:
 			float deltaTime);
 
 	/*
-	 * Generate the motion profile for said point.
-	 * Can be used instead of passing an array to the constructor
+	 * Stop Motion Profiling
+	 */
+	void EndProfiling();
+
+	/*
+	 * A control function to happen
+	 * half of the delta time.
+	 * Must use threading, is threading safe.
+	 */
+	void Iterate();
+
+	/*
+	 * Pause motion profiling
+	 */
+	void Pause();
+
+	/*
+	 * Resume Motion Profiling
+	 */
+	void UnPause();
+
+	/*
+	 *	Another Internal function, may be called manually.
+	 *	Moves the used points of the Talon to the back of it's buffer.
+	 */
+	void Process();
+
+	/*
+	 * Is motion profiling running? returns a bool.
+	 */
+	bool IsEnabled();
+
+	/*
+	 * Constructor. Only takes a talon.
+	 * Everything else is passed later.
 	 */
 	ArmMotionProfiling(CANTalon* inputTalon);
-	/*
-	 * Constructor. maxA, maxV, and deltaTime will be defaulted to the constants at the top of this header
-	 */
 
 };
 
