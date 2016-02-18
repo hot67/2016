@@ -1,233 +1,263 @@
 #include <Arm.h>
 
-
-
-
+/*
+ * The Arm Subsystem
+ */
 Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 
-/*
- * Super simple init code. see Arm.h for constant declarations
- */
-	m_armRightTalon = new CANTalon(TALON_ARM_L); //Arm Right Talon
-	m_armLeftTalon = new CANTalon(TALON_ARM_R); //Arm Left Talon
+	/*
+	 * Setup the arm talons
+	 */
+	m_armRightTalon = new CANTalon(TALON_ARM_L);
+	m_armLeftTalon = new CANTalon(TALON_ARM_R);
 
-	m_screwRightTalon = new CANTalon(TALON_SCREW_R); //Screw Right Talon
-	m_screwLeftTalon = new CANTalon(TALON_SCREW_L); //Screw Left Talon
+	/*
+	 * Setup the screw talons
+	 */
+	m_screwRightTalon = new CANTalon(TALON_SCREW_R);
+	m_screwLeftTalon = new CANTalon(TALON_SCREW_L);
 
+	/*
+	 * Initialize the light sensor for the arm.
+	 */
 	m_armLightSensor = new DigitalInput(LIGHT_ARM);
 
+	/*
+	 * Tell the talon it is using digital encoders. These counts willbe multiplied by four,
+	 * so in later use we need to divide them by four.
+	 */
+	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
+	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
 
-	//m_screwEncoder = new Encoder(ENCODER_SCREW1,ENCODER_SCREW2); //Screw Encoder REMOVED FOR NOW
-	//m_armEncoder = new Encoder(ENCODER_ARM1,ENCODER_ARM2); //Arm Encoder REMOVED FOR NOW
-
-	//m_armEncoder->SetDistancePerPulse(ARM_ENCODER_PULSE_PER_REVOLUTION); //360 pulses per revolution REMOVED FOR NOW
-	//m_screwEncoder->SetDistancePerPulse(SCREW_ENCODER_PULSE_PER_REVOLUTION); //Same REMOVED FOR NOW
-
-
-	//m_armPIDController = new PIDController(ARM_P,ARM_I,ARM_D,m_armEncoder,m_armLeftTalon); //Arm PID Controller REMOVED FOR NOW
-
-	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
-	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder); //using a digital encoder.
-
-
-	m_armLeftTalon->ConfigEncoderCodesPerRev(1636.363636); //Math might be off here?  We are setting how many times the encoder ticks per motor revolution.
+	/*
+	 * Configure the encoder counts per revolution
+	 */
+	m_armLeftTalon->ConfigEncoderCodesPerRev(1636.363636);
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
-	m_armLeftTalon->SetP(ARM_P); //set the p, i and d
+	/*
+	 * Set P, I, and D
+	 */
+	m_armLeftTalon->SetP(ARM_P);
 	m_armLeftTalon->SetI(ARM_I);
 	m_armLeftTalon->SetD(ARM_D);
-
-
-	m_screwLeftTalon->SetP(SCREW_P); //set the p, i and d
+	m_screwLeftTalon->SetP(SCREW_P);
 	m_screwLeftTalon->SetI(SCREW_I);
 	m_screwLeftTalon->SetD(SCREW_D);
 
+	/*
+	 * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
+	 */
+	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower);
+	m_screwRightTalon->Set(TALON_SCREW_L);
 
-	//m_screwPIDController = new PIDController(SCREW_P,SCREW_I,SCREW_D,m_screwEncoder,m_screwLeftTalon); //Screw PID Controller REMOVED FOR NOW */
+	/*
+	* Slave the right motors to the left ones which will be controlled by PIDs and Teleop
+	*/
+	m_armRightTalon->SetControlMode(CANSpeedController::kFollower);
+	m_armRightTalon->Set(TALON_ARM_L);
+	m_armRightTalon->SetClosedLoopOutputDirection(true);
 
+	/*
+	 * Initialize the Motion Profiling Controllers
+	 * We just need to give them a Talon.
+	 */
+	m_armMPController = new ArmMotionProfiling(m_armLeftTalon);
+	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon);
+
+}
 
 /*
- * Slave the right motors to the left ones which will be controlled by PIDs and Teleop
+ * Set the Arm Speed
  */
-
-
-	m_screwRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
-	m_screwRightTalon->Set(TALON_SCREW_L);
-	m_screwRightTalon->SetClosedLoopOutputDirection(true); //Maybe invert??? (we don't know yet)
-
-	m_armRightTalon->SetControlMode(CANSpeedController::kFollower); //Slave the right motor to the left
-	m_armRightTalon->Set(TALON_ARM_L);
-	m_armRightTalon->SetClosedLoopOutputDirection(true); //Invert direction of this motor, as it will be facing the other direction
-
-
-	m_armController = new ARMPIDController(m_armLeftTalon, m_armRightTalon); //Initialize our output controller
-	m_screwController = new ARMPIDController(m_screwLeftTalon, m_screwRightTalon); //Initialize the other one
-
-	m_armMPController = new ArmMotionProfiling(m_armLeftTalon); //pass it ot the motion profile.
-
-	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon); //pass it to the motion profile.
-
-}
-
-
-
-
-Arm::~Arm() {
-	//Empty destructor. Also probably not used
-}
-
-
-
-
 void Arm::SetArm(float speed) {
 	//m_armController->PIDWrite(speed);
 	m_armLeftTalon->Set(speed);
 }
 
-
-
-
+/*
+ * Set the Screw Speed
+ */
 void Arm::SetScrew(float speed) {
-	//m_screwController->PIDWrite(speed);
 	m_screwLeftTalon->Set(speed);
 }
 
-
-
-
+/*
+ * Enable control of the Arm PID.
+ */
 void Arm::EnableArmPID() {
-	//m_armPIDController->Enable(); REMOVED FOR NOW
-	m_armLeftTalon->Enable(); //i think this is how we enable pid controllers.
+	m_armLeftTalon->Enable();
 }
 
-
-
+/*
+ * Disable control of the Arm PID
+ */
 void Arm::DisableArmPID() {
-	//m_armPIDController->Disable(); REMOVED FOR NOW
-	m_armLeftTalon->Disable(); //disable the pidcontroller
+	m_armLeftTalon->Disable();
 }
 
-
-
-
+/*
+ * Enable control of the Screw PID.
+ */
 void Arm::EnableScrewPID() {
 	//m_screwPIDController->Enable(); REMOVED FOR NOW
 	m_screwLeftTalon->Enable();
 }
 
-
-
-
+/*
+ * Disable control of the Screw PID.
+ */
 void Arm::DisableScrewPID() {
 	//m_screwPIDController->Disable(); REMOVED FOR NOW
 	m_screwLeftTalon->Disable();
 }
 
-
-
+/*
+ * Set Motion Profiling Point.
+ */
 void Arm::SetArmMPPoint(ArmSetPoint setpoint) {
 
 	switch (setpoint) {
-		case kFarHighGoal: //Far away high goal
-			//m_armPIDController->SetSetpoint(FAR_HIGH_GOAL); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL);
+		case kFarHighGoal:
+
+			/*
+			 * Far Away High Goal
+			 */
 			m_armMPTargetPos = FAR_HIGH_GOAL-LIGHT_SENSOR_POS;
 			break;
-		case kMediumLowGoal: //Medium away low goal
-			//m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL);
+		case kMediumLowGoal:
+
+			/*
+			 * Medium Away Low Goal
+			 */
 			m_armMPTargetPos = MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS;
 			break;
-		case kCloseHighGoal: //Close high goal
-			//m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL);
+		case kCloseHighGoal:
+
+			/*
+			 * Close High Goal
+			 */
 			m_armMPTargetPos = CLOSE_HIGH_GOAL-LIGHT_SENSOR_POS;
 			break;
-		case kCarry: //Carry position
-			//m_armPIDController->SetSetpoint(CARRY); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(CARRY);
+		case kCarry:
+
+			/*
+			 * Carry Position
+			 */
 			m_armMPTargetPos = CARRY-LIGHT_SENSOR_POS;
 			break;
-		case kCloseLowGoal: //Close low goal
-			//m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL);
+		case kCloseLowGoal:
+
+			/*
+			 * Close Low Goal
+			 */
 			m_armMPTargetPos = CLOSE_LOW_GOAL-LIGHT_SENSOR_POS;
 			break;
-		case kPickup: //Pickup position
-			//m_armPIDController->SetSetpoint(PICKUP); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(PICKUP);
+		case kPickup:
+
+			/*
+			 * Pickup Position
+			 */
 			m_armMPTargetPos = PICKUP-LIGHT_SENSOR_POS;
 			break;
-		case kObstacle: //Obstacle self-lift position
-			//m_armPIDController->SetSetpoint(OBSTACLE); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(OBSTACLE);
+		case kObstacle:
+
+			/*
+			 * Obstacle Self-Lift Position
+			 */
 			m_armMPTargetPos = OBSTACLE-LIGHT_SENSOR_POS;
 
 			break;
-		case kClimbArm: //Climb position
-			//m_armPIDController->SetSetpoint(CLIMB_ARM); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(CLIMB_ARM);
+		case kClimbArm:
+
+			/*
+			 * Climb Position
+			 */
 			m_armMPTargetPos = CLIMB_ARM-LIGHT_SENSOR_POS;
 			break;
-		case kResetArm: //put it back in the starting position
-			//m_armPIDController->SetSetpoint(0); REMOVED FOR NOW
-			//m_armLeftTalon->SetSetpoint(0);
+		case kResetArm:
+
+			/*
+			 * Back to Starting Position
+			 */
 			m_armMPTargetPos = -LIGHT_SENSOR_POS;
 		}
 
 }
 
+/*
+ * Set PID Point
+ */
+void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 
-void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILING POINTS
-
-
+	/*
+	 * All of these adjust for the Light Sensor Position.
+	 * Otherwise known as the zero position.
+	 * so SetSetpoint(0) is not true 0, SetSetpoint(-LIGHT_SENSOR_POS) is true 0
+	 */
 	switch (setpoint) {
-	case kFarHighGoal: //Far away high goal
-		//m_armPIDController->SetSetpoint(FAR_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL-LIGHT_SENSOR_POS); //Adjusts for Light Sensor Position! (because this is where the encoder will be)
-		//m_armTargetPos = FAR_HIGH_GOAL;
-		break;
-	case kMediumLowGoal: //Medium away low goal
-		//m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS);
-		//m_armTargetPos = MEDIUM_LOW_GOAL;
-		break;
-	case kCloseHighGoal: //Close high goal
-		//m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL-LIGHT_SENSOR_POS);
-		//m_armTargetPos = CLOSE_HIGH_GOAL;
-		break;
-	case kCarry: //Carry position
-		//m_armPIDController->SetSetpoint(CARRY); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CARRY-LIGHT_SENSOR_POS);
-		//m_armTargetPos = CARRY;
-		break;
-	case kCloseLowGoal: //Close low goal
-		//m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL-LIGHT_SENSOR_POS);
-		//m_armTargetPos = CLOSE_LOW_GOAL;
-		break;
-	case kPickup: //Pickup position
-		//m_armPIDController->SetSetpoint(PICKUP); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(PICKUP-LIGHT_SENSOR_POS);
-		//m_armTargetPos = PICKUP;
-		break;
-	case kObstacle: //Obstacle self-lift position
-		//m_armPIDController->SetSetpoint(OBSTACLE); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(OBSTACLE-LIGHT_SENSOR_POS);
-		//m_armTargetPos = OBSTACLE;
+	case kFarHighGoal:
 
+		/*
+		 * Far Away High Goal
+		 */
+		m_armLeftTalon->SetSetpoint(FAR_HIGH_GOAL-LIGHT_SENSOR_POS);
 		break;
-	case kClimbArm: //Climb position
-		//m_armPIDController->SetSetpoint(CLIMB_ARM); REMOVED FOR NOW
+	case kMediumLowGoal:
+
+		/*
+		 * Medium Away Low Goal
+		 */
+		m_armLeftTalon->SetSetpoint(MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS);
+		break;
+	case kCloseHighGoal:
+
+		/*
+		 * Close High Goal
+		 */
+		m_armLeftTalon->SetSetpoint(CLOSE_HIGH_GOAL-LIGHT_SENSOR_POS);
+		break;
+	case kCarry:
+
+		/*
+		 * Carry Position
+		 */
+		m_armLeftTalon->SetSetpoint(CARRY-LIGHT_SENSOR_POS);
+		break;
+	case kCloseLowGoal:
+
+		/*
+		 * Close Low Goal
+		 */
+		m_armLeftTalon->SetSetpoint(CLOSE_LOW_GOAL-LIGHT_SENSOR_POS);
+		break;
+	case kPickup:
+
+		/*
+		 * Pickup Position
+		 */
+		m_armLeftTalon->SetSetpoint(PICKUP-LIGHT_SENSOR_POS);
+		break;
+	case kObstacle:
+
+		/*
+		 * Obstacle Self-Lift Position
+		 */
+		m_armLeftTalon->SetSetpoint(OBSTACLE-LIGHT_SENSOR_POS);
+		break;
+	case kClimbArm:
+
+		/*
+		 * Climb Position
+		 */
 		m_armLeftTalon->SetSetpoint(CLIMB_ARM-LIGHT_SENSOR_POS);
-		//m_armTargetPos = CLIMB_ARM;
 		break;
-	case kResetArm: //put it back in the starting position
-		//m_armPIDController->SetSetpoint(0); REMOVED FOR NOW
-		m_armLeftTalon->SetSetpoint(-LIGHT_SENSOR_POS); //for true 180 degrees
-		//m_armTargetPos = 0;
+	case kResetArm:
+		/*
+		 * Back to the Starting Position
+		 */
+		m_armLeftTalon->SetSetpoint(-LIGHT_SENSOR_POS);
 	}
 
 
@@ -235,36 +265,48 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) { //CURRENTLY DOES MOTION PROFILI
 
 void Arm::SetScrewPIDPoint(double setpoint) {
 
-	m_screwLeftTalon->SetSetpoint(setpoint * 4 * 360); //adjust for gearbox ratios.
+	/*
+	 * Set the target, adjusting for gearbox ratios.
+	 */
+	m_screwLeftTalon->SetSetpoint(setpoint * 4 * 360);
 
 }
 
 void Arm::SetArmPIDPoint(double setpoint) {
 
-	m_armLeftTalon->SetSetpoint(setpoint-LIGHT_SENSOR_POS); //adjust for light sensor pos
+	/*
+	 * Set the target, adjusting for true 0.
+	 */
+	m_armLeftTalon->SetSetpoint(setpoint-LIGHT_SENSOR_POS);
 
 }
 
 
 
-void Arm::SetScrewPIDPoint(ScrewSetPoint point) { //CURRENTLY DOES MOTION PROFILING POINTS
+void Arm::SetScrewPIDPoint(ScrewSetPoint point) {
 
 
 	switch (point) {
-	case kClimbScrew: //Climb position
-		//m_screwPIDController->SetSetpoint(CLIMB_SCREW); REMOVED FOR NOW
+	case kClimbScrew:
+
+		/*
+		 * Climb Position
+		 */
 		m_armLeftTalon->SetSetpoint(CLIMB_SCREW);
-		//m_screwTargetPos = CLIMB_SCREW;
 		break;
-	case kRetractScrew: //Retract the screw
-		//m_screwPIDController->SetSetpoint(RETRACT_SCREW); REMOVED FOR NOW
+	case kRetractScrew:
+
+		/*
+		 * Retract the Screw
+		 */
 		m_armLeftTalon->SetSetpoint(RETRACT_SCREW);
-		//m_screwTargetPos = RETRACT_SCREW;
 		break;
-	case kResetScrew: //put it back in the starting position
-		//m_screwPIDController->SetSetpoint(0); REMOVED FOR NOW
+	case kResetScrew:
+
+		/*
+		 * Back to the Starting Position
+		 */
 		m_armLeftTalon->SetSetpoint(0);
-		//m_screwTargetPos = 0;
 
 	}
 
@@ -275,19 +317,25 @@ void Arm::SetScrewMPPoint(ScrewSetPoint point) {
 
 
 	switch (point) {
-	case kClimbScrew: //Climb position
-		//m_screwPIDController->SetSetpoint(CLIMB_SCREW); REMOVED FOR NOW
-		//m_armLeftTalon->SetSetpoint(CLIMB_SCREW);
+	case kClimbScrew:
+
+		/*
+		 * Climb Position
+		 */
 		m_screwMPTargetPos = CLIMB_SCREW;
 		break;
-	case kRetractScrew: //Retract the screw
-		//m_screwPIDController->SetSetpoint(RETRACT_SCREW); REMOVED FOR NOW
-		//m_armLeftTalon->SetSetpoint(RETRACT_SCREW);
+	case kRetractScrew:
+
+		/*
+		 * Retract the Screw
+		 */
 		m_screwMPTargetPos = RETRACT_SCREW;
 		break;
-	case kResetScrew: //put it back in the starting position
-		//m_screwPIDController->SetSetpoint(0); REMOVED FOR NOW
-		//m_armLeftTalon->SetSetpoint(0);
+	case kResetScrew:
+
+		/*
+		 * Back to the Starting Position
+		 */
 		m_screwMPTargetPos = 0;
 
 	}
@@ -297,17 +345,17 @@ void Arm::SetScrewMPPoint(ScrewSetPoint point) {
 
 
 
-
+/*
+ * Sensors
+ */
 float Arm::GetArmEncoderRate() {
-	//return m_armEncoder->GetRate(); REMOVED FOR NOW
-	return m_armLeftTalon->GetSpeed(); //Might have to be divided by four. returns the encoder rate.
+	return m_armLeftTalon->GetSpeed()/4;
 }
 
 
 
 
 float Arm::GetScrewEncoderRate() {
-	//return m_screwEncoder->GetRate(); REMOVED FOR NOW
 	return m_screwLeftTalon->GetSpeed();
 }
 
@@ -315,7 +363,6 @@ float Arm::GetScrewEncoderRate() {
 
 
 void Arm::ZeroArmEncoder() {
-	//m_armEncoder->Reset(); REMOVED FOR NOW
 	m_armLeftTalon->SetPosition(0);
 }
 
@@ -323,7 +370,6 @@ void Arm::ZeroArmEncoder() {
 
 
 void Arm::ZeroScrewEncoder() {
-	//m_screwEncoder->Reset(); REMOVED FOR NOW
 	m_screwLeftTalon->SetPosition(0);
 }
 
@@ -331,7 +377,6 @@ void Arm::ZeroScrewEncoder() {
 
 
 float Arm::GetArmPIDSetPoint() {
-	//return m_armPIDController->GetSetpoint(); //returns setpoint REMOVED FOR NOW
 	return m_armLeftTalon->GetSetpoint();
 }
 
@@ -339,7 +384,6 @@ float Arm::GetArmPIDSetPoint() {
 
 
 float Arm::GetScrewPIDSetPoint() {
-	//return m_screwPIDController->GetSetpoint(); //returns setpoint REMOVED FOR NOW
 	return m_screwLeftTalon->GetSetpoint();
 }
 
@@ -347,25 +391,26 @@ float Arm::GetScrewPIDSetPoint() {
 
 
 float Arm::GetScrewPos() {
-	//return m_screwEncoder->Get(); //returns the current encoder value REMOVED FOR NOW
-	return m_screwLeftTalon->GetPosition(); //may need to be divided by four. Going to be in distance eventually
+	return m_screwLeftTalon->GetPosition();
 }
 
 
 
 float Arm::GetArmPos() {
-	//return m_armEncoder->Get(); //returns the current encoder value REMOVED FOR NOW
-	return m_screwLeftTalon->GetPosition() - LIGHT_SENSOR_POS; //may need to be divided by four. adjusts for light sensor pos
+	return m_screwLeftTalon->GetPosition() - LIGHT_SENSOR_POS;
 }
 
 
 
-
-bool Arm::ArmAtPIDSetPoint() { //If arm is at the given set point
-	//return m_armPIDController->OnTarget(); REMOVED FOR NOW
+bool Arm::ArmAtPIDSetPoint() {
 	int error = m_armLeftTalon->GetClosedLoopError();
-	switch (error) { //check the error
-	case 0: //if it's zero, we are there
+
+	/*
+	 * Check the error, how far we are from the
+	 * destination.
+	 */
+	switch (error) {
+	case 0:
 		return true;
 	default:
 		return false;
@@ -378,10 +423,13 @@ bool Arm::ArmAtPIDSetPoint() { //If arm is at the given set point
 
 
 bool Arm::ScrewAtPIDSetPoint() { //If screw is at the given set point
-	//return m_screwPIDController->OnTarget(); REMOVED FOR NOW
 	int error = m_armLeftTalon->GetClosedLoopError();
+	/*
+	 * Check the error, how far we are from the
+	 * destination.
+	 */
 	switch (error) { //check the error
-	case 0: //if it's zero, we are there
+	case 0:
 		return true;
 	default:
 		return false;
@@ -391,17 +439,22 @@ bool Arm::ScrewAtPIDSetPoint() { //If screw is at the given set point
 
 
 void Arm::ArmPrintData() {
-	SmartDashboard::PutNumber("Arm Encoder", m_armLeftTalon->GetPosition()/4); //write encoder values to smart dashboard.
+
+	/*
+	 * Write to SmartDashboard
+	 */
+	SmartDashboard::PutNumber("Arm Encoder", m_armLeftTalon->GetPosition()/4);
 	SmartDashboard::PutNumber("Screw Encoder", m_armLeftTalon->GetPosition()/4);
 }
 
-
-
+/*
+ * Motion Profiling
+ */
 void Arm::EnableScrewMotionProfiling() {
 
 	if (!(m_screwMPController->IsEnabled())) {
 
-		float current_position = m_screwLeftTalon->GetPosition(); //position in units of the motor shaft.
+		float current_position = m_screwLeftTalon->GetPosition();
 		float current_velocity = m_screwLeftTalon->GetSpeed();
 		m_screwMPController->BeginProfiling(
 				current_position,
@@ -438,7 +491,7 @@ void Arm::EnableArmMotionProfiling() {
 void Arm::DisableScrewMotionProfiling() {
 
 	if (m_screwMPController->IsEnabled()) {
-		m_screwMPController->EndProfiling(); //End movement.
+		m_screwMPController->EndProfiling();
 	}
 
 }
@@ -448,7 +501,7 @@ void Arm::DisableScrewMotionProfiling() {
 void Arm::DisableArmMotionProfiling() {
 
 	if (m_armMPController->IsEnabled()) {
-		m_armMPController->EndProfiling(); //End the motion profiling
+		m_armMPController->EndProfiling();
 	}
 
 }
@@ -483,15 +536,17 @@ void Arm::ResumeArmMotionProfiling() {
 }
 
 
-
+/*
+ * Motion Profiling, Set the point
+ */
 void Arm::SetArmMotionProfilePoint(float target) {
-	m_armMPTargetPos = target; //temporary code, sets the profile target to target
+	m_armMPTargetPos = target;
 }
 
 
 
 void Arm::SetScrewMotionProfilePoint(float target) {
-	m_screwMPTargetPos = target; //same
+	m_screwMPTargetPos = target;
 }
 
 
@@ -517,14 +572,3 @@ Arm::ARMPIDController::ARMPIDController(CANTalon * talonLeft, CANTalon * talonRi
 	m_talonRight = talonRight;
 
 }
-/*
-void Arm::ARMPIDController::PIDWrite(float output) {
-
-	m_talonLeft->Set(-output);
-	m_talonRight->Set(output);
-
-}
-
-
-float Arm::RC(float degrees){return((degrees/180)*3.14159265358979323846);} //Radian Convertifier
-*/
