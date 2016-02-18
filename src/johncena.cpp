@@ -7,6 +7,12 @@
 /*TO DO
  *
  * Driver Left bumper -> switching gears
+ * through PDP, do all of the current for each motor
+ * 		drive motors
+ * 		arm motors
+ * 			make sure they are doing equal work
+ * 		TOTAL current
+ *
  *
  */
 
@@ -201,7 +207,7 @@ public:
 		TeleopIntake();
 
 		SmartDashboard::PutNumber("Arm Encoder Value", m_arm->GetArmPos());
-		SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmRate());
+		//SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmRate());
 
 
 	}
