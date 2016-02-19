@@ -27,9 +27,8 @@
 #define SRC_DRIVETRAIN_H_
 
 #include "WPILib.h"
+#include <AHRS.h>
 #include "RobotUtils/HotSubsystem.h"
-#include <cmath>
-#include "AHRS.h"
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
 
@@ -76,9 +75,9 @@ const static double ToleranceDegrees = 2.0f;
  * PID coefficients for distance
  */
 
-const static double distanceP = -2.5;
+const static double distanceP = 0.01;
 const static double distanceI = 0.0;
-const static double distanceD = -0.1;
+const static double distanceD = 0.0;
 
 class TurnPIDWrapper;
 class DistancePIDWrapper;
