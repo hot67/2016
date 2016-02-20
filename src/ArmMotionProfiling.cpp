@@ -133,8 +133,8 @@ void ArmMotionProfiling::GeneratePoints() {
 
 	} while (m_trajectory->Position(time)!=0); //when we hit the position, there will be a trajectory point for this
 
-	TalonTrajectory.velocity = m_trajectory->Velocity(time/1000); //create our last trajectory point
-	TalonTrajectory.position = m_trajectory->Velocity(time/1000);
+	TalonTrajectory.velocity = m_trajectory->Velocity(time/1000)/360; //create our last trajectory point
+	TalonTrajectory.position = m_trajectory->Position(time/1000)/360;
 	TalonTrajectory.timeDurMs = m_deltaTime;
 
 	TalonTrajectory.velocityOnly = false;
