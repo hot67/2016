@@ -1,37 +1,77 @@
 #ifndef SRC_ARM_H_
 #define SRC_ARM_H_
 
+#include <ArmMotionProfiling.h>
 #include <RobotUtils/HotSubsystem.h>
-
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
 
 #ifdef PRACTICE_BOT
-//PID values
+
+/*
+ * PID Values
+ */
 #define ARM_P 0
 #define ARM_I 0
 #define ARM_D 0
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
+
+/*
+ * Motion Profiling Constants,
+ * need to get these from the motors.
+ */
+#define ARM_MAX_A 1
+#define ARM_MAX_V 1
+#define ARM_DELTA_TIME 20
+
+
+#define SCREW_MAX_A 1
+#define SCREW_MAX_V 1
+#define SCREW_DELTA_TIME 20
+
+#define LIGHT_SENSOR_POS 1
+
 #endif
 
 #ifdef COMPETITION_BOT
-//PID values
+
+/*
+ * PID Values
+ */
 #define ARM_P 0
 #define ARM_I 0
 #define ARM_D 0
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
+
+/*
+ * Motion Profiling Constants,
+ * need to get these from the motors.
+ */
+#define ARM_MAX_A 1
+#define ARM_MAX_V 1
+#define ARM_DELTA_TIME 20
+
+#define SCREW_MAX_A 1
+#define SCREW_MAX_V 1
+#define SCREW_DELTA_TIME 1
+#define LIGHT_SENSOR_POS 1
+
 #endif
 
-//PPRs
+/*
+ * Encoder Pulses per Revolution
+ */
 #define ARM_ENCODER_PULSE_PER_REVOLUTION 1
 #define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
 
-//Values for angles of Arm Positioning (degrees)
+/*
+ * PID Setpoints
+ */
 #define FAR_HIGH_GOAL 45
 #define CLIMB_ARM 97.126
 #define MEDIUM_LOW_GOAL 50
@@ -41,22 +81,28 @@
 #define PICKUP 0
 #define OBSTACLE -10
 
-//Values of distance to reach, in feet
-#define CLIMB_SCREW 0
+/*
+ * PID Setpoints
+ */
+#define CLIMB_SCREW 37440
 #define RETRACT_SCREW 0
 
-//Encoder ids
-#define ENCODER_ARM1 4
-#define ENCODER_ARM2 5
-#define ENCODER_SCREW1 6
-#define ENCODER_SCREW2 7
-
-//Motor ids
+/*
+ * CANTalon Motor Locations
+ */
 #define TALON_SCREW_L 14
 #define TALON_SCREW_R 15
 #define TALON_ARM_R 12
 #define TALON_ARM_L 11
 
+/*
+ * Light Sensor Location
+ */
+#define LIGHT_ARM 9
+
+/*
+ * Arm Setpoint Enums
+ */
 enum ArmSetPoint {
 	kFarHighGoal = 1, //45 degrees
 	kMediumLowGoal = 2, //50 degrees
@@ -69,6 +115,9 @@ enum ArmSetPoint {
 	kResetArm = 0
 };
 
+/*
+ * Screw Setpoint Enums
+ */
 enum ScrewSetPoint {
 	kClimbScrew = 1, //extend
 	kRetractScrew = 2, //retract
@@ -77,57 +126,226 @@ enum ScrewSetPoint {
 
 class Arm: public HotSubsystem {
 
-	CANTalon* m_armLeftTalon; //Initializes Talons for Arm
+	/*
+	 * CANTalons
+	 */
+	CANTalon* m_armLeftTalon;
 	CANTalon* m_armRightTalon;
-
-	CANTalon* m_screwLeftTalon; //Initializes Talons for Screwdrive
+	CANTalon* m_screwLeftTalon;
 	CANTalon* m_screwRightTalon;
 
-	Encoder* m_screwEncoder; //Initializes Encoders
-	Encoder* m_armEncoder;
+	/*
+	 * Light Sensor
+	 */
+	DigitalInput* m_armLightSensor;
 
-	PIDController* m_armPIDController; //Initializes PID Controllers
-	PIDController* m_screwPIDController;
+
+	/*
+	 * PID Controllers
+	 */
+	PIDController * m_armPIDController;
+	PIDController * m_screwPIDController;
+	/*
+	 * Motion Profiling Controllers and Variables
+	 */
+	ArmMotionProfiling *m_armMPController;
+	float m_armMPTargetPos;
+	ArmMotionProfiling *m_screwMPController;
+	float m_screwMPTargetPos;
+
 
 public:
 
-	Arm(HotBot* bot); //Constructor
-	virtual ~Arm();
-
-	void SetArm(float speed); //Set the Speed of the Arm
-	void SetScrew(float speed); //Set the Speed of the Screw Drive / Arm Extender
-
-	void SetArmPIDPoint(ArmSetPoint setpoint);
 	/*
-	 * Set the desired pidcontroller setpoint, such as close_low_goal
+	 * Arm Constructor
+	 */
+	Arm(HotBot* bot);
+
+	/*
+	 * Raw Access to Talons
+	 * Uses m_armPIDWrapper, and m_screwPIDWrapper
+	 */
+	void SetArm(float speed);
+	void SetScrew(float speed);
+
+	/*
+	* Raw access to Encoder Values.
+	*/
+	float GetScrewPos();
+	float GetArmPos();
+
+	/*
+	 * Raw access to Encoder Speed
+	 */
+	float GetArmSpeed();
+	float GetScrewSpeed();
+
+	/*
+	 * Encoder Resetter
+	 */
+	void ZeroArmEncoder();
+	void ZeroScrewEncoder();
+
+	/*
+	 * Raw Access to Light Sensor
+	 */
+	bool IsLightSensorTriggered();
+
+	/*
+	 * Print Encoder Data to Smart Dashboard
+	 */
+	void ArmPrintData();
+
+	/*
+	 * Make sure nothing over extends.
+	 */
+	void PeriodicTask();
+
+	/*****************************
+	 *		Arm PID
+	 *****************************/
+
+	class ArmPIDWrapper : public PIDSource , public PIDOutput {
+		CANTalon * m_leftTalon;
+		CANTalon * m_rightTalon;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+
+		ArmPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon);
+	};
+private:
+	ArmPIDWrapper * m_armPIDWrapper;
+public:
+	/*
+	 * Enable and Disable
+	 */
+	void EnableArmPID();
+	void DisableArmPID();
+
+	/*
+	 * Is Enabled?
+	 */
+	bool IsArmPIDEnabled();
+
+	/*
+	 * Set Setpoint
+	 */
+	void SetArmPIDPoint(double setpoint);
+	void SetArmPIDPoint(ArmSetPoint setpoint);
+
+	/*
+	 * What is goal now?
+	 */
+	float GetArmPIDSetPoint();
+
+	/*
+	 * Have we arrived at the Set Point?
+	 */
+	bool ArmAtPIDSetPoint();
+
+	/*****************************
+	 * 		Screw PID
+	 ******************************/
+
+	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
+		CANTalon * m_leftTalon;
+		CANTalon * m_rightTalon;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+
+		ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon);
+	};
+private:
+	ScrewPIDWrapper * m_screwPIDWrapper;
+public:
+	/*
+	 * Enable and Disable
+	 */
+	void EnableScrewPID();
+	void DisableScrewPID();
+
+	/*
+	 * Is Enabled?
+	 */
+	bool IsScrewPIDEnabled();
+
+	/*
+	 * Set Setpoint
 	 */
 	void SetScrewPIDPoint(ScrewSetPoint setpoint);
+	void SetScrewPIDPoint(double setpoint);
 
-	float GetScrewSetPoint(); //Returns the Setpoint of the Screw PIDController
-	float GetArmSetPoint(); //Returns the Setpoint of the Arm PIDController
+	/*
+	 * What is the goal now?
+	 */
+	float GetScrewPIDSetPoint();
 
-	float GetScrewPos(); //Returns the current encoder value of the screw
-	float GetArmPos(); //Returns the current encoder value of the arm
+	/*
+	 * Have we arrived at the Set Point?
+	 */
+	bool ScrewAtPIDSetPoint();
 
-	bool ArmAtSetPoint(); //Checks if arm is at given set point
-	bool ScrewAtSetPoint(); //Checks if screw is at given set point
+	/******************************
+	 * 		Arm Motion Profiling
+	 ******************************/
+	/*
+	 * Enable and Disable.
+	 */
+	void EnableArmMotionProfiling();
+	void DisableArmMotionProfiling();
+	void PauseArmMotionProfiling();
+	void ResumeArmMotionProfiling();
 
-	void ZeroArmEncoder(); //zero the arm encoder
-	void ZeroScrewEncoder(); //zero the screw encoder
-protected:
-	void ArmPrintData();
-public:
-	float GetArmEncoderRate(); //Returns the arm encoder rate
-	float GetScrewEncoderRate(); //Returns the screw encoder rate
+	/*
+	 * Is Enabled?
+	 */
+	bool IsArmMPEnabled();
 
-	void EnableArmPID(); //Enable the PID for the arm
-	void DisableArmPID(); //Disable the PID for the arm
+	/*
+	 * Set Setpoint.
+	 */
+	void SetArmMotionProfilePoint(ArmSetPoint target);
+	void SetArmMotionProfilePoint(float target);
 
-	void EnableScrewPID(); //Enable the PID for the screw
-	void DisableScrewPID(); //Disable the PID for the screw
-	float RC(float degrees); //Radian Convertifier. May not end up being used
+	/*
+	 * Periodic Task, every 10ms
+	 */
+	void PeriodicArmTask();
 
 
+	/******************************
+	 * 		Screw Motion Profiling
+	 ******************************/
+	/*
+	 * Enable and Disable.
+	 */
+	void EnableScrewMotionProfiling();
+	void DisableScrewMotionProfiling();
+	void PauseScrewMotionProfiling();
+	void ResumeScrewMotionProfiling();
+
+	/*
+	 * Is Enabled?
+	 */
+	bool IsScrewMPEnabled();
+
+	/*
+	 * Set Setpoint.
+	 */
+	void SetScrewMotionProfilePoint(ScrewSetPoint target);
+	void SetScrewMotionProfilePoint(float target);
+
+	/*
+	 * Periodic Task, every 10ms
+	 */
+	void PeriodicScrewTask();
+
+	/*
+	 * Have we arrived at the Set Point?
+	 */
+	bool ScrewAtMPSetPoint();
 };
 
 #endif /* SRC_ARM_H_ */
