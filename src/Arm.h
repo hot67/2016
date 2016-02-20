@@ -139,6 +139,12 @@ class Arm: public HotSubsystem {
 	 */
 	DigitalInput* m_armLightSensor;
 
+
+	/*
+	 * PID Controllers
+	 */
+	PIDController * m_armPIDController;
+	PIDController * m_screwPIDController;
 	/*
 	 * Motion Profiling Controllers and Variables
 	 */
@@ -192,6 +198,19 @@ public:
 	/*****************************
 	 *		Arm PID
 	 *****************************/
+
+	class ArmPIDWrapper : public PIDSource , public PIDOutput {
+		CANTalon * m_leftTalon;
+		CANTalon * m_rightTalon;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+
+		ArmPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon);
+	};
+private:
+	ArmPIDWrapper * m_armPIDWrapper;
+public:
 	/*
 	 * Enable and Disable
 	 */
@@ -222,6 +241,19 @@ public:
 	/*****************************
 	 * 		Screw PID
 	 ******************************/
+
+	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
+		CANTalon * m_leftTalon;
+		CANTalon * m_rightTalon;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+
+		ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon);
+	};
+private:
+	ScrewPIDWrapper * m_screwPIDWrapper;
+public:
 	/*
 	 * Enable and Disable
 	 */
