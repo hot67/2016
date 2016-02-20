@@ -163,6 +163,7 @@ public:
 
 	/*
 	 * Raw Access to Talons
+	 * Uses m_armPIDWrapper, and m_screwPIDWrapper
 	 */
 	void SetArm(float speed);
 	void SetScrew(float speed);

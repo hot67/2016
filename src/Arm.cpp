@@ -49,41 +49,13 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	 * Initialize the Motion Profiling Controllers
 	 * We just need to give them a Talon.
 	 */
+	m_armMPTargetPos = 0;
+	m_screwMPTargetPos = 0;
 	m_armMPController = new ArmMotionProfiling(m_armLeftTalon);
 	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon);
 
 }
 
-Arm::ArmPIDWrapper::ArmPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon) {
-	m_leftTalon = leftTalon;
-	m_rightTalon = rightTalon;
-}
-
-void Arm::ArmPIDWrapper::PIDWrite(float output) {
-
-	m_leftTalon->Set(output);
-	m_rightTalon->Set(-output);
-
-}
-
-double Arm::ArmPIDWrapper::PIDGet() {
-	return m_leftTalon->GetPosition();
-}
-
-Arm::ScrewPIDWrapper::ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon) {
-	m_leftTalon = leftTalon;
-	m_rightTalon = rightTalon;
-}
-
-void Arm::ScrewPIDWrapper::PIDWrite(float output) {
-
-	m_leftTalon->Set(output);
-	m_rightTalon->Set(output);
-}
-
-double Arm::ScrewPIDWrapper::PIDGet() {
-	return m_leftTalon->GetPosition();
-}
 
 /*
  * Set the Arm Speed
@@ -148,6 +120,23 @@ void Arm::ArmPrintData() {
 	 */
 	SmartDashboard::PutNumber("Arm Encoder", GetArmPos());
 	SmartDashboard::PutNumber("Screw Encoder", GetArmPos());
+}
+
+
+Arm::ArmPIDWrapper::ArmPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon) {
+	m_leftTalon = leftTalon;
+	m_rightTalon = rightTalon;
+}
+
+void Arm::ArmPIDWrapper::PIDWrite(float output) {
+
+	m_leftTalon->Set(output);
+	m_rightTalon->Set(-output);
+
+}
+
+double Arm::ArmPIDWrapper::PIDGet() {
+	return m_leftTalon->GetPosition();
 }
 
 /*
@@ -264,7 +253,20 @@ float Arm::GetArmPIDSetPoint() {
 }
 
 
+Arm::ScrewPIDWrapper::ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon) {
+	m_leftTalon = leftTalon;
+	m_rightTalon = rightTalon;
+}
 
+void Arm::ScrewPIDWrapper::PIDWrite(float output) {
+
+	m_leftTalon->Set(output);
+	m_rightTalon->Set(output);
+}
+
+double Arm::ScrewPIDWrapper::PIDGet() {
+	return m_leftTalon->GetPosition();
+}
 
 /*
  * Enable control of the Screw PID.
