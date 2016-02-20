@@ -16,7 +16,7 @@ ShooterPIDWrapper::~ShooterPIDWrapper() {
 }
 
 void ShooterPIDWrapper::PIDWrite(float output) {
-	float speed = (m_intake->GetShooterPIDSetPoint()) + output;
+	float speed = m_intake->GetShooterPIDSetPoint() + output;
 
 	speed = (speed > 1.0) ? 1.0 : speed;
 	speed = (speed < 0.0) ? 0.0 : speed;
@@ -25,5 +25,5 @@ void ShooterPIDWrapper::PIDWrite(float output) {
 }
 
 double ShooterPIDWrapper::PIDGet() {
-	return m_intake->GetShooterSpeed() / SHOOTER_MAX_SPEED;
+	return m_intake->GetShooterSpeed();
 }

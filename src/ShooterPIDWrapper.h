@@ -12,7 +12,7 @@
 
 class Intake;
 
-class ShooterPIDWrapper : public PIDSource, PIDOutput {
+class ShooterPIDWrapper : public PIDSource, public PIDOutput {
 private:
 	Intake *m_intake;
 public:
