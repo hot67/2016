@@ -1,6 +1,6 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
-
+#include "Drivetrain.h"
 
 enum obstacle {
 
@@ -28,6 +28,7 @@ private:
 	//	Joysticks
 	HotJoystick *m_driver, *m_operator;
 	auton_choice m_autonChoice;
+	Drivetrain * m_drivetrain;
 
 public:
 	Johncena () {
