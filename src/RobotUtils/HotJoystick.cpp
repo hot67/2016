@@ -55,19 +55,19 @@ float HotJoystick::GetDeadband(kAxis axis) {
 bool HotJoystick::Button(kButton btn) {
 	switch (btn) {
 	case kButtonA:
-		return GetRawButton(0);
-	case kButtonB:
 		return GetRawButton(1);
-	case kButtonX:
+	case kButtonB:
 		return GetRawButton(2);
-	case kButtonY:
+	case kButtonX:
 		return GetRawButton(3);
-	case kButtonLB:
+	case kButtonY:
 		return GetRawButton(4);
-	case kButtonRB:
+	case kButtonLB:
 		return GetRawButton(5);
-	case kButtonStart:
+	case kButtonRB:
 		return GetRawButton(6);
+	case kButtonStart:
+		return GetRawButton(8);
 	case kButtonBack:
 		return GetRawButton(7);
 	case kButtonLT:
@@ -165,22 +165,22 @@ bool HotJoystick::ButtonPressed(kButton btn) {
 float HotJoystick::Axis(kAxis axis) {
 	switch(axis) {
 	case kAxisLX:
-		return (GetRawAxis(0) > db_LX) ? GetRawAxis(0) : 0.0;
+		return fabs(GetRawAxis(0)) > db_LX ? GetRawAxis(0) : 0.0;
 		break;
 	case kAxisLY:
-		return (GetRawAxis(1) > db_LY) ? GetRawAxis(1) : 0.0;
+		return fabs(GetRawAxis(1)) > db_LY ? GetRawAxis(1) : 0.0;
 		break;
 	case kAxisLT:
-		return (GetRawAxis(2) > db_LX) ? GetRawAxis(2) : 0.0;
+		return fabs(GetRawAxis(2)) > db_LX ? GetRawAxis(2) : 0.0;
 		break;
 	case kAxisRT:
-		return (GetRawAxis(3) > db_LX) ? GetRawAxis(3) : 0.0;
+		return fabs(GetRawAxis(3)) > db_LX ? GetRawAxis(3) : 0.0;
 		break;
 	case kAxisRX:
-		return (GetRawAxis(4) > db_LX) ? GetRawAxis(4) : 0.0;
+		return fabs(GetRawAxis(4)) > db_LX ? GetRawAxis(4) : 0.0;
 		break;
 	case kAxisRY:
-		return (GetRawAxis(5) > db_LX) ? GetRawAxis(5) : 0.0;
+		return fabs(GetRawAxis(5)) > db_LX ? GetRawAxis(5) : 0.0;
 		break;
 	default:
 		return 0.0;

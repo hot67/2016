@@ -35,6 +35,7 @@ void Intake::SetRoller(float speed){
 
 void Intake::SetShooter(float speed){ //set speed of shooter
 	m_shooterTalon->Set(speed);
+	SmartDashboard::PutNumber("Shooter", m_shooterTalon->Get());
 }
 
 void Intake::SetShooterDefault(){
@@ -66,4 +67,8 @@ float Intake::GetShooterSpeed(){
 void Intake::IntakePrintData(){
 	SmartDashboard::PutNumber("Current Shooter Rate", m_shooterEncoder->GetRate());
 	SmartDashboard::PutNumber("Desired Shooter Rate", m_desiredShooterSpeed);
+}
+
+float Intake::GetShooterPIDSetPoint(){
+	return m_shooterSpeedPID->GetSetpoint();
 }

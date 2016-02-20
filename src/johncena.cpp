@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Intake.h"
+#include "Arm.h"
 #include "Drivetrain.h"
 
 /*TO DO
@@ -29,6 +30,7 @@ private:
 
 	Drivetrain* m_drivetrain;
 	Intake* m_intake;
+	Arm* m_arm;
 
 	bool f_armReset;
 
@@ -44,6 +46,7 @@ public:
 
 		m_drivetrain = new Drivetrain(this);
 		m_intake = new Intake(this);
+		m_arm = new Arm(this);
 
 		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.2);
 		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
@@ -63,6 +66,11 @@ public:
 
 	void RobotInit()
 	{
+		CameraServer::GetInstance()->SetQuality(50);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+
+		//yeah it works!!!
+		SmartDashboard::PutNumber("Distance to Goal", SmartDashboard::GetNumber("distanceToTarget", 0.0));
 	}
 
 	void DisabledInit()
@@ -189,6 +197,20 @@ public:
 	void TeleopPeriodic()
 	{
 		TeleopDrive();
+		TeleopArm();
+		TeleopIntake();
+
+		if (m_operator->GetRawButton(1))
+		{
+			m_intake->SetShooter(1.0);
+		}
+		else
+			m_intake->SetShooter(0.0);
+
+		SmartDashboard::PutNumber("Arm Encoder Value", m_arm->GetArmPos());
+		SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmRate());
+
+
 	}
 
 	void TestPeriodic()
@@ -288,11 +310,6 @@ public:
 			//m_arm->EnableArmPID();
 			//if operator presses button Y, arm will set to High Goal angle
 		}
-		else if (m_operator->ButtonX()){
-			//m_arm->SetArmPIDPoint(kCarry);
-			//m_arm->EnableArmPID();
-			//if operator presses button X, arm will set to Carry angle
-		}
 		else if (m_operator->ButtonA()){
 			//m_arm->SetArmPIDPoint(kPickup);
 			//m_arm->EnableArmPID();
@@ -304,13 +321,16 @@ public:
 			//if operator presses button B, arm will set to Close High Goal angle
 		}
 		else if (m_operator->AxisLY() > 0.2){
-			//m_arm->SetScrew(m_operator->AxisLY());
+			//m_arm->SetScrew(m_operator->AxisRY());
 			//if operator uses left joystick up and down, will set manual screw
 		}
-		else if (m_operator->AxisRY() > 0.2){
-			//m_arm->SetArm(m_operator->AxisLY());
+		else if (fabs(m_operator->AxisRY()) > 0.2){
+			m_arm->SetArm(m_operator->GetRawAxis(5));
 			//if operator uses right joystick up and down, will set manual arm
 		}
+		else
+			m_arm->SetArm(0);
+			//m_intake->SetShooter(0.);
 	}
 
 	void TeleopIntake (){

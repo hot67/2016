@@ -36,7 +36,9 @@
 #define SHOOTER_ENCODER1 8
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
-#define DEFAULT_SHOOTER_SPEED 0.8
+#define DEFAULT_SHOOTER_SPEED 1.0
+
+#define SHOOTER_MAX_SPEED 1.0
 
 class Intake: public HotSubsystem {
 private:
@@ -66,6 +68,8 @@ public:
 	void DecreaseShooterSpeed(); // decrease shooter speed by 0.01
 
 	float GetShooterSpeed();
+
+	float GetShooterPIDSetPoint();
 
 	void IntakePrintData();
 };
