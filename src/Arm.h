@@ -154,147 +154,160 @@ public:
 	 * Arm Constructor
 	 */
 	Arm(HotBot* bot);
-	virtual ~Arm();
 
+	/*
+	 * Raw Access to Talons
+	 */
 	void SetArm(float speed);
 	void SetScrew(float speed);
 
 	/*
-	 * PID Setpoints and MP Setpoints
-	 */
-	void SetScrewPIDPoint(ScrewSetPoint setpoint);
-	void SetScrewMPPoint(ScrewSetPoint setpoint);
-	void SetScrewPIDPoint(double setpoint);
-
-	void SetArmMPPoint(ArmSetPoint setpoint);
-	void SetArmPIDPoint(double setpoint);
-	void SetArmPIDPoint(ArmSetPoint setpoint);
-
-	/*
-	 * Returns the setpoint
-	 */
-	float GetScrewPIDSetPoint();
-	float GetArmPIDSetPoint();
-	float GetArmMPSetPoint();
-	float GetScrewMPSetPoint();
-
-	/*
-	 * Sensors
-	 */
-
-	/*
-	 * Has the Light Sensor been Triggered?
-	 */
-	bool IsLightSensorTriggered();
-
-	/*
-	 * Print out encoder data to Smart Dashboard.
-	 */
-	void ArmPrintData();
-
-	/*
-	 * Return the Sensor Positions
-	 */
+	* Raw access to Encoder Values.
+	*/
 	float GetScrewPos();
 	float GetArmPos();
 
 	/*
-	 * Get the Speed Encoder is Reading
+	 * Raw access to Encoder Speed
 	 */
-	float GetArmEncoderRate();
-	float GetScrewEncoderRate();
+	float GetArmSpeed();
+	float GetScrewSpeed();
 
 	/*
-	 * AtSetpoint? (Arm)
-	 */
-	bool ArmAtPIDSetPoint();
-
-	/*
-	 * AtSetpoint? (Screw)
-	 */
-	bool ScrewAtPIDSetPoint();
-
-	/*
-	 * AtSetpoint? (Arm MP)
-	 */
-	bool ArmAtMPSetPoint();
-
-	/*
-	 * AtSetpoint? (Screw MP)
-	 */
-	bool ScrewAtMPSetPoint();
-
-	/*
-	 * Reset the Encoder
+	 * Encoder Resetter
 	 */
 	void ZeroArmEncoder();
 	void ZeroScrewEncoder();
 
 	/*
-	 * Motion Profiling.
+	 * Raw Access to Light Sensor
 	 */
-	void EnableScrewMotionProfiling();
+	bool IsLightSensorTriggered();
 
 	/*
-	 * Set the target manually
+	 * Print Encoder Data to Smart Dashboard
 	 */
-	void SetScrewMotionProfilePoint(float target);
+	void ArmPrintData();
+
+	/*****************************
+	 *		Arm PID
+	 *****************************/
+	/*
+	 * Enable and Disable
+	 */
+	void EnableArmPID();
+	void DisableArmPID();
 
 	/*
-	 * Disable Motion Profiling
+	 * Is Enabled?
 	 */
-	void DisableScrewMotionProfiling();
+	bool IsArmPIDEnabled();
 
 	/*
-	 * Periodic Task.
-	 * Call me about every 10 ms
+	 * Set Setpoint
 	 */
-	void PeriodicScrewTask();
+	void SetArmPIDPoint(double setpoint);
+	void SetArmPIDPoint(ArmSetPoint setpoint);
 
 	/*
-	 * Pause and resume Profiling
+	 * What is goal now?
 	 */
-	void PauseScrewMotionProfiling();
-	void ResumeScrewMotionProfiling();
+	float GetArmPIDSetPoint();
 
 	/*
-	 * Enable Screw Motion Profiling
+	 * Have we arrived at the Set Point?
+	 */
+	bool ArmAtPIDSetPoint();
+
+	/*****************************
+	 * 		Screw PID
+	 ******************************/
+	/*
+	 * Enable and Disable
+	 */
+	void EnableScrewPID();
+	void DisableScrewPID();
+
+	/*
+	 * Is Enabled?
+	 */
+	bool IsScrewPIDEnabled();
+
+	/*
+	 * Set Setpoint
+	 */
+	void SetScrewPIDPoint(ScrewSetPoint setpoint);
+	void SetScrewPIDPoint(double setpoint);
+
+	/*
+	 * What is the goal now?
+	 */
+	float GetScrewPIDSetPoint();
+
+	/*
+	 * Have we arrived at the Set Point?
+	 */
+	bool ScrewAtPIDSetPoint();
+
+	/******************************
+	 * 		Arm Motion Profiling
+	 ******************************/
+	/*
+	 * Enable and Disable.
 	 */
 	void EnableArmMotionProfiling();
-
-	/*
-	 * Set the target manually
-	 */
-	void SetArmMotionProfilePoint(float target);
-
-	/*
-	 * Disable Motion Profiling
-	 */
 	void DisableArmMotionProfiling();
-
-	/*
-	 * Periodic Task.
-	 * Call me about every 10 ms
-	 */
-	void PeriodicArmTask();
-
-	/*
-	 * Pause and resume Profiling
-	 */
 	void PauseArmMotionProfiling();
 	void ResumeArmMotionProfiling();
 
 	/*
-	 * Enable the PIDs
+	 * Is Enabled?
 	 */
-	void EnableArmPID();
-	void EnableScrewPID();
+	bool IsArmMPEnabled();
 
 	/*
-	 * Disable the PIDs
+	 * Set Setpoint.
 	 */
-	void DisableScrewPID();
-	void DisableArmPID();
+	void SetArmMotionProfilePoint(ArmSetPoint target);
+	void SetArmMotionProfilePoint(float target);
+
+	/*
+	 * Periodic Task, every 10ms
+	 */
+	void PeriodicArmTask();
+
+
+	/******************************
+	 * 		Screw Motion Profiling
+	 ******************************/
+	/*
+	 * Enable and Disable.
+	 */
+	void EnableScrewMotionProfiling();
+	void DisableScrewMotionProfiling();
+	void PauseScrewMotionProfiling();
+	void ResumeScrewMotionProfiling();
+
+	/*
+	 * Is Enabled?
+	 */
+	bool IsScrewMPEnabled();
+
+	/*
+	 * Set Setpoint.
+	 */
+	void SetScrewMotionProfilePoint(ScrewSetPoint target);
+	void SetScrewMotionProfilePoint(float target);
+
+	/*
+	 * Periodic Task, every 10ms
+	 */
+	void PeriodicScrewTask();
+
+	/*
+	 * Have we arrived at the Set Point?
+	 */
+	bool ScrewAtMPSetPoint();
 };
 
 #endif /* SRC_ARM_H_ */

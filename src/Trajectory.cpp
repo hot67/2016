@@ -7,14 +7,10 @@
 
 #include <Trajectory.h>
 
+
 /*
- * ToDo: Figure out whats going on with units. Are these formulas all in seconds?
- * What can I change to get milliseconds?
- * Are we planning on handling intervals in seconds (at least for the arm)?
+ * A class to handle the calculation of Trajectory Points.
  */
-
-
-
 Trajectory::Trajectory(float initialV, float initialPos, float goal, float maxV, float maxA) :
 		m_initialV(initialV),
 		m_initialPos(initialPos),
@@ -32,7 +28,9 @@ Trajectory::Trajectory(float initialV, float initialPos, float goal, float maxV,
 
 }
 
-
+/*
+ * Returns the velocity given a time.
+ */
 float Trajectory::Velocity(float time) { //returns the velocity given a time.
 
 	if (time<time_1) { //Accelerating
@@ -57,21 +55,33 @@ float Trajectory::Velocity(float time) { //returns the velocity given a time.
 
 }
 
-float Trajectory::Position(float time) { //returns the position given a time.
+/*
+ * Returns the Position given a time.
+ */
+float Trajectory::Position(float time) {
 
-	if (time<time_1) { //Accelerating
+	if (time<time_1) {
+		/*
+		 * Accelerating
+		 */
 
 		return ( ( m_maxA * ( time * time) ) / 2) + ( m_initialV * time);
 
 	}
 
-	else if (time<time_2) { //Max Velocity
+	else if (time<time_2) {
+		/*
+		 * Maximum Velocity
+		 */
 
 		return distance_1 + ( m_maxV * ( time - time_1) );
 
 	}
 
-	else if (time<time_3) { //Deccelerating
+	else if (time<time_3) {
+		/*
+		 * Deccelerating
+		 */
 
 		return distance_2 - ( ( m_maxA * ( (time - time_2) * (time - time_2 ) ) ) / 2);
 
@@ -81,6 +91,10 @@ float Trajectory::Position(float time) { //returns the position given a time.
 
 }
 
-float Trajectory::DataLen(float deltatime) { //returns the amount of points that will be generated, given a delta time.
+/*
+ * Amount of trajectory points it will take to reach the goal,
+ * given a delta time in Ms.
+ */
+float Trajectory::DataLen(float deltatime) {
 	return (time_3/1000) / deltatime;
 }
