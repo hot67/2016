@@ -90,6 +90,9 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 	m_turn = angle;
 	m_drive->ArcadeDrive(speed, angle);
 
+	SmartDashboard::PutBoolean("TurnPID Enabled", m_turnPID->IsEnabled());
+	SmartDashboard::PutBoolean("DistancePID Enabled", m_distancePID->IsEnabled());
+	SmartDashboard::PutBoolean("SpanglePID Enabled", m_spanglePID->IsEnabled());
 	/*SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
 	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
 	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
@@ -183,6 +186,18 @@ void Drivetrain::ResetGyroAngle(){
 void Drivetrain::DisableBothPIDs(){
 	DisableDistance();
 	DisableAngle();
+}
+
+/******************************
+ * Spangle PID
+ ******************************/
+
+void Drivetrain::EnableSpangle(){
+	m_spanglePID->Enable();
+}
+
+void Drivetrain::DisableSpangle(){
+	m_spanglePID->Disable();
 }
 
 

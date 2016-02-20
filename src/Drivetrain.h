@@ -220,6 +220,18 @@ public:
 
 	void DisableBothPIDs();
 
+	/******************************
+	 * Angle PID
+	 ******************************/
+
+	/*
+	 * Enabling and Disabling
+	 */
+
+	void EnableSpangle();
+	void DisableSpangle();
+
+
 private:
 	CANTalon* m_lDriveF;
 	CANTalon* m_lDriveR;
