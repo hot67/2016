@@ -22,5 +22,5 @@ void DistancePIDWrapper::PIDWrite(float output) {
 
 
 double DistancePIDWrapper::PIDGet () {
-	return(m_drivetrain->GetDistancePos());
+	return(m_drivetrain->GetAverageDistance());
 }
