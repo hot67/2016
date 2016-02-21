@@ -29,13 +29,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 
     m_drive->SetExpiration(0.1);
 
-    try {
-        m_euro = new AHRS(SPI::Port::kMXP);
-    } catch (std::exception ex ) {
-        std::string err_string = "Error instantiating navX MXP:  ";
-        err_string += ex.what();
-        DriverStation::ReportError(err_string.c_str());
-    }
+    m_euro = new AHRS(SPI::Port::kMXP);
 
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
 
@@ -44,6 +38,16 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_turnPID->SetOutputRange(-1.0, 1.0);
 	m_turnPID->SetAbsoluteTolerance(ToleranceDegrees);
 	m_turnPID->SetContinuous(true);
+
+	/**
+	 * 	Initialize
+	 */
+	m_turning = m_speed = 0.0;
+
+	/**
+	 * 	Initial value of shift is High
+	 */
+	f_shift = HIGH;
 }
 
 /******************************
@@ -78,18 +82,32 @@ double Drivetrain::GetAverageSpeed(){
 	return((GetLSpeed() + GetRSpeed()) / 2);
 }
 
+bool Drivetrain::GetShift() {
+	return f_shift;
+}
+
+bool Drivetrain::IsShiftHight() {
+	return f_shift == HIGH;
+}
+
+bool Drivetrain::IsShiftLow() {
+	return f_shift = LOW;
+}
+
 /******************************
  * Motors
  ******************************/
 void Drivetrain::ArcadeDrive(double speed, double angle){
 	m_speed = speed;
 	m_turning = angle;
-	m_drive->ArcadeDrive(speed, angle);
+	m_drive->ArcadeDrive(m_speed, m_turning);
 
-	/*SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
-	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
-	SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());*/
+	SmartDashboard::PutNumber("Drivetrain speed", m_speed);
+	SmartDashboard::PutNumber("Drivetrain turn", m_turning);
+	SmartDashboard::PutNumber("Drive LF", m_lDriveF->Get());
+	SmartDashboard::PutNumber("Drive LR", m_lDriveR->Get());
+	SmartDashboard::PutNumber("Drive RF", m_rDriveF->Get());
+	SmartDashboard::PutNumber("Drive RR", m_rDriveR->Get());
 }
 
 void Drivetrain::SetSpeed(double speed) {
@@ -102,6 +120,29 @@ void Drivetrain::SetTurn(double turn) {
 
 void Drivetrain::SetShift(bool on){
 	m_shift->Set(on);
+}
+
+void Drivetrain::ShiftLow() {
+	f_shift = LOW;	//	False is low gear
+	m_shift->Set(1.0);
+}
+
+void Drivetrain::ShiftHigh() {
+	if (f_shift == LOW) {
+		/**
+		 * 	This code only runs first time this function is called
+		 */
+		m_timer->Stop();
+		m_timer->Reset();
+		m_timer->Start();
+		f_shift = HIGH;	//	True is high gear
+	}
+
+	if (m_timer->Get() < 1.0) {
+		m_shift->Set(-1.0);
+	} else {
+		m_shift->Set(0.0);
+	}
 }
 
 /******************************

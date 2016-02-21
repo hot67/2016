@@ -79,6 +79,12 @@ const static double distanceP = 0.01;
 const static double distanceI = 0.0;
 const static double distanceD = 0.0;
 
+/**
+ * 	Shifting
+ */
+#define HIGH true
+#define LOW false
+
 class TurnPIDWrapper;
 class DistancePIDWrapper;
 
@@ -138,6 +144,13 @@ public:
 	 */
 	double GetAverageSpeed();
 
+	/**
+	 * 	Check Shifting
+	 */
+	bool GetShift();
+	bool IsShiftHight();
+	bool IsShiftLow();
+
 	/******************************
 	 * Motor Control
 	 ******************************/
@@ -149,6 +162,12 @@ public:
 	 * Shifting
 	 */
 	void SetShift(bool on);
+
+	/**
+	 * 	You cannot call the following two functions together
+	 */
+	void ShiftLow();
+	void ShiftHigh();
 
 	/******************************
 	 * Distance PID
@@ -245,6 +264,7 @@ private:
 	PIDController* m_distancePID;
 
 	float m_turning, m_speed;
+	bool f_shift;
 
 };
 

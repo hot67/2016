@@ -1,8 +1,9 @@
+
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Intake.h"
-#include "Arm.h"
 #include "Drivetrain.h"
+#include "Arm.h"
 
 /*TO DO
  *
@@ -12,6 +13,8 @@
  * 		arm motors
  * 			make sure they are doing equal work
  * 		TOTAL current
+ *
+ * When roller in is released, roll out little bit automatically
  *
  *
  */
@@ -54,8 +57,8 @@ public:
 		m_intake = new Intake(this);
 		m_arm = new Arm(this);
 
-		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.2);
-		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.2);
+		m_driver->SetDeadband(HotJoystick::kAxisALL, 0.1);
+		m_operator->SetDeadband(HotJoystick::kAxisALL, 0.1);
 
 		m_pdp = new PowerDistributionPanel;
 
@@ -72,11 +75,11 @@ public:
 
 	void RobotInit()
 	{
-		CameraServer::GetInstance()->SetQuality(50);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+		//CameraServer::GetInstance()->SetQuality(50);
+		//CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		//yeah it works!!!
-		SmartDashboard::PutNumber("Distance to Goal", SmartDashboard::GetNumber("distanceToTarget", 0.0));
+		//SmartDashboard::PutNumber("Distance to Goal", SmartDashboard::GetNumber("distanceToTarget", 0.0));
 	}
 
 	void DisabledInit()
@@ -217,8 +220,6 @@ public:
 
 		SmartDashboard::PutNumber("Arm Encoder Value", m_arm->GetArmPos());
 		//SmartDashboard::PutNumber("Arm Speed (in degrees)", m_arm->GetArmRate());
-
-
 	}
 
 	void TestPeriodic()
@@ -228,6 +229,15 @@ public:
 	void TeleopDrive ()
 	{
 		m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
+
+		/**
+		 * 	Hold Left Bumper to Shift low
+		 */
+		if (m_driver->ButtonLB()) {
+			m_drivetrain->ShiftLow();
+		} else {
+			m_drivetrain->ShiftHigh();
+		}
 	}
 
 	void TeleopArm ()
@@ -253,13 +263,88 @@ public:
 		 *
 		 */
 
-		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
-			/*m_arm->SetArmPIDPoint(kClimbArm);
-			m_arm->SetScrewPIDPoint(kClimbScrew);
+		/**
+		 * 	For ARM PID test
+		 * 	ToDo: Delete
+		 */
+		if (m_operator->ButtonBack()) {
+			m_arm->ZeroArmEncoder();
+		}
+
+		if (fabs(m_operator->AxisRY()) > 0.2) {
+			/**
+			 * 	Manual Control
+			 */
+			m_arm->SetArm(m_operator->AxisRY());
+		} else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
+			/**
+			 * 	For Climb Up
+			 */
+			m_arm->SetArmPIDPoint(kClimbArm);
 			m_arm->EnableArmPID();
-			if (m_arm->ArmAtPIDSetPoint()){
-				m_arm->EnableScrewPID();
-				} */
+		} else if (m_operator->ButtonY() && m_operator->ButtonLB()) {
+			/**
+			 * 	For 50 degree Shoot
+			 */
+			m_arm->SetArmPIDPoint(kMediumLowGoal);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonY()) {
+			/**
+			 * 	High Goal
+			 */
+			m_arm->SetArmPIDPoint(kFarHighGoal);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonB() && m_operator->ButtonLB()) {
+			/*
+			 * Butter Shot
+			 */
+			m_arm->SetArmPIDPoint(35);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonB()) {
+			/**
+			 * 	Close High Goal
+			 */
+			m_arm->SetArmPIDPoint(kCloseHighGoal);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonX() && m_operator->ButtonLB()) {
+			/**
+			 * 	Low Goal
+			 */
+			m_arm->SetArmPIDPoint(kCloseLowGoal);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonX()) {
+			/**
+			 * 	Carry POsition
+			 */
+			//m_arm->SetArmPIDPoint(kCarry);
+			m_arm->SetArmPIDPoint(20);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonA() && m_operator->ButtonRB()) {
+		} else if (m_operator->ButtonA() && m_operator->ButtonLB()) {
+			/**
+			 * 	Over Obstacles
+			 */
+			m_arm->SetArmPIDPoint(kObstacle);
+			m_arm->EnableArmPID();
+		} else if (m_operator->ButtonA()) {
+			/**
+			 * 	Floor Pick up
+			 */
+			m_arm->SetArmPIDPoint(kPickup);
+			m_arm->EnableArmPID();
+		} else {
+			m_arm->DisableArmPID();
+			m_arm->SetArm(0.0);
+		}
+
+		/**
+		if ((m_operator->ButtonRB()) && (m_operator->ButtonY())){
+			//m_arm->SetArmPIDPoint(kClimbArm);
+			//m_arm->SetScrewPIDPoint(kClimbScrew);
+			//m_arm->EnableArmPID();
+			//if (m_arm->ArmAtPIDSetPoint()){
+			//	m_arm->EnableScrewPID();
+			//}
 			//if operator hits right bumper and the Y-button, arm goes to climbing position and screw extends fully
 		}
 		else if ((m_operator->ButtonRB()) && (m_operator->ButtonA())){
@@ -271,60 +356,66 @@ public:
 			//m_arm->DisableScrewPID();
 
 		if ((m_operator->ButtonLB()) && (m_operator->ButtonY())){
-			m_arm->SetArmPIDPoint(kMediumLowGoal);
-			m_arm->EnableArmPID();
+			//m_arm->SetArmPIDPoint(kMediumLowGoal);
+			//m_arm->EnableArmPID();
 
-			m_rollForShootTime->Start();
-			m_intake->SetRoller(0.1);
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.1);
 
-			if ((m_rollForShootTime->Get()) > 0.4){
-				m_intake->SetRoller(0.0);
-				m_rollForShootTime->Stop();
-				m_rollForShootTime->Reset();
-			}
+			//if ((m_rollForShootTime->Get()) > 0.4){
+			//	m_intake->SetRoller(0.0);
+			//	m_rollForShootTime->Stop();
+			//	m_rollForShootTime->Reset();
+			//}
 
-			if (m_arm->ArmAtPIDSetPoint()){
-				m_intake->SetDesiredShooterSpeed();
-				}
+			//if (m_arm->ArmAtPIDSetPoint()){
+			//	m_intake->SetDesiredShooterSpeed();
+			//}
 			//if operator hits left bumper and the Y-button, arm goes to medium low goal position and prepares to shoot
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonA())){
-			m_arm->SetArmPIDPoint(kObstacle);
-			m_arm->EnableArmPID();
+			//m_arm->SetArmPIDPoint(kObstacle);
+			//m_arm->EnableArmPID();
 			//if operator hits left bumper and the X-button, arm goes to 'push-up for obstacles' position
 		}
 		else if ((m_operator->ButtonLB()) && (m_operator->ButtonX())){
-			m_arm->SetArmPIDPoint(kCloseLowGoal);
-			m_arm->EnableArmPID();
+			//m_arm->SetArmPIDPoint(kCloseLowGoal);
+			//m_arm->EnableArmPID();
 
-			m_rollForShootTime->Start();
-			m_intake->SetRoller(0.4);
+			//m_rollForShootTime->Start();
+			//m_intake->SetRoller(0.4);
 
-			if ((m_rollForShootTime->Get()) > 0.4){
-				m_intake->SetRoller(0.0);
-				m_rollForShootTime->Stop();
-				m_rollForShootTime->Reset();
-			}
+			//if ((m_rollForShootTime->Get()) > 0.4){
+			//	m_intake->SetRoller(0.0);
+			//	m_rollForShootTime->Stop();
+			//	m_rollForShootTime->Reset();
+			//}
 
-			if (m_arm->ArmAtPIDSetPoint()){
-				m_intake->SetDesiredShooterSpeed();
-			}
+			//if (m_arm->ArmAtPIDSetPoint()){
+			//	m_intake->SetDesiredShooterSpeed();
+			//}
 			//if operator hits left bumper and the A-button, arm goes to close low goal position and prepares to shoot
 		}
 
 		else if (m_operator->ButtonY()){
-			m_arm->SetArmPIDPoint(kFarHighGoal);
-			m_arm->EnableArmPID();
+			//m_arm->SetArmPIDPoint(kFarHighGoal);
+			//m_arm->EnableArmPID();
 			//if operator presses button Y, arm will set to High Goal angle
 		}
 
 		if (fabs(m_operator->AxisRY()) > 0.2){
-			m_arm->SetArm(m_operator->AxisRY());
+			//m_arm->SetArm(m_operator->AxisRY());
 			//if operator uses right joystick up and down, will set manual arm
 		}
 		else
-			m_arm->SetArm(0);
+			//m_arm->SetArm(0);
 
+		if (fabs(m_operator->AxisLY()) > 0.2) {
+			//m_arm->SetScrew(m_operator->AxisLY());
+		} else {
+			//m_arm->SetScrew(0.0);
+		}
+		*/
 	}
 
 	void TeleopIntake (){
@@ -343,18 +434,26 @@ public:
 		 *
 		 */
 
+		if (m_driver->ButtonLT()) {
+			m_intake->SetDesiredShooterSpeed();
+		} else {
+			m_intake->SetShooter(0.0);
+		}
+		/**
+		 * ToDo: This ButtonX is conflicting with set point
 		if (m_operator->ButtonX())
 			m_intake->SetShooter(1.0);
 		else
 			m_intake->SetShooter(0.0);
-
+		*/
 		if (m_operator->AxisLT() > 0.2){
-			m_intake->SetRoller(1.0);
+			m_intake->SetRoller(-1.0);
 			//if operator presses left trigger, intake rollers roll out
 		}
 		else if ((m_operator->AxisRT()) > 0.2){
-			m_intake->SetRoller(-1.0);
+			m_intake->SetRoller(1.0);
 			//if operator presses right trigger, intake rollers roll in
+			//ToDo: When this is released, pluse the ball back so that we are ready to shoot
 		}
 		else
 			m_intake->SetRoller(0.);
@@ -367,11 +466,14 @@ public:
 			m_intake->DecreaseShooterSpeed();
 			//if operator presses down on DPAD, shooter speed decreases by 1%
 		}
+		/*
+		 * ToDo: May be we dont need pid for shooter?
 		else if ((m_driver->AxisRT()) > 0.2){
 			if (m_arm->ArmAtPIDSetPoint())
 				m_intake->Shoot();
 			//if driver presses right trigger, shoots
 		}
+		*/
 	}
 
 void PrintData(){
@@ -427,7 +529,7 @@ void PrintData(){
 	/*
 	 * Total Power Data
 	 */
-	SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
+	//SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
 
 	/*********************************
 	 * ENCODER DATA
@@ -440,7 +542,6 @@ void PrintData(){
 	/*
 	 * Arm Encoder Rate
 	 */
-	SmartDashboard::PutNumber("Arm Encoder Rate", m_arm->GetArmEncoderRate());
 
 	/*
 	 * Arm Encoder Position
@@ -475,6 +576,16 @@ void PrintData(){
 	 * Driver Right Encoder
 	 */
 	SmartDashboard::PutNumber("Drive Right Encoder Rate", m_drivetrain->GetRDistance());
+
+	/********************
+	 * For Arm PID Test
+	 *
+	 ********************/
+	SmartDashboard::PutNumber("* Arm Position", m_arm->GetArmPos());
+	SmartDashboard::PutNumber("* Arm Speed", m_arm->GetArmSpeed());
+	SmartDashboard::PutNumber("* Arm PID Goal", m_arm->GetArmPIDSetPoint());
+
+	SmartDashboard::PutNumber("Gyro Value", m_drivetrain->GetAngle());
 }
 
 };
