@@ -9,30 +9,53 @@
 
 Drivetrain::Drivetrain(HotBot* bot)
 	: HotSubsystem(bot, "Drivetrain") {
+	/**
+	 * 	Drivetrain Motors
+	 */
 	m_lDriveF = new CANTalon(TALON_DRIVE_LF);
 	m_lDriveR = new CANTalon(TALON_DRIVE_LR);
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_shift = new CANTalon(TALON_SHIFT);
+	/**
+	 * 	Shift Solenoid
+	 */
+	m_shift = new Solenoid(SOLENOID_SHIFT);
 
+	/**
+	 * 	Drive Encoders
+	 */
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
 
-	m_timer = new Timer;
+	/**
+	 * 	Gyro
+	 */
+    m_euro = new AHRS(SPI::Port::kMXP);
 
+	//m_timer = new Timer;
+
+	/**
+	 * 	Robot Drive for drivetrain
+	 */
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
 	m_drive->SetSafetyEnabled(false);
+    m_drive->SetExpiration(0.1);
 
+	/**
+	 * 	PID Wrappers
+	 */
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
 	m_turnPIDWrapper = new TurnPIDWrapper (this);
 
-    m_drive->SetExpiration(0.1);
-
-    m_euro = new AHRS(SPI::Port::kMXP);
-
+	/**
+	 * PID Controller for Distance
+	 */
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
 
+    /**
+     * 	PID Controller for Turning
+     */
 	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	m_turnPID->SetInputRange(-180.0f,  180.0f);
 	m_turnPID->SetOutputRange(-1.0, 1.0);
@@ -43,11 +66,6 @@ Drivetrain::Drivetrain(HotBot* bot)
 	 * 	Initialize
 	 */
 	m_turning = m_speed = 0.0;
-
-	/**
-	 * 	Initial value of shift is High
-	 */
-	f_shift = HIGH;
 }
 
 /******************************
@@ -83,15 +101,15 @@ double Drivetrain::GetAverageSpeed(){
 }
 
 bool Drivetrain::GetShift() {
-	return f_shift;
+	return m_shift->Get();
 }
 
 bool Drivetrain::IsShiftHight() {
-	return f_shift == HIGH;
+	return m_shift->Get() == HIGH;
 }
 
 bool Drivetrain::IsShiftLow() {
-	return f_shift = LOW;
+	return m_shift->Get() == LOW;
 }
 
 /******************************
@@ -123,26 +141,11 @@ void Drivetrain::SetShift(bool on){
 }
 
 void Drivetrain::ShiftLow() {
-	f_shift = LOW;	//	False is low gear
-	m_shift->Set(1.0);
+	SetShift(true);
 }
 
 void Drivetrain::ShiftHigh() {
-	if (f_shift == LOW) {
-		/**
-		 * 	This code only runs first time this function is called
-		 */
-		m_timer->Stop();
-		m_timer->Reset();
-		m_timer->Start();
-		f_shift = HIGH;	//	True is high gear
-	}
-
-	if (m_timer->Get() < 1.0) {
-		m_shift->Set(-1.0);
-	} else {
-		m_shift->Set(0.0);
-	}
+	SetShift(false);
 }
 
 /******************************

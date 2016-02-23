@@ -255,6 +255,11 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 		 * Back to the Starting Position
 		 */
 		m_armPIDController->SetSetpoint(-LIGHT_SENSOR_POS);
+		break;
+
+	case kBatter:
+		m_armPIDController->SetSetpoint(BATTER_HIGH_GOAL);
+		break;
 	}
 
 

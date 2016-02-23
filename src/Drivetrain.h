@@ -51,10 +51,11 @@
 #define DRIVE_ENCODER_RR 3
 
 /*
- *  Gear Shift CAN Location
+ *  Gear Shift Solenoid Location
+ *  	Changed from CANTalon
  */
 
-#define TALON_SHIFT 17
+#define SOLENOID_SHIFT 1
 
 /*
  * PID coefficients for turning
@@ -82,8 +83,8 @@ const static double distanceD = 0.0;
 /**
  * 	Shifting
  */
-#define HIGH true
-#define LOW false
+#define HIGH false
+#define LOW true
 
 class TurnPIDWrapper;
 class DistancePIDWrapper;
@@ -160,6 +161,8 @@ public:
 
 	/*
 	 * Shifting
+	 * 	true:	LOW GEAR
+	 * 	false:	HIGH GEAR
 	 */
 	void SetShift(bool on);
 
@@ -246,10 +249,10 @@ private:
 	CANTalon* m_rDriveF;
 	CANTalon* m_rDriveR;
 
+	Solenoid* m_shift;
+
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
-
-	CANTalon* m_shift;
 
 	Timer* m_timer;
 
@@ -264,8 +267,6 @@ private:
 	PIDController* m_distancePID;
 
 	float m_turning, m_speed;
-	bool f_shift;
-
 };
 
 #endif /* SRC_DRIVETRAIN_H_ */
