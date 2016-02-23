@@ -1,6 +1,23 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Drivetrain.h"
+#include "Arm.h"
+#include "AHRS.h"
+
+#define DISTANCE_TO_FIRST_OBSTACLE 7.5 //feet
+#define DISTANCE_TO_GOAL_SHOOT_POSITION 2 //feet
+#define DISTANCE_TO_CROSS_OBSTACLE 4 //feet
+
+/*
+ * Aiming angles for when we are actually off of the obstacle.
+ * 1 is the far left
+ * 5 is the far right
+ */
+#define HIGH_SHOOT_ANGLE_OBSTACLE1 45
+#define HIGH_SHOOT_ANGLE_OBSTACLE2 35
+#define HIGH_SHOOT_ANGLE_OBSTACLE3 0
+#define HIGH_SHOOT_ANGLE_OBSTACLE4 -35
+#define HIGH_SHOOT_ANGLE_OBSTACLE5 -45
 
 enum obstacle {
 
@@ -15,28 +32,49 @@ enum obstacle {
 
 };
 
+enum autonStage {
+	kBeforeObstacle,
+	kOnObstacle,
+	kPastObstacle,
+	kShooting
+};
+
+enum side {
+	kLeft,
+	kRight,
+	kCenter
+};
+
 struct auton_choice {
 
 	bool high;
 	bool low;
 	obstacle Obstacle;
-
+	side Side;
 };
 
 class Johncena : public HotBot {
 private:
 	//	Joysticks
 	HotJoystick *m_driver, *m_operator;
+
 	auton_choice m_autonChoice;
+	autonStage m_autonStage;
+
 	Drivetrain * m_drivetrain;
+	Arm * m_arm;
+
 
 public:
 	Johncena () {
 		//	Initialize Joysticks
 		m_driver = new HotJoystick(0);
 		m_operator = new HotJoystick(1);
+		m_drivetrain = new Drivetrain(this);
+		m_arm = new Arm(this);
 
 		m_autonChoice = {true, false, kLowBar};
+		m_autonStage = kBeforeObstacle;
 
 		bool m_autonWorking = false;
 	}
@@ -84,12 +122,83 @@ public:
 		/*
 		 * Initialize auton stuff.
 		 */
-		switch (m_autonChoice.Obstacle);
 	}
 
 	/**
-	 * 	Periods
+	 * 	Periodic
 	 */
+
+	void AutonomousPeriodic() {
+
+		switch (m_autonStage) {
+		case kBeforeObstacle:
+			BeforeObstaclePeriodic();
+			break;
+
+		case kOnObstacle:
+			OnObstaclePeriodic();
+			break;
+		case kPastObstacle:
+			PastObstaclePeriodic();
+		}
+
+	}
+
+	/*
+	 * Called before the robot hits the obstacle
+	 */
+	void BeforeObstaclePeriodic() {
+
+		if ( !m_drivetrain->DistanceAtSetPoint() ) {
+
+			if ( !m_drivetrain->IsEnabledDistance() ) {
+
+				m_drivetrain->SetDistance(DISTANCE_TO_FIRST_OBSTACLE); //assumes 4" distance from robot to midpoint.
+				m_drivetrain->EnableDistance();
+
+
+				if ( !m_drivetrain->DistanceAtSetPoint() ) {
+
+					if ( !m_drivetrain->IsEnabledDistance() ) {
+						m_drivetrain->SetDistance(7.5); //assumes 4" distance from robot to midpoint.
+						m_drivetrain->EnableDistance();
+					}
+				}
+			}
+		}
+		else {
+
+			m_drivetrain->DisableDistance();
+			m_autonStage = kOnObstacle;
+		}
+
+	}
+
+	/*
+	 * Called while the robot is on the obstacle
+	 */
+	void OnObstaclePeriodic() {
+
+		if ( !m_drivetrain->DistanceAtSetPoint() ) {
+			if ( !m_drivetrain->IsEnabledDistance() ) {
+
+				m_drivetrain->SetShift(true);
+				m_drivetrain->SetDistance(DISTANCE_TO_CROSS_OBSTACLE);
+				m_drivetrain->EnableDistance();
+			}
+		}
+		else {
+
+			m_drivetrain->DisableDistance();
+			m_drivetrain->SetShift(false);
+			m_autonStage = kPastObstacle;
+		}
+	}
+
+	void PastObstaclePeriodic() {
+
+
+	}
 
 };
 
