@@ -281,6 +281,10 @@ public:
 		} else {
 			m_drivetrain->ShiftHigh();
 		}
+		if ((m_driver->ButtonLB())){
+			m_drivetrain->SetShift(false);
+			//if driver holds left bumper, downshift is active
+		}
 	}
 
 	void TeleopArm ()

@@ -9,17 +9,11 @@
 /*
  * CHAD'S TO DO LIST
  *
- * add in tolerance for distance
- * 			you have tolerance for turning but not for distance so figure it out on your own
  * get distance value -> going to be called GetDistancePIDSetPoint()
  * 			what is the goal for the target distance?
  * 			example: we need to move 5 units so we SetDistance(5), so how can we get live data to pull that '5' to the dashboard
  * what the heck is setangle
  * 			make a turnPID function for setting the turnPID. thanks
- * what the heck is resetgyro
- * 			???????
- * 			tell jin/marlina when you figure it out
- *
  *
  *
  */
@@ -29,8 +23,11 @@
 #include "WPILib.h"
 #include <AHRS.h>
 #include "RobotUtils/HotSubsystem.h"
+#include <cmath>
+#include "AHRS.h"
 #include "DistancePIDWrapper.h"
 #include "TurnPIDWrapper.h"
+#include "SpanglePIDWrapper.h"
 
 /*
  * Talons' Can Bus Location
@@ -51,11 +48,10 @@
 #define DRIVE_ENCODER_RR 3
 
 /*
- *  Gear Shift Solenoid Location
- *  	Changed from CANTalon
+ *  Gear Shift CAN Location
  */
 
-#define SOLENOID_SHIFT 1
+#define TALON_SHIFT 17
 
 /*
  * PID coefficients for turning
@@ -66,17 +62,23 @@ const static double turnI = 0.00f;
 const static double turnD = 0.00f;
 const static double turnF = 0.00f;
 
+const static double spangleP = 0.03f;
+const static double spangleI = 0.00f;
+const static double spangleD = 0.00f;
+const static double spangleF = 0.00f;
+
 /*
  * Allowance for gyro turning
  */
 
 const static double ToleranceDegrees = 2.0f;
+const static float ToleranceDiplacement = 0.1;
 
 /*
  * PID coefficients for distance
  */
 
-const static double distanceP = 0.01;
+const static double distanceP = -2.5;
 const static double distanceI = 0.0;
 const static double distanceD = 0.0;
 
@@ -88,6 +90,7 @@ const static double distanceD = 0.0;
 
 class TurnPIDWrapper;
 class DistancePIDWrapper;
+class SpanglePIDWrapper;
 
 class Drivetrain : public HotSubsystem {
 public:
@@ -104,11 +107,6 @@ public:
 	 * Gets current angle of gyro
 	 */
 	double GetAngle();
-
-	/*
-	 * ????? this is not in the cpp...
-	 */
-	void ResetGyro();
 
 	/*
 	 * Resets angle to zero (yaw?)
@@ -145,32 +143,18 @@ public:
 	 */
 	double GetAverageSpeed();
 
-	/**
-	 * 	Check Shifting
-	 */
-	bool GetShift();
-	bool IsShiftHight();
-	bool IsShiftLow();
-
 	/******************************
 	 * Motor Control
 	 ******************************/
 	void ArcadeDrive(double speed, double turn);
 	void SetTurn(double turn);
 	void SetSpeed(double speed);
-
+	float GetSpeed();
+	float GetTurn();
 	/*
 	 * Shifting
-	 * 	true:	LOW GEAR
-	 * 	false:	HIGH GEAR
 	 */
 	void SetShift(bool on);
-
-	/**
-	 * 	You cannot call the following two functions together
-	 */
-	void ShiftLow();
-	void ShiftHigh();
 
 	/******************************
 	 * Distance PID
@@ -240,10 +224,20 @@ public:
 	 */
 	bool AngleAtSetPoint();
 
-	/**
-	 * 	Disable Both PID
-	 */
+
 	void DisableBothPIDs();
+
+	/******************************
+	 * Angle PID
+	 ******************************/
+
+	/*
+	 * Enabling and Disabling
+	 */
+
+	void EnableSpangle();
+	void DisableSpangle();
+
 
 private:
 	/**
@@ -260,10 +254,9 @@ private:
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 
-	/**
-	 * 	Shift Solenoid
-	 */
-	Solenoid* m_shift;
+	CANTalon* m_shift;
+
+	Timer* m_timer;
 
 	/**
 	 * 	RobotDrive for driving
@@ -275,10 +268,8 @@ private:
 	 */
 	DistancePIDWrapper* m_distancePIDWrapper;
 	TurnPIDWrapper* m_turnPIDWrapper;
+	SpanglePIDWrapper* m_spanglePIDWrapper;
 
-	/**
-	 * 	Gyro
-	 */
 	AHRS* m_euro;
 
 	/**
@@ -286,12 +277,9 @@ private:
 	 */
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;
+	PIDController* m_spanglePID;
 
-	/**
-	 * 	Storage of turning and speed
-	 * 		we need them to control turning and speed individually
-	 */
-	float m_turning, m_speed;
+	float m_turn, m_speed;
 };
 
 #endif /* SRC_DRIVETRAIN_H_ */
