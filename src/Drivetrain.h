@@ -240,32 +240,57 @@ public:
 	 */
 	bool AngleAtSetPoint();
 
-
+	/**
+	 * 	Disable Both PID
+	 */
 	void DisableBothPIDs();
 
 private:
+	/**
+	 * 	Drive Motors
+	 */
 	CANTalon* m_lDriveF;
 	CANTalon* m_lDriveR;
 	CANTalon* m_rDriveF;
 	CANTalon* m_rDriveR;
 
-	Solenoid* m_shift;
-
+	/**
+	 * 	Drive Encoders
+	 */
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 
-	Timer* m_timer;
+	/**
+	 * 	Shift Solenoid
+	 */
+	Solenoid* m_shift;
 
+	/**
+	 * 	RobotDrive for driving
+	 */
 	RobotDrive* m_drive;
 
+	/**
+	 * 	PID Wrappers
+	 */
 	DistancePIDWrapper* m_distancePIDWrapper;
 	TurnPIDWrapper* m_turnPIDWrapper;
 
+	/**
+	 * 	Gyro
+	 */
 	AHRS* m_euro;
 
+	/**
+	 * 	PID Controllers
+	 */
 	PIDController* m_turnPID;
 	PIDController* m_distancePID;
 
+	/**
+	 * 	Storage of turning and speed
+	 * 		we need them to control turning and speed individually
+	 */
 	float m_turning, m_speed;
 };
 
