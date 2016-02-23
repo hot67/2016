@@ -17,12 +17,23 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_shift = new CANTalon(TALON_SHIFT);
+	/**
+	 * 	Shift Solenoid
+	 */
+	m_shift = new Solenoid(SOLENOID_SHIFT);
 
-	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, false);
-	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, true);
+	/**
+	 * 	Drive Encoders
+	 */
+	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR);
+	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR);
 
-	m_timer = new Timer;
+	/**
+	 * 	Gyro
+	 */
+    m_euro = new AHRS(SPI::Port::kMXP);
+
+	//m_timer = new Timer;
 
 	/**
 	 * 	Robot Drive for drivetrain
@@ -36,28 +47,25 @@ Drivetrain::Drivetrain(HotBot* bot)
 	 */
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
 	m_turnPIDWrapper = new TurnPIDWrapper (this);
-	m_spanglePIDWrapper = new SpanglePIDWrapper (this);
 
-    m_drive->SetExpiration(0.1);
-
-    try {
-        m_euro = new AHRS(SPI::Port::kMXP);
-    } catch (std::exception ex ) {
-        std::string err_string = "Error instantiating navX MXP:  ";
-        err_string += ex.what();
-        DriverStation::ReportError(err_string.c_str());
-    }
-
+	/**
+	 * PID Controller for Distance
+	 */
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
-    m_distancePID->SetAbsoluteTolerance(ToleranceDiplacement);
 
+    /**
+     * 	PID Controller for Turning
+     */
 	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	m_turnPID->SetInputRange(-180.0f,  180.0f);
 	m_turnPID->SetOutputRange(-1.0, 1.0);
 	m_turnPID->SetAbsoluteTolerance(ToleranceDegrees);
 	m_turnPID->SetContinuous(true);
 
-	m_spanglePID = new PIDController(spangleP, spangleI, spangleD, spangleF, m_spanglePIDWrapper, m_spanglePIDWrapper);
+	/**
+	 * 	Initialize
+	 */
+	m_turning = m_speed = 0.0;
 }
 
 /******************************
@@ -92,25 +100,36 @@ double Drivetrain::GetAverageSpeed(){
 	return((GetLSpeed() + GetRSpeed()) / 2);
 }
 
+bool Drivetrain::GetShift() {
+	return m_shift->Get();
+}
+
+bool Drivetrain::IsShiftHight() {
+	return m_shift->Get() == HIGH;
+}
+
+bool Drivetrain::IsShiftLow() {
+	return m_shift->Get() == LOW;
+}
+
 /******************************
  * Motors
  ******************************/
 void Drivetrain::ArcadeDrive(double speed, double angle){
 	m_speed = speed;
-	m_turn = angle;
-	m_drive->ArcadeDrive(speed, angle);
+	m_turning = angle;
+	m_drive->ArcadeDrive(m_speed, m_turning);
 
-	SmartDashboard::PutBoolean("TurnPID Enabled", m_turnPID->IsEnabled());
-	SmartDashboard::PutBoolean("DistancePID Enabled", m_distancePID->IsEnabled());
-	SmartDashboard::PutBoolean("SpanglePID Enabled", m_spanglePID->IsEnabled());
-	/*SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
-	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
-	SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());*/
+	SmartDashboard::PutNumber("Drivetrain speed", m_speed);
+	SmartDashboard::PutNumber("Drivetrain turn", m_turning);
+	SmartDashboard::PutNumber("Drive LF", m_lDriveF->Get());
+	SmartDashboard::PutNumber("Drive LR", m_lDriveR->Get());
+	SmartDashboard::PutNumber("Drive RF", m_rDriveF->Get());
+	SmartDashboard::PutNumber("Drive RR", m_rDriveR->Get());
 }
 
 void Drivetrain::SetSpeed(double speed) {
-	ArcadeDrive(speed, m_turn);
+	ArcadeDrive(speed, m_turning);
 }
 
 void Drivetrain::SetTurn(double turn) {
@@ -121,12 +140,12 @@ void Drivetrain::SetShift(bool on){
 	m_shift->Set(on);
 }
 
-float Drivetrain::GetSpeed(){
-	return(m_speed);
+void Drivetrain::ShiftLow() {
+	SetShift(true);
 }
 
-float Drivetrain::GetTurn(){
-	return(m_turn);
+void Drivetrain::ShiftHigh() {
+	SetShift(false);
 }
 
 /******************************
@@ -196,18 +215,6 @@ void Drivetrain::ResetGyroAngle(){
 void Drivetrain::DisableBothPIDs(){
 	DisableDistance();
 	DisableAngle();
-}
-
-/******************************
- * Spangle PID
- ******************************/
-
-void Drivetrain::EnableSpangle(){
-	m_spanglePID->Enable();
-}
-
-void Drivetrain::DisableSpangle(){
-	m_spanglePID->Disable();
 }
 
 

@@ -80,6 +80,28 @@ bool HotJoystick::Button(kButton btn) {
 }
 
 
+bool HotJoystick::Button(int btn) {
+	if ((btn & kButtonA) && !Button(kButtonA)) {
+		return false;
+	} else if ((btn & kButtonB) && !Button(kButtonB)) {
+		return false;
+	} else if ((btn & kButtonX) && !Button(kButtonX)) {
+		return false;
+	} else if ((btn & kButtonY) && !Button(kButtonY)) {
+		return false;
+	} else if ((btn & kButtonLB) && !Button(kButtonLB)) {
+		return false;
+	} else if ((btn & kButtonRB) && !Button(kButtonRB)) {
+		return false;
+	} else if ((btn & kButtonLT) && !Button(kButtonLT)) {
+		return false;
+	} else if ((btn & kButtonRT) && !Button(kButtonRT)) {
+		return false;
+	}
+
+	return true;
+}
+
 bool HotJoystick::ButtonPressed(kButton btn) {
 	switch (btn) {
 	case kButtonA:
@@ -158,7 +180,27 @@ bool HotJoystick::ButtonPressed(kButton btn) {
 		return false;
 	}
 }
+bool HotJoystick::ButtonPressed(int btn) {
+	if ((btn & kButtonA) && !ButtonPressed(kButtonA)) {
+		return false;
+	} else if ((btn & kButtonB) && !ButtonPressed(kButtonB)) {
+		return false;
+	} else if ((btn & kButtonX) && !ButtonPressed(kButtonX)) {
+		return false;
+	} else if ((btn & kButtonY) && !ButtonPressed(kButtonY)) {
+		return false;
+	} else if ((btn & kButtonLB) && !ButtonPressed(kButtonLB)) {
+		return false;
+	} else if ((btn & kButtonRB) && !ButtonPressed(kButtonRB)) {
+		return false;
+	} else if ((btn & kButtonLT) && !ButtonPressed(kButtonLT)) {
+		return false;
+	} else if ((btn & kButtonRT) && !ButtonPressed(kButtonRT)) {
+		return false;
+	}
 
+	return true;
+}
 /**
  * 	Simple Axis Access
  */
