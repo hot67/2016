@@ -33,10 +33,6 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	/*
 	 * Configure the encoder counts per revolution
 	 */
-	//m_armLeftTalon->ConfigEncoderCodesPerRev(1636.363636);
-	//ToDo: What it is actually?
-	//	currently, simply multiplying with 90 because it worked fine.
-	//	But what it actually shoud be?
 	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
@@ -62,8 +58,12 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 /*
  * No overextending of Talons!
+ *
+ * Won't work bc if the arm position meets the requirement, we would be setting arm twice in the same loop
+ * meaning that we would have two things controlling the same talon at that point.
+ *
  */
-void Arm::PeriodicTask() {
+/* void Arm::PeriodicTask() {
 
 	int currentArmPos = GetArmPos();
 	if (currentArmPos <= -15) {
@@ -88,46 +88,33 @@ void Arm::PeriodicTask() {
 		SetScrew(0);
 	}
 
-}
+} */
 
 
 void Arm::SetArm(float speed) {
-	//m_armController->PIDWrite(speed);
 	m_armLeftTalon->Set(-speed);
 	m_armRightTalon->Set(speed);
 }
 
-
-
-
 void Arm::SetScrew(float speed) {
-	//m_screwController->PIDWrite(speed);
 	m_screwLeftTalon->Set(-speed);
 	m_screwRightTalon->Set(-speed);
 }
 
+float Arm::GetArmPos() {
+	return - m_armLeftTalon->GetPosition() * 79.2;
+}
 
 float Arm::GetScrewPos() {
-	return m_screwLeftTalon->GetPosition();
+	return m_screwLeftTalon->GetPosition() / 4;
 }
-
-
-float Arm::GetArmPos() {
-	return - m_armLeftTalon->GetPosition() * 90.0;
-//	return m_screwLeftTalon->GetPosition()/4 - LIGHT_SENSOR_POS;
-}
-
-
 
 float Arm::GetArmSpeed() {
-	return m_armLeftTalon->GetSpeed()/4;
+	return - m_armLeftTalon->GetSpeed() * 79.2;
 }
 
-
-
-
 float Arm::GetScrewSpeed() {
-	return m_screwLeftTalon->GetSpeed();
+	return m_screwLeftTalon->GetSpeed() / 4;
 }
 
 
@@ -136,15 +123,12 @@ void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(0);
 }
 
-
 void Arm::ZeroScrewEncoder() {
 	m_screwLeftTalon->SetPosition(0);
 }
 
 bool Arm::IsLightSensorTriggered() {
-
 	return m_armLightSensor->Get();
-
 }
 
 
@@ -222,7 +206,7 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 		/*
 		 * Medium Away Low Goal
 		 */
-		m_armPIDController->SetSetpoint(MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS);
+		m_armPIDController->SetSetpoint(MEDIUM_HIGH_GOAL-LIGHT_SENSOR_POS);
 		break;
 	case kCloseHighGoal:
 
@@ -311,7 +295,9 @@ double Arm::ScrewPIDWrapper::PIDGet() {
  * Enable control of the Screw PID.
  */
 void Arm::EnableScrewPID() {
-	m_screwPIDController->Enable();
+	if (!m_screwPIDController->IsEnabled()) {
+		m_screwPIDController->Enable();
+	}
 }
 
 
@@ -319,7 +305,9 @@ void Arm::EnableScrewPID() {
  * Disable control of the Screw PID.
  */
 void Arm::DisableScrewPID() {
-	m_screwPIDController->Disable();
+	if (m_screwPIDController->IsEnabled()) {
+		m_screwPIDController->Disable();
+	}
 }
 
 
@@ -474,7 +462,7 @@ void Arm::SetArmMotionProfilePoint(ArmSetPoint setpoint) {
 			/*
 			 * Medium Away Low Goal
 			 */
-			m_armMPTargetPos = MEDIUM_LOW_GOAL-LIGHT_SENSOR_POS;
+			m_armMPTargetPos = MEDIUM_HIGH_GOAL-LIGHT_SENSOR_POS;
 			break;
 		case kCloseHighGoal:
 

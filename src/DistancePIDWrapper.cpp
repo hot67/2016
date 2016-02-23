@@ -12,7 +12,6 @@ DistancePIDWrapper::DistancePIDWrapper(Drivetrain* drivetrain) {
 }
 
 DistancePIDWrapper::~DistancePIDWrapper() {
-	// TODO Auto-generated destructor stub
 }
 
 

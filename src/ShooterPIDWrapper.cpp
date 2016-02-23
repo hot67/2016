@@ -12,7 +12,6 @@ ShooterPIDWrapper::ShooterPIDWrapper(Intake *intake) {
 }
 
 ShooterPIDWrapper::~ShooterPIDWrapper() {
-	// TODO Auto-generated destructor stub
 }
 
 void ShooterPIDWrapper::PIDWrite(float output) {

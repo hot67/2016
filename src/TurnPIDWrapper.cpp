@@ -13,7 +13,6 @@ TurnPIDWrapper::TurnPIDWrapper(Drivetrain* drivetrain){
 }
 
 TurnPIDWrapper::~TurnPIDWrapper() {
-	// TODO Auto-generated destructor stub
 }
 
 void TurnPIDWrapper::PIDWrite(float output) {

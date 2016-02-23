@@ -70,19 +70,30 @@
 #define SCREW_ENCODER_PULSE_PER_REVOLUTION 1
 
 /*
- * PID Setpoints
+ * PID Setpoints for arm
  */
 #define FAR_HIGH_GOAL 45
-#define CLIMB_ARM 97.126
-#define MEDIUM_LOW_GOAL 50
+#define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 60
-#define CARRY 10
+#define BATTER_HIGH_GOAL 35
+
 #define CLOSE_LOW_GOAL 15
+
+#define CARRY 20
 #define PICKUP 0
 #define OBSTACLE -10
+#define CLIMB_ARM 97.126
+
+/**
+ * 	Shooter Speed for Different Set points
+ */
+#define FAR_HIGH_GOAL_SHOOTER 1.0
+#define MEDIUM_HIGH_GOAL_SHOOTER 1.0
+#define CLOSE_HIGH_GOAL_SHOOTER 1.0
+#define BATTER_HIGH_GOAL_SHOOTER 0.6
 
 /*
- * PID Setpoints
+ * PID Setpoints for screw
  */
 #define CLIMB_SCREW 37440
 #define RETRACT_SCREW 0
@@ -112,6 +123,7 @@ enum ArmSetPoint {
 	kPickup = 6, //unknown
 	kObstacle = 7, //-10 degrees
 	kClimbArm = 8, //97 degrees
+	kBatter = 9, //35 degrees
 	kResetArm = 0
 };
 

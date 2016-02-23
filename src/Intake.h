@@ -43,6 +43,8 @@
 // To do: what is it actually
 #define SHOOTER_PULSE_PER_ROTATION 3
 
+// Shooter Speeds
+
 class ShooterPIDWrapper;
 
 class Intake: public HotSubsystem {

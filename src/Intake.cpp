@@ -48,7 +48,6 @@ float Intake::GetShooterSpeed(){
 void Intake::SetRoller(float speed){
 	//negative values roll in
 	//positive values roll out
-	//	ToDo: Positive or negative?
 
 	m_rollerTalon->Set(speed);
 }
@@ -76,7 +75,7 @@ void Intake::SetShooterDefault(){
 void Intake::Shoot(){
 	//if minimum shooter speed is 95% of the speed that the talon is saying, then roll in
 	if (m_shooterSpeedPID->OnTarget()) {
-		SetRoller(-0.3);
+		SetRoller(1.0);
 	}
 }
 
@@ -99,7 +98,7 @@ void Intake::SetDesiredShooterSpeed(){
 /******************************
  * SHOOTER	PID
  ******************************/
-void Intake::EnableShooterPID() {
+void Intake::EnableShooterPID(){
 	m_shooterSpeedPID->Enable();
 }
 
