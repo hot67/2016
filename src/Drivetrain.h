@@ -241,7 +241,7 @@ private:
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 
-	CANTalon* m_shift;
+	Solenoid* m_shift;
 
 	Timer* m_timer;
 

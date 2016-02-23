@@ -14,7 +14,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_shift = new CANTalon(TALON_SHIFT);
+	m_shift = new Solenoid(TALON_SHIFT);
 
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, false);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, true);
