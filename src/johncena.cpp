@@ -2,11 +2,19 @@
 #include "RobotUtils/RobotUtils.h"
 #include "Drivetrain.h"
 #include "Arm.h"
+#include "Intake.h"
 #include "AHRS.h"
 
 #define DISTANCE_TO_FIRST_OBSTACLE 7.5 //feet
 #define DISTANCE_TO_GOAL_SHOOT_POSITION 2 //feet
 #define DISTANCE_TO_CROSS_OBSTACLE 4 //feet
+
+/*
+ * Time to run intake motors outwards
+ * to score in the respective goal.
+ */
+#define INTAKE_FIRE_TIME_HIGH 1 //second
+#define INTAKE_FIRE_TIME_LOw 1 //second
 
 /*
  * Aiming angles for when we are actually off of the obstacle.
@@ -60,10 +68,12 @@ private:
 
 	auton_choice m_autonChoice;
 	autonStage m_autonStage;
+	int m_autonAngle; //Angle to turn after passing the obstacle should be one of the HIGH_SHOOT_ANGLE constants
 
 	Drivetrain * m_drivetrain;
 	Arm * m_arm;
-
+	Intake * m_intake;
+	int m_shootSeconds; //how long the shooter has been running;
 
 public:
 	Johncena () {
@@ -72,6 +82,8 @@ public:
 		m_operator = new HotJoystick(1);
 		m_drivetrain = new Drivetrain(this);
 		m_arm = new Arm(this);
+		m_intake = new Intake(this);
+		m_shootSeconds = 0;
 
 		m_autonChoice = {true, false, kLowBar};
 		m_autonStage = kBeforeObstacle;
@@ -91,7 +103,8 @@ public:
 
 	void DisabledPeriodic() {
 		/*
-		 * Auton Choices
+		 * Auton Choices. We may not need these (as far as I know)
+		 * This is because right now my code for traversing all of the obstacles is the same.
 		 */
 
 		if (m_operator->GetRawButton(1)) { //High Goal Low Bar. A button
@@ -114,6 +127,18 @@ public:
 			m_autonChoice = {true, false, kRoughTerrain};
 		} else if (m_operator->GetRawButton(10)) { //Low Goal Rough Terrain. Right Stick.
 			m_autonChoice = {false, true, kRoughTerrain};
+		}
+
+		if (m_driver->GetRawButton(1)) { //Obstacle 1. Far left. A button
+			m_autonAngle = HIGH_SHOOT_ANGLE_OBSTACLE1;
+		} else if (m_driver->GetRawButton(2)) { //Obstacle 2. Second from the left. B button
+			m_autonAngle = HIGH_SHOOT_ANGLE_OBSTACLE2;
+		} else if (m_driver->GetRawButton(3)) { //Obstacle 3. Middle. X Button
+			m_autonAngle = HIGH_SHOOT_ANGLE_OBSTACLE3;
+		} else if (m_driver->GetRawButton(4)) { //Obstacle 4. Second from the right. Y Button.
+			m_autonAngle = HIGH_SHOOT_ANGLE_OBSTACLE4;
+		} else if (m_driver->GetRawButton(5)) { //Obstacle 5. Far right. Left Bumper.
+			m_autonAngle = HIGH_SHOOT_ANGLE_OBSTACLE5;
 		}
 
 	}
@@ -196,7 +221,15 @@ public:
 	}
 
 	void PastObstaclePeriodic() {
-
+		if ( !m_drivetrain->AngleAtSetPoint() ) {
+			if ( !m_drivetrain->IsEnabledAngle() ) {
+				m_drivetrain->SetAngle(m_autonAngle);
+				m_drivetrain->EnableAngle();
+			}
+		}
+		else {
+			m_drivetrain->DisableAngle();
+		}
 
 	}
 
