@@ -87,8 +87,6 @@ public:
 
 		m_autonChoice = {true, false, kLowBar};
 		m_autonStage = kBeforeObstacle;
-
-		bool m_autonWorking = false;
 	}
 
 	/**
@@ -164,7 +162,6 @@ public:
 			OnObstaclePeriodic();
 			break;
 		case kPastObstacle:
-			PastObstaclePeriodic();
 		}
 
 	}
@@ -220,16 +217,19 @@ public:
 		}
 	}
 
-	void PastObstaclePeriodic() {
-		if ( !m_drivetrain->AngleAtSetPoint() ) {
-			if ( !m_drivetrain->IsEnabledAngle() ) {
-				m_drivetrain->SetAngle(m_autonAngle);
-				m_drivetrain->EnableAngle();
+	void PastObstacleTurnPeriodic(bool autoAim) {
+		if (!autoAim) {
+			if ( !m_drivetrain->AngleAtSetPoint() ) {
+				if ( !m_drivetrain->IsEnabledAngle() ) {
+					m_drivetrain->SetAngle(m_autonAngle);
+					m_drivetrain->EnableAngle();
+				}
+			}
+			else {
+				m_drivetrain->DisableAngle();
 			}
 		}
-		else {
-			m_drivetrain->DisableAngle();
-		}
+
 
 	}
 
