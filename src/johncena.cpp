@@ -3,7 +3,7 @@
 #include "Drivetrain.h"
 #include "Arm.h"
 #include "Intake.h"
-#include "AHRS.h"
+#include "CameraHandler.h"
 
 #define DISTANCE_TO_FIRST_OBSTACLE 7.5 //feet
 #define DISTANCE_TO_GOAL_SHOOT_POSITION 2 //feet
@@ -44,6 +44,7 @@ enum autonStage {
 	kBeforeObstacle,
 	kOnObstacle,
 	kPastObstacle,
+	kAutoTurning,
 	kShooting
 };
 
@@ -162,6 +163,11 @@ public:
 			OnObstaclePeriodic();
 			break;
 		case kPastObstacle:
+			PastObstacleTurnPeriodic(false);
+			break;
+		case kAutoTurning:
+			PastObstacleTurnPeriodic(true);
+			break;
 		}
 
 	}
@@ -219,15 +225,22 @@ public:
 
 	void PastObstacleTurnPeriodic(bool autoAim) {
 		if (!autoAim) {
+
 			if ( !m_drivetrain->AngleAtSetPoint() ) {
+
 				if ( !m_drivetrain->IsEnabledAngle() ) {
 					m_drivetrain->SetAngle(m_autonAngle);
 					m_drivetrain->EnableAngle();
 				}
 			}
+
 			else {
 				m_drivetrain->DisableAngle();
 			}
+		}
+		else {
+
+			if ( )
 		}
 
 
