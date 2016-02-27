@@ -57,7 +57,7 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 	//positive values roll out
 	//negative values will destroy the robot
 
-	m_shooterTalon->Set((speed > 0.0) ? speed : 0.0);
+	m_shooterTalon->Set(speed);
 
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
@@ -90,7 +90,7 @@ void Intake::DecreaseShooterSpeed(){
 }
 
 void Intake::SetDesiredShooterSpeed(){
-	SetShooter(m_desiredShooterSpeed);
+	SetShooter(-m_desiredShooterSpeed);
 }
 
 

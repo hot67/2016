@@ -104,13 +104,13 @@ bool Drivetrain::GetShift() {
 	return m_shift->Get();
 }
 
-bool Drivetrain::IsShiftHight() {
-	return m_shift->Get() == HIGH;
-}
+ /*bool Drivetrain::IsShiftHight() {
+	return m_shift->Get();
+} */
 
-bool Drivetrain::IsShiftLow() {
+/*bool Drivetrain::IsShiftLow() {
 	return m_shift->Get() == LOW;
-}
+} */
 
 /******************************
  * Motors
@@ -141,7 +141,8 @@ void Drivetrain::SetShift(bool on){
 }
 
 void Drivetrain::ShiftLow() {
-	SetShift(true);
+		SetShift(true);
+
 }
 
 void Drivetrain::ShiftHigh() {

@@ -1,9 +1,49 @@
-
+#include <memory>
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Intake.h"
 #include "Drivetrain.h"
 #include "Arm.h"
+
+/*
+ * ARM MAPPING
+ *
+ * operator right bumper & y-button - arm to climb, screw extend
+ * operator right bumper & a-button - arm does nothing, screw retract
+ *
+ * operator left bumper & y-button - arm to medium low goal, prepares to shoot
+ * operator left bumper & x-button - arm to obstacle
+ * operator left button & a-button - arm to close low goal, prepares to shoot
+ *
+ * operator y-button - arm to far high goal
+ * operator x-button - arm to carry
+ * operator a-button - arm to floor pickup
+ * operator b-button - arm to close high goal
+ *
+ * operator left joystick - manual screw
+ * operator right joystick - manual pivot
+ *
+ */
+
+/*
+ * INTAKE MAPPING
+ *
+ * operator left trigger - intake roll out
+ * operator right trigger - intake roll in
+ *
+ * operator DPAD up - shoot speed increases by 1%
+ * operator DPAD down - shoot speed decreases by 1%
+ *
+ * driver right trigger - shoots (runs into the shooter)
+ * driver left trigger - roll out
+ *
+ * operator back button - runs up the shooter
+ *
+ */
+
+//#define COMPETITION_BOT
+#define PRACTICE_BOT
+
 
 /*Todo
  *
@@ -22,6 +62,9 @@ enum auton_t {
 class johncena: public HotBot
 {
 private:
+	Relay *m_light;
+
+
 	/*
 	 * Joysticks
 	 */
@@ -34,6 +77,7 @@ private:
 	Drivetrain* m_drivetrain;
 	Intake* m_intake;
 	Arm* m_arm;
+	//std::shared_ptr<USBCamera> m_camera;
 
 	/*
 	 * Power Distribution Panel
@@ -60,6 +104,8 @@ private:
 public:
 	johncena()
 	{
+		m_light = new Relay(0);
+
 		/*
 		 * Joystick initialization
 		 */
@@ -78,6 +124,8 @@ public:
 		m_drivetrain = new Drivetrain(this);
 		m_intake = new Intake(this);
 		m_arm = new Arm(this);
+
+		//m_camera = std::make_shared<USBCamera>("cam1", true);
 
 		/*
 		 * Power Distribution Panel initialization
@@ -104,15 +152,19 @@ public:
 		 * Sets the flag for rolling out to false because we don't start the robot by rolling out
 		 */
 		f_rollingIn = false;
+
 	}
 
 	void RobotInit()
 	{
+		//m_camera->SetExposureManual(0);
+		//m_camera->SetExposureHoldCurrent();
+
 		/*
 		 * Configure camera server
 		 */
-		CameraServer::GetInstance()->SetQuality(50);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+		//CameraServer::GetInstance()->SetQuality(50);
+		//CameraServer::GetInstance()->StartAutomaticCapture(m_camera);
 	}
 
 	void DisabledInit()
@@ -121,6 +173,13 @@ public:
 
 	void DisabledPeriodic()
 	{
+
+		//m_camera->SetExposureManual(100);
+		//m_camera->SetExposureHoldCurrent();
+
+		SmartDashboard::PutNumber("Recieved Image X 0 ", 1);
+
+
 		PrintData();
 
 		/*****
@@ -259,6 +318,18 @@ public:
 		TeleopArm();
 		TeleopIntake();
 
+		if (m_operator->AxisRT() > 0.2){
+			m_intake->SetRoller(1.0);
+		}
+		else if (m_operator->AxisLT() > 0.2){
+			m_intake->SetRoller(-1.0);
+		}
+		else {
+			m_intake->SetRoller(0.0);
+			}
+
+		m_light->Set(Relay::kForward);
+
 		/*
 		 * Publishes data to the SmartDashboard to be filtered through the LabView dashboard
 		 */
@@ -272,15 +343,14 @@ public:
 	void TeleopDrive ()
 	{
 		m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
-
 		/**
 		 * 	Hold Left Bumper to Shift low
 		 */
-		if (m_driver->ButtonLB()) {
+		/*if (m_driver->ButtonLB()) {
 			m_drivetrain->ShiftLow();
 		} else {
 			m_drivetrain->ShiftHigh();
-		}
+		} */
 	}
 
 	void TeleopArm ()
@@ -306,12 +376,25 @@ public:
 		 *
 		 */
 
+		if (m_driver->ButtonBack()){
+			m_arm->ZeroArmEncoder();
+		}
+
 		if (fabs(m_operator->AxisRY()) > 0.2) {
-			/**
-			 * 	Manual Control
-			 */
+
+			//Manual Control
 			m_arm->SetArm(m_operator->AxisRY());
-		} else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
+
+		} else if (fabs(m_operator->AxisLY()) > 0.2) {
+
+			//Manual Control
+			m_arm->SetScrew(m_operator->AxisLY());
+
+		}/* else {
+			m_arm->SetArm(0.0);
+			m_arm->SetScrew(0.0);
+		}*/
+		else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
 			/**
 			 * 	For Climb Up
 			 */
@@ -329,7 +412,7 @@ public:
 			/**
 			 * Speed up Shooter
 			 */
-			m_intake->SetShooter(MEDIUM_HIGH_GOAL_SHOOTER);
+			//m_intake->SetShooter(MEDIUM_HIGH_GOAL_SHOOTER);
 		} else if (m_operator->ButtonY()) {
 			/**
 			 * 	High Goal
@@ -342,7 +425,7 @@ public:
 			/**
 			 * Speed up Shooter
 			 */
-			m_intake->SetShooter(FAR_HIGH_GOAL_SHOOTER);
+			//m_intake->SetShooter(FAR_HIGH_GOAL_SHOOTER);
 		} else if (m_operator->ButtonB() && m_operator->ButtonLB()) {
 			/*
 			 * Batter Shot
@@ -355,7 +438,7 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
-			m_intake->SetShooter(BATTER_HIGH_GOAL_SHOOTER);
+			//m_intake->SetShooter(BATTER_HIGH_GOAL_SHOOTER);
 		} else if (m_operator->ButtonB()) {
 			/**
 			 * 	Close High Goal
@@ -368,7 +451,7 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
-			m_intake->SetShooter(CLOSE_HIGH_GOAL_SHOOTER);
+			//m_intake->SetShooter(CLOSE_HIGH_GOAL_SHOOTER);
 		} else if (m_operator->ButtonX() && m_operator->ButtonLB()) {
 			/**
 			 * 	Low Goal
@@ -401,7 +484,7 @@ public:
 			/**
 			 * 	Floor Pick up
 			 */
-			m_arm->SetArmPIDPoint(PICKUP);
+			m_arm->SetArmPIDPoint(5);
 			m_arm->EnableArmPID();
 		} else {
 			/**
@@ -414,8 +497,10 @@ public:
 			m_arm->DisableArmPID();
 			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
+			m_arm->SetScrew(0.0);
 			m_intake->SetShooter(0.0);
 		}
+
 	}
 
 	void TeleopIntake (){
@@ -436,7 +521,7 @@ public:
 		 *
 		 */
 
-		if (m_driver->ButtonRT()) {
+		/*if (m_driver->ButtonRT()) {
 			m_intake->Shoot();
 			//this shoot function doesn't have a thing to do with the shooter
 			//it just runs the intake roller in by 0.3
@@ -445,39 +530,18 @@ public:
 			m_intake->SetRoller(0.0);
 			//we are setting intake roller to 0.0 in order to counteract the shoot function above
 			//(which has nothing to do with the shooter)
-		}
+		} */
 
+		/*if (m_operator->ButtonBack()){
+			m_intake->SetShooter(-1.);
+		} */
 		if (m_operator->ButtonBack()){
-			m_intake->SetDesiredShooterSpeed();
+			m_intake->SetShooter(1.);
 		}
 		else {
 			m_intake->SetShooter(0.);
 		}
 
-		if ((m_operator->AxisRT() > 0.2) || (m_driver->AxisLT() > 0.2)){
-			m_intake->SetRoller(-1.0);
-			//if operator presses left trigger, intake rollers roll out
-		}
-		else if ((m_operator->AxisLT()) > 0.2){
-			m_intake->SetRoller(1.0);
-			f_rollingIn = true;
-			//if operator presses right trigger, intake rollers roll in
-		} else if (f_rollingIn) {
-			m_rollForShootTime->Stop();
-			m_rollForShootTime->Reset();
-			m_rollForShootTime->Start();
-
-			f_rollingIn = false;
-
-			m_intake->SetRoller(-0.4);
-		}
-		else {
-			if (m_rollForShootTime->Get() < 0.1) {
-				m_intake->SetRoller(-0.4);
-			} else {
-				m_intake->SetRoller(0.0);
-			}
-		}
 
 		if ((m_operator->GetPOV()) == 0){
 			m_intake->IncreaseShooterSpeed();
@@ -495,56 +559,6 @@ void PrintData(){
 	 * Current Data to Dashboard
 	 *********************************/
 
-	/*
-	 * Drive Current Data
-	 */
-	SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
-	SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
-	SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
-	SmartDashboard::PutNumber("Right Drive Rear Current", m_pdp->GetCurrent(15));
-
-	/*
-	 * Arm Current Data
-	 */
-	SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
-	SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
-
-	/*
-	 * Intake Current Data
-	 */
-	SmartDashboard::PutNumber("Roller/Gatherer Current", m_pdp->GetCurrent(6));
-
-	/*
-	 * Screw Current Data
-	 */
-	SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
-	SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
-
-	/*
-	 * Shooter Current Data
-	 */
-	SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
-
-	/*
-	 * Gear Shift Current Data
-	 */
-	SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
-
-	/*
-	 * LED Ring Current Data
-	 */
-	SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
-
-	/*
-	 * Total Current Data
-	 */
-	SmartDashboard::PutNumber("Total Current Data", m_pdp->GetTotalCurrent());
-
-	/*
-	 * Total Power Data
-	 */
-	SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
-
 	/*********************************
 	 * ENCODER DATA
 	 *********************************/
@@ -558,6 +572,7 @@ void PrintData(){
 	 */
 	SmartDashboard::PutNumber("Arm Encoder Speed", m_arm->GetArmSpeed());
 
+	SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
 	/*
 	 * Arm Encoder Position
 	 */
@@ -644,7 +659,7 @@ void PrintData(){
 	 * Axis
 	 */
 
-	SmartDashboard::PutNumber("Driver Left Y-Axis", m_driver->AxisLY());
+	SmartDashboard::PutNumber("Driver Left Y-Axis", SmartDashboard::GetNumber("ImageXCenter0", 1.2));//m_driver->AxisLY());
 	SmartDashboard::PutNumber("Driver Right Y-Axis", m_driver->AxisRY());
 	SmartDashboard::PutNumber("Driver Left X-Axis", m_driver->AxisLX());
 	SmartDashboard::PutNumber("Driver Right X-Axis", m_driver->AxisLX());

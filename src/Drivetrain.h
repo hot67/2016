@@ -55,7 +55,7 @@
  *  	Changed from CANTalon
  */
 
-#define SOLENOID_SHIFT 1
+#define SOLENOID_SHIFT 0
 
 /*
  * PID coefficients for turning
