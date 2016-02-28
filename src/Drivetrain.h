@@ -23,9 +23,13 @@
 #include "WPILib.h"
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
-#include "AHRS.h"
+
+//#include "AHRS.h"
+
 #include "DistancePIDWrapper.h"
-#include "TurnPIDWrapper.h"
+
+//#include "TurnPIDWrapper.h"
+
 #include "SpanglePIDWrapper.h"
 
 /*
@@ -81,7 +85,7 @@ const static double distanceP = -2.5;
 const static double distanceI = 0.0;
 const static double distanceD = -0.1;
 
-class TurnPIDWrapper;
+//class TurnPIDWrapper;
 class DistancePIDWrapper;
 class SpanglePIDWrapper;
 
@@ -99,12 +103,12 @@ public:
 	/*
 	 * Gets current angle of gyro
 	 */
-	double GetAngle();
+//	double GetAngle();
 
 	/*
 	 * Resets angle to zero (yaw?)
 	 */
-	void ResetGyroAngle();
+//	void ResetGyroAngle();
 
 	/*
 	 * Gets average encoder distance
@@ -135,6 +139,8 @@ public:
 	 * Gets average encoder speed
 	 */
 	double GetAverageSpeed();
+
+	void ResetEncoder();
 
 	/******************************
 	 * Motor Control
@@ -194,43 +200,66 @@ public:
 	/*
 	 * Enabling and Disabling
 	 */
-	void EnableAngle();
-	void DisableAngle();
+//	void EnableAngle();
+//	void DisableAngle();
 
 	/*
 	 * Is Enabled?
 	 */
-	bool IsEnabledAngle();
+//	bool IsEnabledAngle();
 
 	/*
 	 * set turn set point
 	 */
-	void SetAngle(double angle);
+//	void SetAngle(double angle);
 
 	/*
 	 * What is goal now?
 	 */
-	double GetAnglePIDSetPoint();
+//	double GetAnglePIDSetPoint();
 
 	/**
 	 * 	Have we arrived to the set point?
 	 */
-	bool AngleAtSetPoint();
+//	bool AngleAtSetPoint();
 
 
-	void DisableBothPIDs();
+//	void DisableBothPIDs();
 
 	/******************************
-	 * Angle PID
+	 * Spangle PID
 	 ******************************/
 
 	/*
 	 * Enabling and Disabling
 	 */
 
-	void EnableSpangle();
-	void DisableSpangle();
+	//void EnableSpangle();
+//	void DisableSpangle();
 
+	/*
+	 * Set Angle
+	 */
+
+//	void SetSpangle(float angle);
+
+	/*
+	 * Get Spangle
+	 */
+
+//	double GetSpanglePIDSetPoint();
+
+	/*
+	 * At Setpoint
+	 */
+
+//	bool SpangleAtSetPoint();
+
+	/*
+	 * Is Enabled
+	 */
+
+//	bool IsEnabledSpangle();
 
 private:
 	CANTalon* m_lDriveF;
@@ -248,14 +277,14 @@ private:
 	RobotDrive* m_drive;
 
 	DistancePIDWrapper* m_distancePIDWrapper;
-	TurnPIDWrapper* m_turnPIDWrapper;
+
+//	TurnPIDWrapper* m_turnPIDWrapper;
+
 	SpanglePIDWrapper* m_spanglePIDWrapper;
 
-	AHRS* m_euro;
-
-	PIDController* m_turnPID;
+	//PIDController* m_turnPID;
 	PIDController* m_distancePID;
-	PIDController* m_spanglePID;
+	//PIDController* m_spanglePID;
 
 	float m_turn, m_speed;
 

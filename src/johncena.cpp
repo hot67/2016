@@ -44,6 +44,8 @@
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
 
+#define CAMERA_TO_ENCODE_COUNT 500
+
 
 /*Todo
  *
@@ -101,6 +103,8 @@ private:
 	unsigned m_autonCase;
 	unsigned m_autonLoop;
 
+	unsigned m_lineUpCase;
+
 public:
 	johncena()
 	{
@@ -147,6 +151,8 @@ public:
 		 */
 		m_autonCase = 0;
 		m_autonLoop = 0;
+
+		m_lineUpCase = 0;
 
 		/*
 		 * Sets the flag for rolling out to false because we don't start the robot by rolling out
@@ -300,6 +306,31 @@ public:
 			*/
 	}
 
+	/* void AutoLineUp() {
+		static double m_cameraDriveCenter;
+
+		switch (m_lineUpCase) {
+			case 0:
+				m_cameraDriveCenter = ((SmartDashboard::GetNumber("ImageXCenter0", 0.0)) * CAMERA_TO_ENCODE_COUNT);
+
+				m_drivetrain->ResetEncoder();
+				m_drivetrain->SetSpangle(m_cameraDriveCenter);
+				m_lineUpCase++;
+				break;
+			case 1:
+				if (m_drivetrain->IsEnabledSpangle() == false){
+					m_drivetrain->EnableSpangle();
+				}
+				m_lineUpCase++;
+				break;
+
+
+
+
+
+		}
+	} */
+
 
 	void TeleopInit()
 	{
@@ -317,6 +348,15 @@ public:
 		TeleopDrive();
 		TeleopArm();
 		TeleopIntake();
+
+		/*if (m_driver->ButtonStart()) {
+			AutoLineUp();
+		}
+		else {
+			if (m_drivetrain->IsEnabledSpangle() == false){
+				m_drivetrain->DisableSpangle();
+			}
+		} */
 
 		if (m_operator->AxisRT() > 0.2){
 			m_intake->SetRoller(1.0);
@@ -554,7 +594,7 @@ public:
 	}
 
 void PrintData(){
-
+	try{
 	/*********************************
 	 * Current Data to Dashboard
 	 *********************************/
@@ -633,7 +673,7 @@ void PrintData(){
 	/*
 	 * Drive train angle
 	 */
-	SmartDashboard::PutNumber("Drive Angle", m_drivetrain->GetAngle());
+//	SmartDashboard::PutNumber("Drive Angle ahh", m_drivetrain->GetAngle());
 
 	/*********************************
 	 * CONTROL
@@ -695,6 +735,9 @@ void PrintData(){
 
 	SmartDashboard::PutNumber("Operator Right Trigger Axis", m_operator->AxisRT());
 	SmartDashboard::PutNumber("Operator Left Trigger Axis", m_operator->AxisLT());
+	} catch (std::exception *ex) {
+		SmartDashboard::PutBoolean("Exception", true);
+	}
 
 }
 

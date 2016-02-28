@@ -25,21 +25,31 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_drive->SetSafetyEnabled(false);
 
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
-	m_turnPIDWrapper = new TurnPIDWrapper (this);
-	m_spanglePIDWrapper = new SpanglePIDWrapper (this);
+
+//	m_turnPIDWrapper = new TurnPIDWrapper (this);
+
+	//m_spanglePIDWrapper = new SpanglePIDWrapper (this);
 
     m_drive->SetExpiration(0.1);
 
+/*
+
     try {
         m_euro = new AHRS(SPI::Port::kMXP);
+        SmartDashboard::PutBoolean("Gyro Init", true);
     } catch (std::exception ex ) {
         std::string err_string = "Error instantiating navX MXP:  ";
         err_string += ex.what();
         DriverStation::ReportError(err_string.c_str());
+        SmartDashboard::PutBoolean("Gyro Init", false);
     }
+
+*/
 
     m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(ToleranceDiplacement);
+
+/*
 
 	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
 	m_turnPID->SetInputRange(-180.0f,  180.0f);
@@ -47,16 +57,22 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_turnPID->SetAbsoluteTolerance(ToleranceDegrees);
 	m_turnPID->SetContinuous(true);
 
-	m_spanglePID = new PIDController(spangleP, spangleI, spangleD, spangleF, m_spanglePIDWrapper, m_spanglePIDWrapper);
+*/
+
+	//m_spanglePID = new PIDController(spangleP, spangleI, spangleD, spangleF, m_spanglePIDWrapper, m_spanglePIDWrapper);
 }
 
 /******************************
  * Sensors
  ******************************/
 
+/*
+
 double Drivetrain::GetAngle(){
-	return(m_euro->GetAngle());
+	return (m_euro->GetAngle());
 }
+
+*/
 
 double Drivetrain::GetAverageDistance(){
 	return((GetLDistance() + GetRDistance()) / 2);
@@ -82,6 +98,11 @@ double Drivetrain::GetAverageSpeed(){
 	return((GetLSpeed() + GetRSpeed()) / 2);
 }
 
+void Drivetrain::ResetEncoder(){
+	m_lEncode->Reset();
+	m_rEncode->Reset();
+}
+
 /******************************
  * Motors
  ******************************/
@@ -90,13 +111,15 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 	m_turn = angle;
 	m_drive->ArcadeDrive(speed, angle);
 
-	SmartDashboard::PutBoolean("TurnPID Enabled", m_turnPID->IsEnabled());
+//	SmartDashboard::PutBoolean("TurnPID Enabled", m_turnPID->IsEnabled());
 	SmartDashboard::PutBoolean("DistancePID Enabled", m_distancePID->IsEnabled());
-	SmartDashboard::PutBoolean("SpanglePID Enabled", m_spanglePID->IsEnabled());
-	/*SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
-	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
-	SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());*/
+
+//	SmartDashboard::PutBoolean("SpanglePID Enabled", m_spanglePID->IsEnabled());
+
+//	SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
+//	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
+//	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
+//	SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());
 }
 
 void Drivetrain::SetSpeed(double speed) {
@@ -155,6 +178,9 @@ double Drivetrain::GetDistancePID () {
 /******************************
  * Turn PID
  ******************************/
+
+/*
+
 void Drivetrain::EnableAngle(){
 	m_turnPID->Enable();
 }
@@ -183,15 +209,20 @@ void Drivetrain::ResetGyroAngle(){
 	m_euro->Reset();
 }
 
+*/
+
+/*
 void Drivetrain::DisableBothPIDs(){
 	DisableDistance();
-	DisableAngle();
+//	DisableAngle();
 }
+
+*/
 
 /******************************
  * Spangle PID
  ******************************/
-
+/*
 void Drivetrain::EnableSpangle(){
 	m_spanglePID->Enable();
 }
@@ -200,6 +231,21 @@ void Drivetrain::DisableSpangle(){
 	m_spanglePID->Disable();
 }
 
+void Drivetrain::SetSpangle(float angle){
+	m_spanglePID->SetSetpoint(angle);
+}
+bool Drivetrain::SpangleAtSetPoint() {
+	return m_spanglePID->OnTarget();
+}
+
+double Drivetrain::GetSpanglePIDSetPoint(){
+	return m_spanglePID->GetSetpoint();
+}
+
+bool Drivetrain::IsEnabledSpangle() {
+	return m_spanglePID->IsEnabled();
+}
+ */
 
 Drivetrain::~Drivetrain() {
 
