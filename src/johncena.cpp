@@ -601,52 +601,48 @@ void PrintData(){
 	/*
 	 * Drive Current Data
 	 */
-	//SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
-	//SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
-	//SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
-	//SmartDashboard::PutNumber("Right Drive Rear Current", m_pdp->GetCurrent(15));
+	SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
+	SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
+	SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
+	SmartDashboard::PutNumber("Right Drive Rear Current", m_pdp->GetCurrent(15));
 
 	/*
 	 * Arm Current Data
 	 */
-	//SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
-	//SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
+	SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
+	SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
 
 	/*
 	 * Intake Current Data
 	 */
-	//SmartDashboard::PutNumber("Roller/Gatherer Current", m_pdp->GetCurrent(6));
+	SmartDashboard::PutNumber("Roller/Gatherer Current", m_pdp->GetCurrent(6));
 
 	/*
 	 * Screw Current Data
 	 */
-	//SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
-	//SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
+	SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
+	SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
 
 	/*
 	 * Shooter Current Data
 	 */
-	//SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
+	SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
 
 	/*
 	 * Gear Shift Current Data
 	 */
-	//SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
+	SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
 
 	/*
 	 * LED Ring Current Data
 	 */
-	//SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
+	SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
 
 	/*
 	 * Total Current Data
 	 */
-	//SmartDashboard::PutNumber("Total Current Data", m_pdp->GetTotalCurrent());
+	SmartDashboard::PutNumber("Total Current", m_pdp->GetTotalCurrent());
 
-	/*
-	 * Total Power Data
-	 */
-	//SmartDashboard::PutNumber("Total Current", m_pdp->GetTotalCurrent());
 	/*********************************
 	 * ENCODER DATA
 	 *********************************/
