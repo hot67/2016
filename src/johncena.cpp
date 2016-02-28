@@ -229,6 +229,8 @@ public:
 				AutonLowBarBack();
 				break;
 		}
+
+		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
 	}
 
 	void AutonDoNothing ()
@@ -404,7 +406,8 @@ public:
 		 *
 		 * operator left bumper & y-button - arm to medium low goal, prepares to shoot
 		 * operator left bumper & x-button - arm to obstacle
-		 * operator left button & a-button - arm to close low goal, prepares to shoot
+		 * operator left bumper & a-button - arm to close low goal, prepares to shoot
+		 * operator left bumper & b-button - arm to batter high goal
 		 *
 		 * operator y-button - arm to far high goal
 		 * operator x-button - arm to carry
@@ -414,26 +417,42 @@ public:
 		 * operator left joystick - manual screw
 		 * operator right joystick - manual pivot
 		 *
+		 * operator button start - zero arm encoder
+		 *
+		 * operator button back
+		 *
 		 */
 
-		if (m_driver->ButtonBack()){
+		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
+
+		if (m_driver->ButtonStart()){
 			m_arm->ZeroArmEncoder();
 		}
 
-		if (fabs(m_operator->AxisRY()) > 0.2) {
-
-			//Manual Control
-			m_arm->SetArm(m_operator->AxisRY());
-
-		} else if (fabs(m_operator->AxisLY()) > 0.2) {
-
+		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
 			m_arm->SetScrew(m_operator->AxisLY());
-
-		}/* else {
-			m_arm->SetArm(0.0);
+		}
+		else if (m_operator->ButtonBack() && m_operator->ButtonLB()) {
+			/**
+			 * Retract the extension all way in
+			 */
+			m_arm->SetScrewPIDPoint(RETRACT_SCREW);
+			m_arm->EnableScrewPID();
+		}
+		else if (m_operator->ButtonBack()) {
+			m_arm->SetScrewPIDPoint(CLIMB_SCREW);
+			m_arm->EnableScrewPID();
+		}
+		else {
 			m_arm->SetScrew(0.0);
-		}*/
+
+		}
+
+		if (fabs(m_operator->AxisRY()) > 0.2) {
+			//Manual Control
+			m_arm->SetArm(m_operator->AxisRY());
+		}
 		else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
 			/**
 			 * 	For Climb Up
@@ -508,12 +527,6 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(CARRY);
 			m_arm->EnableArmPID();
-		} else if (m_operator->ButtonA() && m_operator->ButtonRB()) {
-			/**
-			 * Retract the extension all way in
-			 */
-			m_arm->SetScrewPIDPoint(RETRACT_SCREW);
-			m_arm->EnableScrewPID();
 		} else if (m_operator->ButtonA() && m_operator->ButtonLB()) {
 			/**
 			 * 	Over Obstacles
@@ -535,9 +548,7 @@ public:
 			 * 		Stop the shooter
 			 */
 			m_arm->DisableArmPID();
-			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
-			m_arm->SetScrew(0.0);
 			m_intake->SetShooter(0.0);
 		}
 
@@ -572,10 +583,7 @@ public:
 			//(which has nothing to do with the shooter)
 		} */
 
-		/*if (m_operator->ButtonBack()){
-			m_intake->SetShooter(-1.);
-		} */
-		if (m_operator->ButtonBack()){
+		if (m_operator->ButtonStart()){
 			m_intake->SetShooter(1.);
 		}
 		else {

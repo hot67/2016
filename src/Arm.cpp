@@ -34,15 +34,15 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	 * Configure the encoder counts per revolution
 	 */
 	m_armLeftTalon->ConfigEncoderCodesPerRev(360.0);
-	m_screwLeftTalon->ConfigEncoderCodesPerRev(360.0);
+	m_screwLeftTalon->ConfigEncoderCodesPerRev(1024.0);
 
 	/*
 	 * Set P, I, and D, in the Controllers using our wrapper
 	 */
 	m_armPIDWrapper = new ArmPIDWrapper(this);
-	m_screwPIDWrapper = new ScrewPIDWrapper(m_screwLeftTalon, m_screwRightTalon);
+	m_screwPIDWrapper = new ScrewPIDWrapper(this);
 
-	m_armPIDController = new PIDController(ARM_P, ARM_I, ARM_D, m_armPIDWrapper, m_armPIDWrapper);
+	m_armPIDController = new PIDController(ARM_UP_P, ARM_UP_I, ARM_UP_D, m_armPIDWrapper, m_armPIDWrapper);
 	m_screwPIDController = new PIDController(SCREW_P, SCREW_I, SCREW_D, m_screwPIDWrapper, m_screwPIDWrapper);
 
 	/*
@@ -97,8 +97,27 @@ void Arm::SetArm(float speed) {
 }
 
 void Arm::SetScrew(float speed) {
-	m_screwLeftTalon->Set(-speed);
-	m_screwRightTalon->Set(-speed);
+
+	/*
+	 * go up when screwpos is less than 30
+	 *
+	 * go down when screwpos is more than 0
+	 */
+
+	if (GetScrewPos() < 10 && speed < 0) {
+		//going up and screw position is less than 30
+		m_screwLeftTalon->Set(-speed);
+		m_screwRightTalon->Set(-speed);
+	}
+
+	else if (GetScrewPos() > 0 && speed > 0) {
+		m_screwLeftTalon->Set(-speed);
+		m_screwRightTalon->Set(-speed);
+	}
+	else {
+		m_screwLeftTalon->Set(0);
+		m_screwRightTalon->Set(0);
+	}
 }
 
 float Arm::GetArmPos() {
@@ -106,7 +125,7 @@ float Arm::GetArmPos() {
 }
 
 float Arm::GetScrewPos() {
-	return m_screwLeftTalon->GetPosition() / 4;
+	return - m_screwLeftTalon->GetPosition() / 4;
 }
 
 float Arm::GetArmSpeed() {
@@ -114,7 +133,7 @@ float Arm::GetArmSpeed() {
 }
 
 float Arm::GetScrewSpeed() {
-	return m_screwLeftTalon->GetSpeed() / 4;
+	return - m_screwLeftTalon->GetSpeed() / 4;
 }
 
 
@@ -147,14 +166,10 @@ Arm::ArmPIDWrapper::ArmPIDWrapper(Arm *arm) {
 }
 
 void Arm::ArmPIDWrapper::PIDWrite(float output) {
-	SmartDashboard::PutNumber("* Arm PID Write", output);
 	m_arm->SetArm(-output);
-
-	//m_arm->SetArm(0.0);
 }
 
 double Arm::ArmPIDWrapper::PIDGet() {
-	SmartDashboard::PutNumber("* Arm PID Get", m_arm->GetArmPos());
 	return m_arm->GetArmPos();
 }
 
@@ -181,6 +196,24 @@ void Arm::DisableArmPID() {
  */
 bool Arm::IsArmPIDEnabled() {
 	return m_armPIDController->IsEnabled();
+}
+
+/*
+ * PID Update
+ * because gravity is bringing the arm down too hard
+ */
+
+void Arm::ArmPIDUpdate() {
+
+	//to decrease PID coming down so it doesn't slam
+
+	if (GetArmSpeed() > 0) {
+		//if arm is going up
+		m_armPIDController->SetPID(ARM_UP_P, ARM_UP_I, ARM_UP_D);
+	}
+	else {
+		m_armPIDController->SetPID(ARM_DOWN_P, ARM_DOWN_I, ARM_DOWN_D);
+	}
 }
 
 /*
@@ -261,8 +294,6 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 		m_armPIDController->SetSetpoint(BATTER_HIGH_GOAL);
 		break;
 	}
-
-
 }
 
 
@@ -281,19 +312,18 @@ float Arm::GetArmPIDSetPoint() {
 }
 
 
-Arm::ScrewPIDWrapper::ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon) {
-	m_leftTalon = leftTalon;
-	m_rightTalon = rightTalon;
+Arm::ScrewPIDWrapper::ScrewPIDWrapper(Arm *arm) {
+	m_arm = arm;
 }
 
 void Arm::ScrewPIDWrapper::PIDWrite(float output) {
+	m_arm->SetScrew(-output);
 
-	m_leftTalon->Set(output);
-	m_rightTalon->Set(output);
+	SmartDashboard::PutNumber("ScrewPID PIDWrite output Value", output);
 }
 
 double Arm::ScrewPIDWrapper::PIDGet() {
-	return m_leftTalon->GetPosition();
+	return m_arm->GetScrewPos();
 }
 
 /*
@@ -360,7 +390,7 @@ void Arm::SetScrewPIDPoint(double setpoint) {
 	/*
 	 * Set the target, adjusting for gearbox ratios.
 	 */
-	m_screwPIDController->SetSetpoint(setpoint * 4 * 360);
+	m_screwPIDController->SetSetpoint(setpoint);
 
 }
 

@@ -12,10 +12,15 @@
 /*
  * PID Values
  */
-#define ARM_P 0.07
-#define ARM_I 0
-#define ARM_D 0
-#define SCREW_P 0
+#define ARM_UP_P 0.05
+#define ARM_UP_I 0
+#define ARM_UP_D 0
+
+#define ARM_DOWN_P 0.025
+#define ARM_DOWN_I 0
+#define ARM_DOWN_D 0
+
+#define SCREW_P 0.2
 #define SCREW_I 0
 #define SCREW_D 0
 
@@ -41,9 +46,14 @@
 /*
  * PID Values
  */
-#define ARM_P 0
-#define ARM_I 0
-#define ARM_D 0
+#define ARM_UP_P 0.05
+#define ARM_UP_I 0
+#define ARM_UP_D 0
+
+#define ARM_DOWN_P 0.025
+#define ARM_DOWN_I 0
+#define ARM_DOWN_D 0
+
 #define SCREW_P 0
 #define SCREW_I 0
 #define SCREW_D 0
@@ -95,7 +105,7 @@
 /*
  * PID Setpoints for screw
  */
-#define CLIMB_SCREW 37440
+#define CLIMB_SCREW 5
 #define RETRACT_SCREW 0
 
 /*
@@ -222,7 +232,6 @@ public:
 	public:
 		double PIDGet();
 		void PIDWrite(float output);
-
 		ArmPIDWrapper(Arm *arm);
 	};
 private:
@@ -255,18 +264,25 @@ public:
 	 */
 	bool ArmAtPIDSetPoint();
 
+	/*
+	 * PID Update
+	 * because gravity is bringing arm down too hard
+	 */
+
+	void ArmPIDUpdate();
+
 	/*****************************
 	 * 		Screw PID
 	 ******************************/
 
 	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
-		CANTalon * m_leftTalon;
-		CANTalon * m_rightTalon;
+
+		Arm * m_arm;
 	public:
 		double PIDGet();
 		void PIDWrite(float output);
 
-		ScrewPIDWrapper(CANTalon * leftTalon, CANTalon * rightTalon);
+		ScrewPIDWrapper(Arm *arm);
 	};
 private:
 	ScrewPIDWrapper * m_screwPIDWrapper;
