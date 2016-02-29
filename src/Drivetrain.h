@@ -54,7 +54,7 @@
  *  Gear Shift CAN Location
  */
 
-#define TALON_SHIFT 17
+#define SOLENOID_SHIFT 0
 
 /*
  * PID coefficients for turning
@@ -154,6 +154,9 @@ public:
 	 * Shifting
 	 */
 	void SetShift(bool on);
+
+	void ShiftHigh();
+	void ShiftLow();
 
 	/******************************
 	 * Distance PID

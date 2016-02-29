@@ -14,7 +14,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
 	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
 
-	m_shift = new Solenoid(TALON_SHIFT);
+	m_shift = new Solenoid(SOLENOID_SHIFT);
 
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, false);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, true);
@@ -23,14 +23,13 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
 	m_drive->SetSafetyEnabled(false);
+    m_drive->SetExpiration(0.1);
 
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
 
-//	m_turnPIDWrapper = new TurnPIDWrapper (this);
+	//m_turnPIDWrapper = new TurnPIDWrapper (this);
 
 	//m_spanglePIDWrapper = new SpanglePIDWrapper (this);
-
-    m_drive->SetExpiration(0.1);
 
 /*
 
@@ -60,6 +59,11 @@ Drivetrain::Drivetrain(HotBot* bot)
 */
 
 	//m_spanglePID = new PIDController(spangleP, spangleI, spangleD, spangleF, m_spanglePIDWrapper, m_spanglePIDWrapper);
+
+    /*
+     *  Initialize turning and speed
+     */
+    m_turn = m_speed = 0.0;
 }
 
 /******************************
@@ -132,6 +136,14 @@ void Drivetrain::SetTurn(double turn) {
 
 void Drivetrain::SetShift(bool on){
 	m_shift->Set(on);
+}
+
+void Drivetrain::ShiftHigh(){
+	SetShift(false);
+}
+
+void Drivetrain::ShiftLow(){
+	SetShift(true);
 }
 
 float Drivetrain::GetSpeed(){

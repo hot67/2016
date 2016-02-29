@@ -97,6 +97,11 @@ private:
 	bool f_rollingIn;
 
 	/*
+	 * for intake to see if we rolled out to get it away from the shooter yet or not
+	 */
+	bool m_rollLoop = false;
+
+	/*
 	 * Auton choice/case selection initializations
 	 */
 	auton_t m_autonChoice;
@@ -360,16 +365,6 @@ public:
 			}
 		} */
 
-		if (m_operator->AxisRT() > 0.2){
-			m_intake->SetRoller(1.0);
-		}
-		else if (m_operator->AxisLT() > 0.2){
-			m_intake->SetRoller(-1.0);
-		}
-		else {
-			m_intake->SetRoller(0.0);
-			}
-
 		m_light->Set(Relay::kForward);
 
 		/*
@@ -388,11 +383,11 @@ public:
 		/**
 		 * 	Hold Left Bumper to Shift low
 		 */
-		/*if (m_driver->ButtonLB()) {
+		if (m_driver->ButtonLB()) {
 			m_drivetrain->ShiftLow();
 		} else {
 			m_drivetrain->ShiftHigh();
-		} */
+		}
 	}
 
 	void TeleopArm ()
@@ -467,7 +462,6 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(MEDIUM_HIGH_GOAL);
 			m_arm->EnableArmPID();
-
 			/**
 			 * Speed up Shooter
 			 */
@@ -572,16 +566,30 @@ public:
 		 *
 		 */
 
-		/*if (m_driver->ButtonRT()) {
-			m_intake->Shoot();
-			//this shoot function doesn't have a thing to do with the shooter
-			//it just runs the intake roller in by 0.3
+		if (m_operator->AxisRT() > 0.2) {
+			//	Roll In
+			m_intake->SetRoller(m_operator->AxisRT());
+
+			m_rollLoop = true;
+
+		} else if (m_operator->AxisLT() > 0.2) {
+			//	Roll out
+			m_intake->SetRoller(-m_operator->AxisLT());
+		} else {
+
+			if (m_rollLoop == true){
+				m_rollForShootTime->Stop();
+				m_rollForShootTime->Reset();
+				m_rollForShootTime->Start();
+
+				m_intake->SetRoller(-0.4);
+				m_rollLoop = false;
+			}
+
+			if (m_rollForShootTime->Get() >= 0.1) {
+				m_intake->SetRoller(0.0);
+			}
 		}
-		else {
-			m_intake->SetRoller(0.0);
-			//we are setting intake roller to 0.0 in order to counteract the shoot function above
-			//(which has nothing to do with the shooter)
-		} */
 
 		if (m_operator->ButtonStart()){
 			m_intake->SetShooter(1.);
@@ -602,7 +610,6 @@ public:
 	}
 
 void PrintData(){
-	try{
 	/*********************************
 	 * Current Data to Dashboard
 	 *********************************/
@@ -686,7 +693,7 @@ void PrintData(){
 	/*
 	 * Shooter Speed
 	 */
-	SmartDashboard::PutNumber("Shooter Speed", m_intake->GetShooterSpeed());
+	SmartDashboard::PutNumber("Shooter RPM", m_intake->GetShooterSpeed());
 
 	/***************
 	 * Drivetrain Encoder Information
@@ -787,10 +794,6 @@ void PrintData(){
 
 	SmartDashboard::PutNumber("Operator Right Trigger Axis", m_operator->AxisRT());
 	SmartDashboard::PutNumber("Operator Left Trigger Axis", m_operator->AxisLT());
-	} catch (std::exception *ex) {
-		SmartDashboard::PutBoolean("Exception", true);
-	}
-
 }
 
 };

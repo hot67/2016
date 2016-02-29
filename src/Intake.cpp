@@ -13,7 +13,9 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 	m_rollerTalon = new CANTalon(ROLLER_ID);
 	m_shooterTalon = new CANTalon(SHOOTER_ID);
 
-	m_shooterEncoder = new Encoder(SHOOTER_ENCODER1, SHOOTER_ENCODER1, true);
+	DigitalInput *m_shooterLight = new DigitalInput(6);
+	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
+	m_shooterEncoder->SetDistancePerPulse(1);
 	//what is distance per pulse (ask jim/rodney)
 
 	//seems like encoder but is actually white-black sensor
@@ -37,9 +39,10 @@ Intake::~Intake() {
 /*
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
-float Intake::GetShooterSpeed(){
-	return ((m_shooterEncoder->GetRate()) / SHOOTER_PULSE_PER_ROTATION);
+double Intake::GetShooterSpeed(){
+	return m_shooterEncoder->GetRate() * 60;
 }
+
 
 /******************************
  * MOTORS
@@ -58,6 +61,7 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 	//negative values will destroy the robot
 
 	m_shooterTalon->Set(speed);
+
 
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
@@ -120,13 +124,4 @@ double Intake::GetShooterPIDSetPoint(){
 
 bool Intake::ShooterAtSetPoint(){
 	return m_shooterSpeedPID->OnTarget();
-}
-
-/******************************
- * LOGGING
- ******************************/
-
-void Intake::IntakePrintData(){
-	SmartDashboard::PutNumber("Current Shooter Rate", m_shooterEncoder->GetRate());
-	SmartDashboard::PutNumber("Desired Shooter Rate", m_desiredShooterSpeed);
 }

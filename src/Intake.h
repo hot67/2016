@@ -35,7 +35,7 @@
 #define SHOOTER_ID 16
 
 //encoder DIO location
-#define SHOOTER_ENCODER1 8
+#define SHOOTER_ENCODER 6
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
 #define DEFAULT_SHOOTER_SPEED 0.8
@@ -73,7 +73,7 @@ public:
 	 * get encoder rate
 	 * 			the black-white sensor
 	 */
-	float GetShooterSpeed();
+	double GetShooterSpeed();
 
 	/******************************
 	 * MOTORS
