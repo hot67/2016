@@ -16,6 +16,8 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 	DigitalInput *m_shooterLight = new DigitalInput(6);
 	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
 	m_shooterEncoder->SetDistancePerPulse(1);
+	m_shooterEncoder->SetSamplesToAverage(127);
+
 	//what is distance per pulse (ask jim/rodney)
 
 	//seems like encoder but is actually white-black sensor
@@ -40,6 +42,7 @@ Intake::~Intake() {
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
 double Intake::GetShooterSpeed(){
+	SmartDashboard::PutNumber("FPGA Index", m_shooterEncoder->GetFPGAIndex());
 	return m_shooterEncoder->GetRate() * 60;
 }
 

@@ -84,7 +84,7 @@
  */
 #define FAR_HIGH_GOAL 45
 #define MEDIUM_HIGH_GOAL 50
-#define CLOSE_HIGH_GOAL 60
+#define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
 #define BATTER_HIGH_GOAL 35
 
 #define CLOSE_LOW_GOAL 15

@@ -66,7 +66,6 @@ class johncena: public HotBot
 private:
 	Relay *m_light;
 
-
 	/*
 	 * Joysticks
 	 */
@@ -313,6 +312,15 @@ public:
 			*/
 	}
 
+	double GetManualTotalCurrent() {
+		double totalCurrent = 0.0;
+		for (int i = 0; i < 16; i++) {
+			totalCurrent += m_pdp->GetCurrent(i);
+		}
+
+		return totalCurrent;
+	}
+
 	/* void AutoLineUp() {
 		static double m_cameraDriveCenter;
 
@@ -424,14 +432,13 @@ public:
 			m_arm->ZeroArmEncoder();
 		}
 
+		/*
 		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
 			m_arm->SetScrew(m_operator->AxisLY());
 		}
 		else if (m_operator->ButtonBack() && m_operator->ButtonLB()) {
-			/**
-			 * Retract the extension all way in
-			 */
+			// Retract the extension all way in
 			m_arm->SetScrewPIDPoint(RETRACT_SCREW);
 			m_arm->EnableScrewPID();
 		}
@@ -442,7 +449,7 @@ public:
 		else {
 			m_arm->SetScrew(0.0);
 
-		}
+		} */
 
 		if (fabs(m_operator->AxisRY()) > 0.2) {
 			//Manual Control
@@ -566,15 +573,15 @@ public:
 		 *
 		 */
 
-		if (m_operator->AxisRT() > 0.2) {
+		if ((m_driver->AxisRT() > 0.2)) {
 			//	Roll In
-			m_intake->SetRoller(m_operator->AxisRT());
+			m_intake->SetRoller(1.);
 
 			m_rollLoop = true;
 
 		} else if (m_operator->AxisLT() > 0.2) {
 			//	Roll out
-			m_intake->SetRoller(-m_operator->AxisLT());
+			m_intake->SetRoller(-1.);
 		} else {
 
 			if (m_rollLoop == true){
@@ -656,7 +663,12 @@ void PrintData(){
 	/*
 	 * Total Current Data
 	 */
-	SmartDashboard::PutNumber("Total Current", m_pdp->GetTotalCurrent());
+	SmartDashboard::PutNumber("Total Current", GetManualTotalCurrent());
+
+	/*
+	 * Total Power Data
+	 */
+	SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
 
 	/*********************************
 	 * ENCODER DATA
