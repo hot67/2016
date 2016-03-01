@@ -15,7 +15,7 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 
 	DigitalInput *m_shooterLight = new DigitalInput(6);
 	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
-	m_shooterEncoder->SetDistancePerPulse(1);
+	m_shooterEncoder->SetDistancePerPulse(1.0/3.0);
 	m_shooterEncoder->SetSamplesToAverage(127);
 
 	//what is distance per pulse (ask jim/rodney)
@@ -42,7 +42,6 @@ Intake::~Intake() {
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
 double Intake::GetShooterSpeed(){
-	SmartDashboard::PutNumber("FPGA Index", m_shooterEncoder->GetFPGAIndex());
 	return m_shooterEncoder->GetRate() * 60;
 }
 
@@ -65,9 +64,12 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 
 	m_shooterTalon->Set(speed);
 
-
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
+}
+
+float Intake::GetShooter(){
+	return m_shooterTalon->Get();
 }
 
 /******************************
@@ -77,6 +79,18 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 void Intake::SetShooterDefault(){
 	//default speed for shooting before changed by DPAD
 	SetShooter(DEFAULT_SHOOTER_SPEED);
+}
+
+Intake::ShooterStatus Intake::GetShooterStatus() {
+	if (GetShooter() == 0) {
+		return ShooterStatus::kShooterStopped;
+	}
+	else if (ShooterAtSetPoint() == true) {
+		return ShooterStatus::kShooterAtSpeed;
+	}
+	else {
+		return ShooterStatus::kShooterSpeeding;
+	}
 }
 
 void Intake::Shoot(){

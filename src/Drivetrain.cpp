@@ -16,8 +16,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 	m_shift = new Solenoid(SOLENOID_SHIFT);
 
-	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, false);
-	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, true);
+	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, true);
+	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, false);
 
 	m_timer = new Timer;
 
@@ -45,8 +45,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 */
 
-    m_distancePID = new PIDController(distanceP,distanceI,distanceD,m_distancePIDWrapper, m_distancePIDWrapper);
-    m_distancePID->SetAbsoluteTolerance(ToleranceDiplacement);
+    m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
+//    m_distancePID->SetAbsoluteTolerance(ToleranceDiplacement);
 
 /*
 
@@ -83,19 +83,19 @@ double Drivetrain::GetAverageDistance(){
 }
 
 double Drivetrain::GetLDistance(){
-	return(m_lEncode->GetDistance());
+	return(m_lEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetRDistance(){
-	return(m_rEncode->GetDistance());
+	return(m_rEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetLSpeed(){
-	return(m_lEncode->GetRate());
+	return(m_lEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetRSpeed(){
-	return(m_rEncode->GetRate());
+	return(m_rEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetAverageSpeed(){
@@ -140,10 +140,12 @@ void Drivetrain::SetShift(bool on){
 
 void Drivetrain::ShiftHigh(){
 	SetShift(false);
+	m_distancePID->SetPID(DISTANCE_SHIFTH_P, DISTANCE_SHIFTH_I, DISTANCE_SHIFTH_D);
 }
 
 void Drivetrain::ShiftLow(){
 	SetShift(true);
+	m_distancePID->SetPID(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D);
 }
 
 float Drivetrain::GetSpeed(){
@@ -159,11 +161,15 @@ float Drivetrain::GetTurn(){
  ******************************/
 
 void Drivetrain::EnableDistance(){
-	m_distancePID->Enable();
+	if (!IsEnabledDistance()) {
+		m_distancePID->Enable();
+	}
 }
 
 void Drivetrain::DisableDistance(){
-	m_distancePID->Disable();
+	if (IsEnabledDistance()) {
+		m_distancePID->Disable();
+	}
 }
 
 bool Drivetrain::IsEnabledDistance(){

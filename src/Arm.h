@@ -121,6 +121,8 @@
  */
 #define LIGHT_ARM 9
 
+#define SOLENOID_ARM_BRAKE 1
+
 /*
  * Arm Setpoint Enums
  */

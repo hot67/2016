@@ -49,6 +49,7 @@ class ShooterPIDWrapper;
 
 class Intake: public HotSubsystem {
 private:
+
 	CANTalon* m_rollerTalon;
 	CANTalon* m_shooterTalon;
 
@@ -58,6 +59,12 @@ private:
 	PIDController* m_shooterSpeedPID;
 
 public:
+	enum ShooterStatus {
+		kShooterStopped,
+		kShooterSpeeding,
+		kShooterAtSpeed
+	};
+
 	Intake(HotBot* bot);
 
 	virtual ~Intake();
@@ -91,6 +98,8 @@ public:
 	 */
 	void SetShooter(float speed); //set shooter speed
 
+	float GetShooter();
+
 
 	/******************************
 	 * Shooter specifics
@@ -105,6 +114,11 @@ public:
 	 * rolls the ball into the shooter if the shooter PID is on target (if the shooter is up to speed)
 	 */
 	void Shoot();
+
+	/*
+	 * Shooter status function
+	 */
+	ShooterStatus GetShooterStatus();
 
 	/*
 	 * Increase Shooter Speed by 0.01

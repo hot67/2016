@@ -59,31 +59,21 @@
 /*
  * PID coefficients for turning
  */
+#define TURN_P 0
+#define TURN_I 0
+#define TURN_D 0
 
-const static double turnP = 0.03f;
-const static double turnI = 0.00f;
-const static double turnD = 0.00f;
-const static double turnF = 0.00f;
+#define SPANGLE_P 0
+#define SPANGLE_I 0
+#define SPANGLE_D 0
 
-const static double spangleP = 0.03f;
-const static double spangleI = 0.00f;
-const static double spangleD = 0.00f;
-const static double spangleF = 0.00f;
+#define DISTANCE_SHIFTL_P 0.12
+#define DISTANCE_SHIFTL_I 0
+#define DISTANCE_SHIFTL_D 0
 
-/*
- * Allowance for gyro turning
- */
-
-const static double ToleranceDegrees = 2.0f;
-const static float ToleranceDiplacement = 0.1;
-
-/*
- * PID coefficients for distance
- */
-
-const static double distanceP = -2.5;
-const static double distanceI = 0.0;
-const static double distanceD = -0.1;
+#define DISTANCE_SHIFTH_P 0.045
+#define DISTANCE_SHIFTH_I 0
+#define DISTANCE_SHIFTH_D 0
 
 //class TurnPIDWrapper;
 class DistancePIDWrapper;

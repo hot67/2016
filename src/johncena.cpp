@@ -100,6 +100,12 @@ private:
 	 */
 	bool m_rollLoop = false;
 
+	/**
+	 *  First in for shooter
+	 */
+	bool f_shooterDriverHasControl;
+	bool f_shooterOperatorHasControl;
+
 	/*
 	 * Auton choice/case selection initializations
 	 */
@@ -163,6 +169,10 @@ public:
 		 */
 		f_rollingIn = false;
 
+		/**
+		 *  First no one has control
+		 */
+		f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
 	}
 
 	void RobotInit()
@@ -387,7 +397,30 @@ public:
 
 	void TeleopDrive ()
 	{
-		m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
+		/**
+		 * ToDo:
+		 *  Distance PID Stuff Should not be here
+		 *  Erase after testing
+		 */
+		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
+			m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
+		}
+		else if (m_driver->ButtonStart()){
+			//m_arm->ZeroArmEncoder();
+			m_drivetrain->SetDistance(120.);
+
+			if (!m_drivetrain->IsEnabledDistance()) {
+				m_drivetrain->EnableDistance();
+			}
+		} else {
+			m_drivetrain->DisableDistance();
+			m_drivetrain->ArcadeDrive(0.0, 0.0);
+		}
+
+
+		if (m_driver->ButtonBack()){
+			m_drivetrain->ResetEncoder();
+		}
 		/**
 		 * 	Hold Left Bumper to Shift low
 		 */
@@ -427,10 +460,6 @@ public:
 		 */
 
 		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
-
-		if (m_driver->ButtonStart()){
-			m_arm->ZeroArmEncoder();
-		}
 
 		/*
 		if (fabs(m_operator->AxisLY()) > 0.2) {
@@ -573,7 +602,46 @@ public:
 		 *
 		 */
 
-		if ((m_driver->AxisRT() > 0.2)) {
+		if (m_intake->GetShooterStatus() == Intake::kShooterStopped) {
+			if (m_driver->AxisRT() > 0.2 && f_shooterOperatorHasControl == false) {
+				m_intake->SetRoller(1.0);
+				f_shooterDriverHasControl = true;
+			} else if (m_driver->AxisLT() > 0.2 && f_shooterOperatorHasControl == false) {
+				m_intake->SetRoller(-1.0);
+				f_shooterDriverHasControl = true;
+			} else if (m_operator->AxisRT() > 0.2 && f_shooterDriverHasControl == false) {
+				m_intake->SetRoller(1.0);
+				f_shooterOperatorHasControl = true;
+			} else if (m_operator->AxisLT() > 0.2 && f_shooterDriverHasControl == false) {
+				m_intake->SetRoller(-1.0);
+				f_shooterOperatorHasControl = true;
+			} else {
+				f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
+				m_intake->SetRoller(0.0);
+			}
+		}
+		else if (m_intake->GetShooterStatus() == Intake::kShooterSpeeding) {
+			if (m_driver->AxisLT() > 0.2) {
+				m_intake->SetRoller(-1);
+			}
+			else {
+				m_intake->SetRoller(0);
+			}
+		}
+		else if (m_intake->GetShooterStatus() == Intake::kShooterAtSpeed) {
+			if (m_driver->AxisRT() > 0.2) {
+				m_intake->SetRoller(1.0);
+			}
+			else if (m_driver->AxisLT() > 0.2) {
+				m_intake->SetRoller(-1.0);
+			}
+			else {
+				m_intake->SetRoller(0.0);
+			}
+		}
+
+//WORKING INTAKE CODE
+		/*if ((m_driver->AxisRT() > 0.2)) {
 			//	Roll In
 			m_intake->SetRoller(1.);
 
@@ -613,7 +681,7 @@ public:
 		else if ((m_operator->GetPOV()) == 180){
 			m_intake->DecreaseShooterSpeed();
 			//if operator presses down on DPAD, shooter speed decreases by 1%
-		}
+		} */
 	}
 
 void PrintData(){
