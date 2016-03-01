@@ -28,6 +28,8 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 			m_shooterPIDWrapper, m_shooterPIDWrapper);
 	m_shooterSpeedPID->SetPercentTolerance(0.05);
 
+	m_pulseOutTimer = new Timer();
+	f_rollingIn = false;
 }
 
 Intake::~Intake() {
@@ -58,7 +60,27 @@ void Intake::SetRoller(float speed){
 	//negative values roll in
 	//positive values roll out
 
-	m_rollerTalon->Set(speed);
+	if (speed > 0.0) {
+		m_rollerTalon->Set(speed);
+		f_rollingIn = true;
+	} else if (speed == 0.0) {
+		if (f_rollingIn) {
+			m_pulseOutTimer->Stop();
+			m_pulseOutTimer->Reset();
+			m_pulseOutTimer->Start();
+
+			f_rollingIn = false;
+		}
+
+		if (m_pulseOutTimer->Get() < 0.1) {
+			m_rollerTalon->Set(-1.0);
+		} else {
+			m_rollerTalon->Set(0.0);
+		}
+	} else {
+		m_rollerTalon->Set(speed);
+		f_rollingIn = false;
+	}
 }
 
 

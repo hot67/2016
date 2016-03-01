@@ -58,6 +58,9 @@ private:
 	ShooterPIDWrapper *m_shooterPIDWrapper;
 	PIDController* m_shooterSpeedPID;
 
+	Timer *m_pulseOutTimer;
+	bool f_rollingIn;
+
 public:
 	enum ShooterStatus {
 		kShooterStopped = 0,
