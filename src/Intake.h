@@ -60,9 +60,9 @@ private:
 
 public:
 	enum ShooterStatus {
-		kShooterStopped,
-		kShooterSpeeding,
-		kShooterAtSpeed
+		kShooterStopped = 0,
+		kShooterSpeeding = 1,
+		kShooterAtSpeed = 2
 	};
 
 	Intake(HotBot* bot);
@@ -81,6 +81,7 @@ public:
 	 * 			the black-white sensor
 	 */
 	double GetShooterSpeed();
+	double GetShooterPeriod();
 
 	/******************************
 	 * MOTORS

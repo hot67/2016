@@ -15,8 +15,8 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 
 	DigitalInput *m_shooterLight = new DigitalInput(6);
 	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
-	m_shooterEncoder->SetDistancePerPulse(1.0/3.0);
-	m_shooterEncoder->SetSamplesToAverage(127);
+	m_shooterEncoder->SetDistancePerPulse(1);
+	//m_shooterEncoder->SetSamplesToAverage(127);
 
 	//what is distance per pulse (ask jim/rodney)
 
@@ -43,6 +43,10 @@ Intake::~Intake() {
  */
 double Intake::GetShooterSpeed(){
 	return m_shooterEncoder->GetRate() * 60;
+}
+
+double Intake::GetShooterPeriod(){
+	return m_shooterEncoder->GetPeriod();
 }
 
 
@@ -89,7 +93,8 @@ Intake::ShooterStatus Intake::GetShooterStatus() {
 		return ShooterStatus::kShooterAtSpeed;
 	}
 	else {
-		return ShooterStatus::kShooterSpeeding;
+		return ShooterStatus::kShooterAtSpeed;
+		//return ShooterStatus::kShooterSpeeding;
 	}
 }
 

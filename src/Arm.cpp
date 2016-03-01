@@ -107,7 +107,7 @@ void Arm::SetScrew(float speed) {
 	 * go down when screwpos is more than 0
 	 */
 
-	if (GetScrewPos() < 10 && speed < 0) {
+	if (GetScrewPos() < 22.13 && speed < 0) {
 		//going up and screw position is less than 30
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);

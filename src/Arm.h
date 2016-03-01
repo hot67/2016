@@ -89,7 +89,7 @@
 
 #define CLOSE_LOW_GOAL 15
 
-#define CARRY 20
+#define CARRY 15.06
 #define PICKUP 0
 #define OBSTACLE -10
 #define CLIMB_ARM 97.126
@@ -105,7 +105,7 @@
 /*
  * PID Setpoints for screw
  */
-#define CLIMB_SCREW 5
+#define CLIMB_SCREW 22.13
 #define RETRACT_SCREW 0
 
 /*

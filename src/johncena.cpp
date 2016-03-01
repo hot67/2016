@@ -185,6 +185,10 @@ public:
 		 */
 		//CameraServer::GetInstance()->SetQuality(50);
 		//CameraServer::GetInstance()->StartAutomaticCapture(m_camera);
+
+		m_arm->ZeroArmEncoder();
+		m_arm->ZeroScrewEncoder();
+		m_drivetrain->ResetEncoder();
 	}
 
 	void DisabledInit()
@@ -404,14 +408,6 @@ public:
 		 */
 		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
 			m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
-		}
-		else if (m_driver->ButtonStart()){
-			//m_arm->ZeroArmEncoder();
-			m_drivetrain->SetDistance(120.);
-
-			if (!m_drivetrain->IsEnabledDistance()) {
-				m_drivetrain->EnableDistance();
-			}
 		} else {
 			m_drivetrain->DisableDistance();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
@@ -461,7 +457,7 @@ public:
 
 		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
 
-		/*
+
 		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
 			m_arm->SetScrew(m_operator->AxisLY());
@@ -478,7 +474,7 @@ public:
 		else {
 			m_arm->SetScrew(0.0);
 
-		} */
+		}
 
 		if (fabs(m_operator->AxisRY()) > 0.2) {
 			//Manual Control
@@ -606,16 +602,31 @@ public:
 			if (m_driver->AxisRT() > 0.2 && f_shooterOperatorHasControl == false) {
 				m_intake->SetRoller(1.0);
 				f_shooterDriverHasControl = true;
+				m_rollLoop = true;
 			} else if (m_driver->AxisLT() > 0.2 && f_shooterOperatorHasControl == false) {
 				m_intake->SetRoller(-1.0);
 				f_shooterDriverHasControl = true;
 			} else if (m_operator->AxisRT() > 0.2 && f_shooterDriverHasControl == false) {
 				m_intake->SetRoller(1.0);
+				m_rollLoop = true;
 				f_shooterOperatorHasControl = true;
 			} else if (m_operator->AxisLT() > 0.2 && f_shooterDriverHasControl == false) {
 				m_intake->SetRoller(-1.0);
 				f_shooterOperatorHasControl = true;
 			} else {
+				if (m_rollLoop == true){
+					m_rollForShootTime->Stop();
+					m_rollForShootTime->Reset();
+					m_rollForShootTime->Start();
+
+					m_intake->SetRoller(-0.4);
+					m_rollLoop = false;
+				}
+
+				if (m_rollForShootTime->Get() >= 1.0) {
+					m_intake->SetRoller(0.0);
+				}
+
 				f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
 				m_intake->SetRoller(0.0);
 			}
@@ -638,6 +649,12 @@ public:
 			else {
 				m_intake->SetRoller(0.0);
 			}
+		}
+		if (m_operator->ButtonStart()){
+			m_intake->SetShooter(1.0);
+		}
+		else{
+			m_intake->SetShooter(0.);
 		}
 
 //WORKING INTAKE CODE
@@ -774,6 +791,9 @@ void PrintData(){
 	 * Shooter Speed
 	 */
 	SmartDashboard::PutNumber("Shooter RPM", m_intake->GetShooterSpeed());
+	SmartDashboard::PutNumber("Shooter Period", m_intake->GetShooterPeriod());
+
+	SmartDashboard::PutNumber("Shooter Status", m_intake->GetShooterStatus());
 
 	/***************
 	 * Drivetrain Encoder Information
@@ -841,7 +861,7 @@ void PrintData(){
 	SmartDashboard::PutNumber("Driver Left Y-Axis", SmartDashboard::GetNumber("ImageXCenter0", 1.2));//m_driver->AxisLY());
 	SmartDashboard::PutNumber("Driver Right Y-Axis", m_driver->AxisRY());
 	SmartDashboard::PutNumber("Driver Left X-Axis", m_driver->AxisLX());
-	SmartDashboard::PutNumber("Driver Right X-Axis", m_driver->AxisLX());
+	SmartDashboard::PutNumber("Driver Right X-Axis", m_driver->AxisRX());
 
 	SmartDashboard::PutNumber("Driver Right Trigger Axis", m_driver->AxisRT());
 	SmartDashboard::PutNumber("Driver Left Trigger Axis", m_driver->AxisLT());
