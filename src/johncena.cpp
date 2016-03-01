@@ -416,6 +416,8 @@ public:
 
 		if (m_driver->ButtonBack()){
 			m_drivetrain->ResetEncoder();
+			m_arm->ZeroArmEncoder();
+			m_arm->ZeroScrewEncoder();
 		}
 		/**
 		 * 	Hold Left Bumper to Shift low
@@ -497,7 +499,7 @@ public:
 			/**
 			 * Speed up Shooter
 			 */
-			//m_intake->SetShooter(MEDIUM_HIGH_GOAL_SHOOTER);
+			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonY()) {
 			/**
 			 * 	High Goal
@@ -510,7 +512,7 @@ public:
 			/**
 			 * Speed up Shooter
 			 */
-			//m_intake->SetShooter(FAR_HIGH_GOAL_SHOOTER);
+			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonB() && m_operator->ButtonLB()) {
 			/*
 			 * Batter Shot
@@ -523,7 +525,7 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
-			//m_intake->SetShooter(BATTER_HIGH_GOAL_SHOOTER);
+			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonB()) {
 			/**
 			 * 	Close High Goal
@@ -536,7 +538,7 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
-			//m_intake->SetShooter(CLOSE_HIGH_GOAL_SHOOTER);
+			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonX() && m_operator->ButtonLB()) {
 			/**
 			 * 	Low Goal
