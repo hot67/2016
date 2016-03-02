@@ -48,7 +48,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwPIDWrapper = new ScrewPIDWrapper(this);
 
 	m_armPIDController = new PIDController(ARM_UP_P, ARM_UP_I, ARM_UP_D, m_armPIDWrapper, m_armPIDWrapper);
-	m_armPIDController->SetAbsoluteTolerance(1);
+	m_armPIDController->SetAbsoluteTolerance(1.0);
 
 
 	m_screwPIDController = new PIDController(SCREW_P, SCREW_I, SCREW_D, m_screwPIDWrapper, m_screwPIDWrapper);

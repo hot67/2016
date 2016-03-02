@@ -12,7 +12,6 @@ SpanglePIDWrapper::SpanglePIDWrapper(Drivetrain* drivetrain) {
 }
 
 SpanglePIDWrapper::~SpanglePIDWrapper() {
-	// TODO Auto-generated destructor stub
 }
 
 

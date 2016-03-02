@@ -47,13 +47,6 @@
 
 #define CAMERA_TO_ENCODE_COUNT 500
 
-
-/*Todo
- *
- * Driver Left bumper -> switching gears through pneumatics
- *
- */
-
 using namespace std;
 
 enum auton_t {
@@ -456,22 +449,21 @@ public:
 
 	void TeleopDrive ()
 	{
-		/**
-		 * ToDo:
-		 *  Distance PID Stuff Should not be here
-		 *  Erase after testing
-		 */
 		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
 			m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
 		} else {
 			m_drivetrain->DisableDistance();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
 		}
-		{
-			if (m_driver->ButtonA()) {
-				AutoLineUp();
-			}
+
+		/**
+		 *  To Test Auto Line Up
+		 *  	ToDo: Erase it after test
+		 */
+		if (m_driver->ButtonA()) {
+			AutoLineUp();
 		}
+
 
 
 		if (m_driver->ButtonBack()){
@@ -556,9 +548,24 @@ public:
 			m_arm->EnableArmPID();
 
 			if (m_arm->ArmAtPIDSetPoint()) {
+				/**
+				 *  We arrived to set point, apply brake and move the screw up
+				 *  	This can conflict with manual screw down PID
+				 *  	Solution 1:
+				 *  		Disable Screw PID when we reach the setpoint.
+				 *  		If operator send signal to retract while the screw is going up, we end up sending two different setpoints to one PID
+				 *  	Solution 2:
+				 *  		When we see operator is sending signal to retract, change setpoint
+				 *  		Hard to debug, difficult to read
+				 */
+				m_arm->ApplyBrake();
 				m_arm->SetScrewPIDPoint(CLIMB_SCREW);
 				m_arm->EnableScrewPID();
 			} else {
+				/**
+				 *  We are moving toward the setpoint, release the brake
+				 */
+				m_arm->ReleaseBrake();
 				m_arm->DisableScrewPID();
 			}
 
@@ -661,6 +668,7 @@ public:
 			m_arm->DisableArmPID();
 			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
+			m_arm->ReleaseBrake();
 			m_intake->SetShooter(0.0);
 		}
 
