@@ -37,7 +37,7 @@
 #define SCREW_MAX_V 1
 #define SCREW_DELTA_TIME 20
 
-#define LIGHT_SENSOR_POS 1
+#define LIGHT_SENSOR_POS 0
 
 #endif
 
@@ -148,7 +148,33 @@ enum ScrewSetPoint {
 	kResetScrew = 0
 };
 
+
+
 class Arm: public HotSubsystem {
+
+	/*****************************
+	 *		Arm PID
+	 *****************************/
+
+	class ArmPIDWrapper : public PIDSource , public PIDOutput {
+		Arm *m_arm;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+		ArmPIDWrapper(Arm *arm);
+	};
+
+	/*****************************
+	 * 		Screw PID
+	 ******************************/
+
+	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
+		Arm *m_arm;
+	public:
+		double PIDGet();
+		void PIDWrite(float output);
+		ScrewPIDWrapper(Arm *arm);
+	};
 
 	/*
 	 * CANTalons
@@ -163,6 +189,11 @@ class Arm: public HotSubsystem {
 	 */
 	DigitalInput* m_armLightSensor;
 
+	/*
+	 * PID Wrappers
+	 */
+	ArmPIDWrapper * m_armPIDWrapper;
+	ScrewPIDWrapper * m_screwPIDWrapper;
 
 	/*
 	 * PID Controllers
@@ -221,25 +252,6 @@ public:
 	void ArmPrintData();
 
 	/*
-	 * Make sure nothing over extends.
-	 */
-	void PeriodicTask();
-
-	/*****************************
-	 *		Arm PID
-	 *****************************/
-
-	class ArmPIDWrapper : public PIDSource , public PIDOutput {
-		Arm *m_arm;
-	public:
-		double PIDGet();
-		void PIDWrite(float output);
-		ArmPIDWrapper(Arm *arm);
-	};
-private:
-	ArmPIDWrapper * m_armPIDWrapper;
-public:
-	/*
 	 * Enable and Disable
 	 */
 	void EnableArmPID();
@@ -273,22 +285,6 @@ public:
 
 	void ArmPIDUpdate();
 
-	/*****************************
-	 * 		Screw PID
-	 ******************************/
-
-	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
-
-		Arm * m_arm;
-	public:
-		double PIDGet();
-		void PIDWrite(float output);
-
-		ScrewPIDWrapper(Arm *arm);
-	};
-private:
-	ScrewPIDWrapper * m_screwPIDWrapper;
-public:
 	/*
 	 * Enable and Disable
 	 */
@@ -316,65 +312,6 @@ public:
 	 */
 	bool ScrewAtPIDSetPoint();
 
-	/******************************
-	 * 		Arm Motion Profiling
-	 ******************************/
-	/*
-	 * Enable and Disable.
-	 */
-	void EnableArmMotionProfiling();
-	void DisableArmMotionProfiling();
-	void PauseArmMotionProfiling();
-	void ResumeArmMotionProfiling();
-
-	/*
-	 * Is Enabled?
-	 */
-	bool IsArmMPEnabled();
-
-	/*
-	 * Set Setpoint.
-	 */
-	void SetArmMotionProfilePoint(ArmSetPoint target);
-	void SetArmMotionProfilePoint(float target);
-
-	/*
-	 * Periodic Task, every 10ms
-	 */
-	void PeriodicArmTask();
-
-
-	/******************************
-	 * 		Screw Motion Profiling
-	 ******************************/
-	/*
-	 * Enable and Disable.
-	 */
-	void EnableScrewMotionProfiling();
-	void DisableScrewMotionProfiling();
-	void PauseScrewMotionProfiling();
-	void ResumeScrewMotionProfiling();
-
-	/*
-	 * Is Enabled?
-	 */
-	bool IsScrewMPEnabled();
-
-	/*
-	 * Set Setpoint.
-	 */
-	void SetScrewMotionProfilePoint(ScrewSetPoint target);
-	void SetScrewMotionProfilePoint(float target);
-
-	/*
-	 * Periodic Task, every 10ms
-	 */
-	void PeriodicScrewTask();
-
-	/*
-	 * Have we arrived at the Set Point?
-	 */
-	bool ScrewAtMPSetPoint();
 };
 
 #endif /* SRC_ARM_H_ */

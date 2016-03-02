@@ -4,6 +4,7 @@
 #include "Intake.h"
 #include "Drivetrain.h"
 #include "Arm.h"
+#include "CameraHandler.h"
 
 /*
  * ARM MAPPING
@@ -78,6 +79,7 @@ private:
 	Drivetrain* m_drivetrain;
 	Intake* m_intake;
 	Arm* m_arm;
+	CameraHandler *m_camera;
 	//std::shared_ptr<USBCamera> m_camera;
 
 	/*
@@ -138,6 +140,7 @@ public:
 		m_drivetrain = new Drivetrain(this);
 		m_intake = new Intake(this);
 		m_arm = new Arm(this);
+		m_camera = new CameraHandler();
 
 		//m_camera = std::make_shared<USBCamera>("cam1", true);
 
@@ -335,31 +338,23 @@ public:
 		return totalCurrent;
 	}
 
-	/* void AutoLineUp() {
-		static double m_cameraDriveCenter;
-
-		switch (m_lineUpCase) {
-			case 0:
-				m_cameraDriveCenter = ((SmartDashboard::GetNumber("ImageXCenter0", 0.0)) * CAMERA_TO_ENCODE_COUNT);
-
-				m_drivetrain->ResetEncoder();
-				m_drivetrain->SetSpangle(m_cameraDriveCenter);
-				m_lineUpCase++;
-				break;
-			case 1:
-				if (m_drivetrain->IsEnabledSpangle() == false){
-					m_drivetrain->EnableSpangle();
-				}
-				m_lineUpCase++;
-				break;
-
-
-
-
-
+	bool AutoLineUp() {
+		if (m_camera->SeeTarget() == false) {
+			m_drivetrain->SetTurn(0.2);
+			return false;
+		} else if (m_camera->SeeTargetRight()) {
+			m_drivetrain->SetTurn(0.2);
+			return false;
+		} else if (m_camera->AtTarget()) {
+			m_drivetrain->SetTurn(0.0);
+			return true;
+		} else if (m_camera->SeeTargetLeft()) {
+			m_drivetrain->SetTurn(-0.2);
+			return false;
 		}
-	} */
 
+		return false;
+	}
 
 	void TeleopInit()
 	{
@@ -411,6 +406,11 @@ public:
 		} else {
 			m_drivetrain->DisableDistance();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
+		}
+		{
+			if (m_driver->ButtonA()) {
+				AutoLineUp();
+			}
 		}
 
 
@@ -713,7 +713,7 @@ public:
 		} */
 	}
 
-void PrintData(){
+	void PrintData(){
 	/*********************************
 	 * Current Data to Dashboard
 	 *********************************/
