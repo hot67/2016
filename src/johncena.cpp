@@ -329,6 +329,66 @@ public:
 			*/
 	}
 
+	void AutonLowBarShoot() {
+		switch (m_autonCase) {
+		case 0:
+			/**
+			 * 	Move the arm back to pick up
+			 */
+			m_arm->SetArmPIDPoint(PICKUP);
+			m_arm->EnableArmPID();
+
+			/**
+			 * 	Move the robot back for 10 fts
+			 * 		You may need to change this value
+			 */
+			m_drivetrain->SetDistance(-120);
+			m_drivetrain->EnableDistance();
+
+			/**
+			 * 	If we arrive to the setpoints, move to next case
+			 */
+			if (m_arm->ArmAtPIDSetPoint() && m_drivetrain->DistanceAtSetPoint()) {
+				m_arm->DisableArmPID();
+				m_drivetrain->DisableDistance();
+
+				m_autonCase++;
+			}
+			break;
+
+		case 1:
+			/**
+			 * 	Move the arm ready to shoot
+			 */
+			m_arm->SetArmPIDPoint(MEDIUM_HIGH_GOAL);
+			m_arm->EnableArmPID();
+
+			/**
+			 * 	Speed Up The shooter
+			 */
+			m_intake->SetShooter(1.0);
+
+			/**
+			 * 	Line Up
+			 */
+			AutoLineUp();
+
+			/**
+			 * 	Check if we are done
+			 */
+			if (m_camera->AtTarget() && m_arm->ArmAtPIDSetPoint()) {
+				m_autonCase++;
+			}
+			break;
+
+		case 2:
+			/**
+			 *	Shoot
+			 *	ToDo: Do we stop this? Or keep it running until the auton ends
+			 */
+			m_intake->SetRoller(1.0);
+		}
+	}
 	double GetManualTotalCurrent() {
 		double totalCurrent = 0.0;
 		for (int i = 0; i < 16; i++) {
@@ -458,7 +518,6 @@ public:
 		 */
 
 		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
-
 
 		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
@@ -714,199 +773,209 @@ public:
 	}
 
 	void PrintData(){
-	/*********************************
-	 * Current Data to Dashboard
-	 *********************************/
-	/*
-	 * Drive Current Data
-	 */
-	SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
-	SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
-	SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
-	SmartDashboard::PutNumber("Right Drive Rear Current", m_pdp->GetCurrent(15));
+		/*********************************
+		 * Current Data to Dashboard
+		 *********************************/
+		/*
+		 * Drive Current Data
+		 */
+		SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
+		SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
+		SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
+		SmartDashboard::PutNumber("Right Drive Rear Current", m_pdp->GetCurrent(15));
 
-	/*
-	 * Arm Current Data
-	 */
-	SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
-	SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
+		/*
+		 * Arm Current Data
+		 */
+		SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
+		SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
 
-	/*
-	 * Intake Current Data
-	 */
-	SmartDashboard::PutNumber("Roller/Gatherer Current", m_pdp->GetCurrent(6));
+		/*
+		 * Intake Current Data
+		 */
+		SmartDashboard::PutNumber("Roller Current", m_pdp->GetCurrent(6));
 
-	/*
-	 * Screw Current Data
-	 */
-	SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
-	SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
+		/*
+		 * Screw Current Data
+		 */
+		SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
+		SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
 
-	/*
-	 * Shooter Current Data
-	 */
-	SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
+		/*
+		 * Shooter Current Data
+		 */
+		SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
 
-	/*
-	 * Gear Shift Current Data
-	 */
-	SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
+		/*
+		 * Gear Shift Current Data
+		 */
+		SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
 
-	/*
-	 * LED Ring Current Data
-	 */
-	SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
+		/*
+		 * LED Ring Current Data
+		 */
+		SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
 
-	/*
-	 * Total Current Data
-	 */
-	SmartDashboard::PutNumber("Total Current", GetManualTotalCurrent());
+		/*
+		 * Total Current Data
+		 */
+		SmartDashboard::PutNumber("Total Current", GetManualTotalCurrent());
 
-	/*
-	 * Total Power Data
-	 */
-	SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
+		/*
+		 * Total Power Data
+		 */
+		SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
 
-	/*********************************
-	 * ENCODER DATA
-	 *********************************/
+		/*
+		 * Temperature
+		 */
+		SmartDashboard::PutNumber("PDP Temperature", m_pdp->GetTemperature());
 
-	/***************
-	 * Arm Encoder Information
-	 ***************/
+		/*********************************
+		 * ENCODER DATA
+		 *********************************/
 
-	/*
-	 * Arm Encoder Rate
-	 */
-	SmartDashboard::PutNumber("Arm Encoder Speed", m_arm->GetArmSpeed());
+		/***************
+		 * Arm Encoder Information
+		 ***************/
+		/*
+		 *  Arm Encode Position
+		 */
+		SmartDashboard::PutNumber("Arm Encoder Position", m_arm->GetArmPos());
+		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
 
-	SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
-	/*
-	 * Arm Encoder Position
-	 */
-	SmartDashboard::PutNumber("Arm Encoder Position", m_arm->GetArmPos());
+		/*
+		 * Arm Encoder Rate
+		 */
+		SmartDashboard::PutNumber("Arm Encoder Speed", m_arm->GetArmSpeed());
+		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
 
-	/*
-	 * Arm PID SetPoint
-	 */
-	SmartDashboard::PutNumber("Arm PID SetPoint", m_arm->GetArmPIDSetPoint());
+		/*
+		 * Arm PID SetPoint
+		 */
+		SmartDashboard::PutNumber("Arm PID SetPoint", m_arm->GetArmPIDSetPoint());
+		SmartDashboard::PutNumber("Screw PID SetPoint", m_arm->GetScrewPIDSetPoint());
 
-	/*
-	 * Arm PID At Setpoint ?
-	 */
-	SmartDashboard::PutBoolean("Arm PID At SetPoint", m_arm->ArmAtPIDSetPoint());
+		/*
+		 * Arm PID At Setpoint ?
+		 */
+		SmartDashboard::PutBoolean("Arm PID At SetPoint", m_arm->ArmAtPIDSetPoint());
+		SmartDashboard::PutBoolean("Screw PID At SetPoint", m_arm->ScrewAtPIDSetPoint());
 
-	/***************
-	 * Intake Encoder Information
-	 ***************/
-	/*
-	 * Shooter Speed
-	 */
-	SmartDashboard::PutNumber("Shooter RPM", m_intake->GetShooterSpeed());
-	SmartDashboard::PutNumber("Shooter Period", m_intake->GetShooterPeriod());
+		/***************
+		 * Intake Encoder Information
+		 ***************/
+		/*
+		 * Shooter Speed
+		 */
+		SmartDashboard::PutNumber("Shooter RPM", m_intake->GetShooterSpeed());
+		SmartDashboard::PutNumber("Shooter Period", m_intake->GetShooterPeriod());
 
-	SmartDashboard::PutNumber("Shooter Status", m_intake->GetShooterStatus());
+		/*
+		 *  Shooter Status
+		 */
+		SmartDashboard::PutNumber("Shooter Status", m_intake->GetShooterStatus());
 
-	/***************
-	 * Drivetrain Encoder Information
-	 ***************/
+		/***************
+		 * Drivetrain Encoder Information
+		 ***************/
 
-	/*
-	 * Drive Average Encoder
-	 */
-	SmartDashboard::PutNumber("Drive Encoder Distance", m_drivetrain->GetAverageDistance());
+		/*
+		 * Drive Average Encoder
+		 */
+		SmartDashboard::PutNumber("Drive Encoder Distance", m_drivetrain->GetAverageDistance());
 
-	/*
-	 * Drive Left Encoder
-	 */
-	SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
+		/*
+		 * Drive Left Encoder
+		 */
+		SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
 
-	/*
-	 * Drive Right Encoder
-	 */
-	SmartDashboard::PutNumber("Drive Right Encoder Distance", m_drivetrain->GetRDistance());
+		/*
+		 * Drive Right Encoder
+		 */
+		SmartDashboard::PutNumber("Drive Right Encoder Distance", m_drivetrain->GetRDistance());
 
-	/*
-	 * Drive Average Speed
-	 */
-	SmartDashboard::PutNumber("Drive Average Speed", m_drivetrain->GetAverageSpeed());
+		/*
+		 * Drive Average Speed
+		 */
+		SmartDashboard::PutNumber("Drive Average Speed", m_drivetrain->GetAverageSpeed());
 
-	/*
-	 * Drive Left Speed
-	 */
-	SmartDashboard::PutNumber("Drive Left Speed", m_drivetrain->GetLSpeed());
+		/*
+		 * Drive Left Speed
+		 */
+		SmartDashboard::PutNumber("Drive Left Speed", m_drivetrain->GetLSpeed());
 
-	/*
-	 * Drive Right Speed
-	 */
-	SmartDashboard::PutNumber("Drive Right Speed", m_drivetrain->GetRSpeed());
+		/*
+		 * Drive Right Speed
+		 */
+		SmartDashboard::PutNumber("Drive Right Speed", m_drivetrain->GetRSpeed());
 
-	/*
-	 * Drive train angle
-	 */
-//	SmartDashboard::PutNumber("Drive Angle ahh", m_drivetrain->GetAngle());
+		/*
+		 * Drive train angle
+		 */
+	//	SmartDashboard::PutNumber("Drive Angle ahh", m_drivetrain->GetAngle());
 
-	/*********************************
-	 * CONTROL
-	 *********************************/
-	/***************
-	 * Driver
-	 ***************/
-	/*
-	 * Buttons
-	 */
-	SmartDashboard::PutBoolean("Driver A", m_driver->ButtonA());
-	SmartDashboard::PutBoolean("Driver B", m_driver->ButtonB());
-	SmartDashboard::PutBoolean("Driver X", m_driver->ButtonX());
-	SmartDashboard::PutBoolean("Driver Y", m_driver->ButtonY());
-	SmartDashboard::PutBoolean("Driver LB", m_driver->ButtonLB());
-	SmartDashboard::PutBoolean("Driver RB", m_driver->ButtonRB());
-	SmartDashboard::PutBoolean("Driver LT", m_driver->ButtonLT());
-	SmartDashboard::PutBoolean("Driver RT", m_driver->ButtonRT());
-	SmartDashboard::PutBoolean("Driver Start", m_driver->ButtonStart());
-	SmartDashboard::PutBoolean("Driver Back", m_driver->ButtonBack());
+		/*********************************
+		 * CONTROL
+		 *********************************/
+		/***************
+		 * Driver
+		 ***************/
+		/*
+		 * Buttons
+		 */
+		SmartDashboard::PutBoolean("Driver A", m_driver->ButtonA());
+		SmartDashboard::PutBoolean("Driver B", m_driver->ButtonB());
+		SmartDashboard::PutBoolean("Driver X", m_driver->ButtonX());
+		SmartDashboard::PutBoolean("Driver Y", m_driver->ButtonY());
+		SmartDashboard::PutBoolean("Driver LB", m_driver->ButtonLB());
+		SmartDashboard::PutBoolean("Driver RB", m_driver->ButtonRB());
+		SmartDashboard::PutBoolean("Driver LT", m_driver->ButtonLT());
+		SmartDashboard::PutBoolean("Driver RT", m_driver->ButtonRT());
+		SmartDashboard::PutBoolean("Driver Start", m_driver->ButtonStart());
+		SmartDashboard::PutBoolean("Driver Back", m_driver->ButtonBack());
 
-	/*
-	 * Axis
-	 */
+		/*
+		 * Axis
+		 */
 
-	SmartDashboard::PutNumber("Driver Left Y-Axis", SmartDashboard::GetNumber("ImageXCenter0", 1.2));//m_driver->AxisLY());
-	SmartDashboard::PutNumber("Driver Right Y-Axis", m_driver->AxisRY());
-	SmartDashboard::PutNumber("Driver Left X-Axis", m_driver->AxisLX());
-	SmartDashboard::PutNumber("Driver Right X-Axis", m_driver->AxisRX());
+		SmartDashboard::PutNumber("Driver Left Y-Axis", SmartDashboard::GetNumber("ImageXCenter0", 1.2));//m_driver->AxisLY());
+		SmartDashboard::PutNumber("Driver Right Y-Axis", m_driver->AxisRY());
+		SmartDashboard::PutNumber("Driver Left X-Axis", m_driver->AxisLX());
+		SmartDashboard::PutNumber("Driver Right X-Axis", m_driver->AxisRX());
 
-	SmartDashboard::PutNumber("Driver Right Trigger Axis", m_driver->AxisRT());
-	SmartDashboard::PutNumber("Driver Left Trigger Axis", m_driver->AxisLT());
+		SmartDashboard::PutNumber("Driver Right Trigger Axis", m_driver->AxisRT());
+		SmartDashboard::PutNumber("Driver Left Trigger Axis", m_driver->AxisLT());
 
-	/***************
-	 * Operator
-	 ***************/
-	/*
-	 * Buttons
-	 */
-	SmartDashboard::PutBoolean("Operator A", m_operator->ButtonA());
-	SmartDashboard::PutBoolean("Operator B", m_operator->ButtonB());
-	SmartDashboard::PutBoolean("Operator X", m_operator->ButtonX());
-	SmartDashboard::PutBoolean("Operator Y", m_operator->ButtonY());
-	SmartDashboard::PutBoolean("Operator LB", m_operator->ButtonLB());
-	SmartDashboard::PutBoolean("Operator RB", m_operator->ButtonRB());
-	SmartDashboard::PutBoolean("Operator LT", m_operator->ButtonLT());
-	SmartDashboard::PutBoolean("Operator RT", m_operator->ButtonRT());
-	SmartDashboard::PutBoolean("Operator Start", m_operator->ButtonStart());
-	SmartDashboard::PutBoolean("Operator Back", m_operator->ButtonBack());
+		/***************
+		 * Operator
+		 ***************/
+		/*
+		 * Buttons
+		 */
+		SmartDashboard::PutBoolean("Operator A", m_operator->ButtonA());
+		SmartDashboard::PutBoolean("Operator B", m_operator->ButtonB());
+		SmartDashboard::PutBoolean("Operator X", m_operator->ButtonX());
+		SmartDashboard::PutBoolean("Operator Y", m_operator->ButtonY());
+		SmartDashboard::PutBoolean("Operator LB", m_operator->ButtonLB());
+		SmartDashboard::PutBoolean("Operator RB", m_operator->ButtonRB());
+		SmartDashboard::PutBoolean("Operator LT", m_operator->ButtonLT());
+		SmartDashboard::PutBoolean("Operator RT", m_operator->ButtonRT());
+		SmartDashboard::PutBoolean("Operator Start", m_operator->ButtonStart());
+		SmartDashboard::PutBoolean("Operator Back", m_operator->ButtonBack());
 
-	/*
-	 * Axis
-	 */
+		/*
+		 * Axis
+		 */
 
-	SmartDashboard::PutNumber("Operator Left Y-Axis", m_operator->AxisLY());
-	SmartDashboard::PutNumber("Operator Right Y-Axis", m_operator->AxisRY());
-	SmartDashboard::PutNumber("Operator Left X-Axis", m_operator->AxisLX());
-	SmartDashboard::PutNumber("Operator Right X-Axis", m_operator->AxisLX());
+		SmartDashboard::PutNumber("Operator Left Y-Axis", m_operator->AxisLY());
+		SmartDashboard::PutNumber("Operator Right Y-Axis", m_operator->AxisRY());
+		SmartDashboard::PutNumber("Operator Left X-Axis", m_operator->AxisLX());
+		SmartDashboard::PutNumber("Operator Right X-Axis", m_operator->AxisLX());
 
-	SmartDashboard::PutNumber("Operator Right Trigger Axis", m_operator->AxisRT());
-	SmartDashboard::PutNumber("Operator Left Trigger Axis", m_operator->AxisLT());
-}
+		SmartDashboard::PutNumber("Operator Right Trigger Axis", m_operator->AxisRT());
+		SmartDashboard::PutNumber("Operator Left Trigger Axis", m_operator->AxisLT());
+	}
 
 };
 
