@@ -59,11 +59,11 @@ double Intake::GetShooterPeriod(){
 void Intake::SetRoller(float speed){
 	//negative values roll in
 	//positive values roll out
-	m_rollerTalon->Set(speed);
-/*
+//	m_rollerTalon->Set(speed);
+
 	if (speed > 0.0) {
 		SmartDashboard::PutNumber("Roller Get", speed);
-//		m_rollerTalon->Set(speed);
+		m_rollerTalon->Set(speed);
 		f_rollingIn = true;
 	} else if (speed == 0.0) {
 		if (f_rollingIn == true) {
@@ -72,22 +72,21 @@ void Intake::SetRoller(float speed){
 			m_pulseOutTimer->Start();
 
 			SmartDashboard::PutNumber("Roller Get", -1.0);
-//			m_rollerTalon->Set(-1.0);
+			m_rollerTalon->Set(-1.0);
 			f_rollingIn = false;
 		}
 		else if (f_rollingIn == false) {
-			if (m_pulseOutTimer->Get() < 1.0) {
+			if (m_pulseOutTimer->Get() < 0.1) {
 			} else {
 				SmartDashboard::PutNumber("Roller Get", 0.0);
-//				m_rollerTalon->Set(0.0);
+				m_rollerTalon->Set(0.0);
 			}
 		}
 	} else {
 		SmartDashboard::PutNumber("Roller Get", speed);
-//		m_rollerTalon->Set(speed);
+		m_rollerTalon->Set(speed);
 		f_rollingIn = false;
 	}
-*/
 }
 
 
