@@ -481,6 +481,13 @@ public:
 		if (fabs(m_operator->AxisRY()) > 0.2) {
 			//Manual Control
 			m_arm->SetArm(m_operator->AxisRY());
+
+			if (m_operator->ButtonStart()) {
+				m_intake->SetShooter(1.0);
+			}
+			else {
+				m_intake->SetShooter(0.0);
+			}
 		}
 		else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
 			/**
@@ -488,6 +495,15 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(kClimbArm);
 			m_arm->EnableArmPID();
+
+			if (m_arm->ArmAtPIDSetPoint()) {
+				m_arm->SetScrewPIDPoint(CLIMB_SCREW);
+				m_arm->EnableScrewPID();
+			} else {
+				m_arm->DisableScrewPID();
+			}
+
+			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonY() && m_operator->ButtonLB()) {
 			/**
 			 * 	MEDIUM HIGH GOAL
@@ -547,6 +563,8 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(CLOSE_LOW_GOAL);
 			m_arm->EnableArmPID();
+
+			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonX()) {
 			/**
 			 * 	Carry Position
@@ -555,18 +573,24 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(CARRY);
 			m_arm->EnableArmPID();
+
+			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonA() && m_operator->ButtonLB()) {
 			/**
 			 * 	Over Obstacles
 			 */
 			m_arm->SetArmPIDPoint(OBSTACLE);
 			m_arm->EnableArmPID();
+
+			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonA()) {
 			/**
 			 * 	Floor Pick up
 			 */
 			m_arm->SetArmPIDPoint(5);
 			m_arm->EnableArmPID();
+
+			m_intake->SetShooter(0.0);
 		} else {
 			/**
 			 * 	No command is given:
@@ -576,6 +600,7 @@ public:
 			 * 		Stop the shooter
 			 */
 			m_arm->DisableArmPID();
+			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
 			m_intake->SetShooter(0.0);
 		}
@@ -604,33 +629,18 @@ public:
 			if (m_driver->AxisRT() > 0.2 && f_shooterOperatorHasControl == false) {
 				m_intake->SetRoller(1.0);
 				f_shooterDriverHasControl = true;
-				m_rollLoop = true;
 			} else if (m_driver->AxisLT() > 0.2 && f_shooterOperatorHasControl == false) {
 				m_intake->SetRoller(-1.0);
 				f_shooterDriverHasControl = true;
 			} else if (m_operator->AxisRT() > 0.2 && f_shooterDriverHasControl == false) {
 				m_intake->SetRoller(1.0);
-				m_rollLoop = true;
 				f_shooterOperatorHasControl = true;
 			} else if (m_operator->AxisLT() > 0.2 && f_shooterDriverHasControl == false) {
 				m_intake->SetRoller(-1.0);
 				f_shooterOperatorHasControl = true;
 			} else {
-				if (m_rollLoop == true){
-					m_rollForShootTime->Stop();
-					m_rollForShootTime->Reset();
-					m_rollForShootTime->Start();
-
-					m_intake->SetRoller(-0.4);
-					m_rollLoop = false;
-				}
-
-				if (m_rollForShootTime->Get() >= 1.0) {
-					m_intake->SetRoller(0.0);
-				}
-
-				f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
 				m_intake->SetRoller(0.0);
+				f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
 			}
 		}
 		else if (m_intake->GetShooterStatus() == Intake::kShooterSpeeding) {
