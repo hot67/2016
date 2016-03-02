@@ -117,6 +117,11 @@
 #define TALON_ARM_L 11
 
 /*
+ * 	Solenoid for brake
+ */
+#define SOLENOID_BRAKE 1
+
+/*
  * Light Sensor Location
  */
 #define LIGHT_ARM 9
@@ -135,8 +140,7 @@ enum ArmSetPoint {
 	kPickup = 6, //unknown
 	kObstacle = 7, //-10 degrees
 	kClimbArm = 8, //97 degrees
-	kBatter = 9, //35 degrees
-	kResetArm = 0
+	kBatter = 9 //35 degrees
 };
 
 /*
@@ -185,6 +189,11 @@ class Arm: public HotSubsystem {
 	CANTalon* m_screwRightTalon;
 
 	/*
+	 * Brake
+	 */
+	Solenoid* m_brake;
+
+	/*
 	 * Light Sensor
 	 */
 	DigitalInput* m_armLightSensor;
@@ -222,6 +231,13 @@ public:
 	 */
 	void SetArm(float speed);
 	void SetScrew(float speed);
+
+	/*
+	 *  Braking
+	 */
+	void SetBrake(bool on);
+	void ApplyBrake();
+	void ReleaseBrake();
 
 	/*
 	* Raw access to Encoder Values.

@@ -18,6 +18,11 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_screwRightTalon = new CANTalon(TALON_SCREW_R);
 	m_screwLeftTalon = new CANTalon(TALON_SCREW_L);
 
+	/**
+	 *  Initialize Brake
+	 */
+	m_brake = new Solenoid(SOLENOID_BRAKE);
+
 	/*
 	 * Initialize the light sensor for the arm.
 	 */
@@ -97,6 +102,12 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 void Arm::SetArm(float speed) {
 	m_armLeftTalon->Set(-speed);
 	m_armRightTalon->Set(speed);
+
+	if (speed == 0.0) {
+		ApplyBrake();
+	} else {
+		ReleaseBrake();
+	}
 }
 
 void Arm::SetScrew(float speed) {
@@ -121,6 +132,18 @@ void Arm::SetScrew(float speed) {
 		m_screwLeftTalon->Set(0);
 		m_screwRightTalon->Set(0);
 	}
+}
+
+void Arm::SetBrake(bool on) {
+	m_brake->Set(on);
+}
+
+void Arm::ApplyBrake() {
+	m_brake->Set(true);
+}
+
+void Arm::ReleaseBrake() {
+	m_brake->Set(false);
 }
 
 float Arm::GetArmPos() {

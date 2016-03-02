@@ -59,8 +59,8 @@ double Intake::GetShooterPeriod(){
 void Intake::SetRoller(float speed){
 	//negative values roll in
 	//positive values roll out
-//	m_rollerTalon->Set(speed);
-
+	m_rollerTalon->Set(speed);
+/*
 	if (speed > 0.0) {
 		SmartDashboard::PutNumber("Roller Get", speed);
 //		m_rollerTalon->Set(speed);
@@ -87,6 +87,7 @@ void Intake::SetRoller(float speed){
 //		m_rollerTalon->Set(speed);
 		f_rollingIn = false;
 	}
+*/
 }
 
 
