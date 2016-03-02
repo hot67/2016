@@ -38,8 +38,8 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	/*
 	 * Configure the encoder counts per revolution
 	 */
-	m_armLeftTalon->ConfigEncoderCodesPerRev(360.0);
-	m_screwLeftTalon->ConfigEncoderCodesPerRev(1024.0);
+	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
+	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
 
 	/*
 	 * Set P, I, and D, in the Controllers using our wrapper

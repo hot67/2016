@@ -72,7 +72,7 @@ void Intake::SetRoller(float speed){
 			m_pulseOutTimer->Start();
 
 			SmartDashboard::PutNumber("Roller Get", -1.0);
-			m_rollerTalon->Set(-1.0);
+			m_rollerTalon->Set(-0.6);
 			f_rollingIn = false;
 		}
 		else if (f_rollingIn == false) {

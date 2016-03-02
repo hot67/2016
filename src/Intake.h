@@ -35,7 +35,7 @@
 #define SHOOTER_ID 16
 
 //encoder DIO location
-#define SHOOTER_ENCODER 6
+#define SHOOTER_ENCODER 8
 //will be adding in white-black sensor, but leaving encoder initialization for now
 
 #define DEFAULT_SHOOTER_SPEED 0.8

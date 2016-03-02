@@ -73,7 +73,7 @@ private:
 	Intake* m_intake;
 	Arm* m_arm;
 	CameraHandler *m_camera;
-	//std::shared_ptr<USBCamera> m_camera;
+	std::shared_ptr<USBCamera> m_USBCamera;
 
 	/*
 	 * Power Distribution Panel
@@ -135,7 +135,7 @@ public:
 		m_arm = new Arm(this);
 		m_camera = new CameraHandler();
 
-		//m_camera = std::make_shared<USBCamera>("cam1", true);
+		m_USBCamera = std::make_shared<USBCamera>("cam0", true);
 
 		/*
 		 * Power Distribution Panel initialization
@@ -173,14 +173,14 @@ public:
 
 	void RobotInit()
 	{
-		//m_camera->SetExposureManual(0);
-		//m_camera->SetExposureHoldCurrent();
+		m_USBCamera->SetExposureManual(0);
+		m_USBCamera->SetExposureHoldCurrent();
 
 		/*
 		 * Configure camera server
 		 */
-		//CameraServer::GetInstance()->SetQuality(50);
-		//CameraServer::GetInstance()->StartAutomaticCapture(m_camera);
+		CameraServer::GetInstance()->SetQuality(50);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
 
 		m_arm->ZeroArmEncoder();
 		m_arm->ZeroScrewEncoder();
@@ -188,8 +188,8 @@ public:
 	}
 
 	void DisabledInit()
-		{
-		}
+	{
+	}
 
 	void DisabledPeriodic()
 	{
@@ -393,16 +393,20 @@ public:
 
 	bool AutoLineUp() {
 		if (m_camera->SeeTarget() == false) {
-			m_drivetrain->SetTurn(0.2);
+			m_drivetrain->SetTurn(0.55);
+			SmartDashboard::PutNumber("* Line Up Turn", 0.6);
 			return false;
 		} else if (m_camera->SeeTargetRight()) {
-			m_drivetrain->SetTurn(0.2);
+			m_drivetrain->SetTurn(0.55);
+			SmartDashboard::PutNumber("* Line Up Turn", 0.6);
 			return false;
 		} else if (m_camera->AtTarget()) {
 			m_drivetrain->SetTurn(0.0);
+			SmartDashboard::PutNumber("* Line Up Turn", 0.0);
 			return true;
 		} else if (m_camera->SeeTargetLeft()) {
-			m_drivetrain->SetTurn(-0.2);
+			m_drivetrain->SetTurn(-0.55);
+			SmartDashboard::PutNumber("* Line Up Turn", -0.6);
 			return false;
 		}
 
@@ -450,20 +454,14 @@ public:
 	void TeleopDrive ()
 	{
 		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
-			m_drivetrain->ArcadeDrive(m_driver->AxisLY(), m_driver->AxisRX());
+			m_drivetrain->ArcadeDrive(-m_driver->AxisLY(), m_driver->AxisRX());
+		} else if (m_driver->ButtonA()) {
+			//m_drivetrain->ShiftLow();
+			//AutoLineUp();
 		} else {
 			m_drivetrain->DisableDistance();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
 		}
-
-		/**
-		 *  To Test Auto Line Up
-		 *  	ToDo: Erase it after test
-		 */
-		if (m_driver->ButtonA()) {
-			AutoLineUp();
-		}
-
 
 
 		if (m_driver->ButtonBack()){
@@ -657,6 +655,8 @@ public:
 			m_arm->EnableArmPID();
 
 			m_intake->SetShooter(0.0);
+		} else if (m_operator->ButtonStart()) {
+			m_intake->SetShooter(1.0);
 		} else {
 			/**
 			 * 	No command is given:
@@ -671,6 +671,8 @@ public:
 			m_arm->ReleaseBrake();
 			m_intake->SetShooter(0.0);
 		}
+
+
 
 	}
 
@@ -729,12 +731,7 @@ public:
 				m_intake->SetRoller(0.0);
 			}
 		}
-		if (m_operator->ButtonStart()){
-			m_intake->SetShooter(1.0);
-		}
-		else{
-			m_intake->SetShooter(0.);
-		}
+
 
 //WORKING INTAKE CODE
 		/*if ((m_driver->AxisRT() > 0.2)) {
@@ -851,6 +848,9 @@ public:
 		 */
 		SmartDashboard::PutNumber("Arm Encoder Position", m_arm->GetArmPos());
 		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
+		//	Check if we are below carry and tell camera to switch
+		SmartDashboard::PutBoolean("Below Carry", m_arm->GetArmPos() < CARRY + 5);
+
 
 		/*
 		 * Arm Encoder Rate
@@ -922,6 +922,11 @@ public:
 		 * Drive train angle
 		 */
 	//	SmartDashboard::PutNumber("Drive Angle ahh", m_drivetrain->GetAngle());
+
+		/***************
+		 *  Camera
+		 ***************/
+		SmartDashboard::PutNumber("Camera X", m_camera->GetTargetNormalizedCenter());
 
 		/*********************************
 		 * CONTROL
