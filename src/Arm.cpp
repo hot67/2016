@@ -33,13 +33,18 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	 * so in later use we need to divide them by four.
 	 */
 	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
+	m_armRightTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	m_screwLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
+	m_screwRightTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
 
 	/*
 	 * Configure the encoder counts per revolution
 	 */
 	m_armLeftTalon->ConfigEncoderCodesPerRev(360);
+	m_armRightTalon->ConfigEncoderCodesPerRev(360);
 	m_screwLeftTalon->ConfigEncoderCodesPerRev(360);
+	m_screwRightTalon->ConfigEncoderCodesPerRev(360);
 
 	/*
 	 * Set P, I, and D, in the Controllers using our wrapper
@@ -72,7 +77,6 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
  *
  */
 /* void Arm::PeriodicTask() {
-
 	int currentArmPos = GetArmPos();
 	if (currentArmPos <= -15) {
 		DisableArmMotionProfiling();
@@ -129,8 +133,8 @@ void Arm::SetScrew(float speed) {
 		m_screwRightTalon->Set(-speed);
 	}
 	else {
-		m_screwLeftTalon->Set(0);
-		m_screwRightTalon->Set(0);
+		m_screwLeftTalon->Set(-speed);
+		m_screwRightTalon->Set(-speed);
 	}
 }
 
@@ -150,9 +154,18 @@ float Arm::GetArmPos() {
 	return - m_armLeftTalon->GetPosition() * 79.2;
 }
 
-float Arm::GetScrewPos() {
-	return - m_screwLeftTalon->GetPosition() / 4;
+float Arm::GetRightArmPos() {
+	return - m_armRightTalon->GetPosition() * 79.2;
 }
+
+float Arm::GetScrewPos() {
+	return m_screwLeftTalon->GetPosition() / 4;
+}
+
+float Arm::GetRightScrewPos() {
+	return - m_screwRightTalon->GetPosition() / 4;
+}
+
 
 float Arm::GetArmSpeed() {
 	return - m_armLeftTalon->GetSpeed() * 79.2;
@@ -166,10 +179,12 @@ float Arm::GetScrewSpeed() {
 
 void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(LIGHT_SENSOR_POS / 79.2);
+	m_armRightTalon->SetPosition(LIGHT_SENSOR_POS / 79.2);
 }
 
 void Arm::ZeroScrewEncoder() {
 	m_screwLeftTalon->SetPosition(0);
+	m_screwRightTalon->SetPosition(0);
 }
 
 bool Arm::IsLightSensorTriggered() {

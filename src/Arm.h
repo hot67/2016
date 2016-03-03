@@ -245,6 +245,9 @@ public:
 	float GetScrewPos();
 	float GetArmPos();
 
+	float GetRightArmPos();
+	float GetRightScrewPos();
+
 	/*
 	 * Raw access to Encoder Speed
 	 */

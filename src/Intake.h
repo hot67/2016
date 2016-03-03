@@ -104,6 +104,8 @@ public:
 
 	float GetShooter();
 
+	void ResetRollerStatus();
+
 
 	/******************************
 	 * Shooter specifics

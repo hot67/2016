@@ -89,6 +89,9 @@ void Intake::SetRoller(float speed){
 	}
 }
 
+void Intake::ResetRollerStatus() {
+	f_rollingIn = false;
+}
 
 void Intake::SetShooter(float speed){ //set speed of shooter
 	//positive values roll out

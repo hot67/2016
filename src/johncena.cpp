@@ -160,11 +160,6 @@ public:
 
 		m_lineUpCase = 0;
 
-		/*
-		 * Sets the flag for rolling out to false because we don't start the robot by rolling out
-		 */
-		f_rollingIn = false;
-
 		/**
 		 *  First no one has control
 		 */
@@ -189,6 +184,10 @@ public:
 
 	void DisabledInit()
 	{
+		/*
+		 * Sets the flag for rolling out to false because we don't start the robot by rolling out
+		 */
+		m_intake->ResetRollerStatus();
 	}
 
 	void DisabledPeriodic()
@@ -332,7 +331,7 @@ public:
 			m_arm->EnableArmPID();
 
 			/**
-			 * 	Move the robot back for 10 fts
+			 * 	Move the robot back for 10 ft
 			 * 		You may need to change this value
 			 */
 			m_drivetrain->SetDistance(-120);
@@ -382,6 +381,7 @@ public:
 			m_intake->SetRoller(1.0);
 		}
 	}
+
 	double GetManualTotalCurrent() {
 		double totalCurrent = 0.0;
 		for (int i = 0; i < 16; i++) {
@@ -857,6 +857,9 @@ public:
 		 */
 		SmartDashboard::PutNumber("Arm Encoder Speed", m_arm->GetArmSpeed());
 		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
+
+		SmartDashboard::PutNumber("Arm Right Encoder Position", m_arm->GetRightArmPos());
+		SmartDashboard::PutNumber("Screw Right Encoder Position", m_arm->GetRightScrewPos());
 
 		/*
 		 * Arm PID SetPoint
