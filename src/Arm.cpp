@@ -108,7 +108,7 @@ void Arm::SetArm(float speed) {
 	m_armRightTalon->Set(speed);
 }
 
-void Arm::SetScrew(float speed) {
+void Arm::SetScrew(float speed, bool safety) {
 
 	/*
 	 * go up when screwpos is less than 30
@@ -116,19 +116,25 @@ void Arm::SetScrew(float speed) {
 	 * go down when screwpos is more than 0
 	 */
 
-	if (GetScrewPos() < 75 && speed < 0) {
-		//going up and screw position is less than 30
-		m_screwLeftTalon->Set(-speed);
-		m_screwRightTalon->Set(-speed);
-	}
+	if (safety == true) {
+		if (GetScrewPos() < 75 && speed < 0) {
+			//going up and screw position is less than 30
+			m_screwLeftTalon->Set(-speed);
+			m_screwRightTalon->Set(-speed);
+		}
 
-	else if (GetScrewPos() > 0 && speed > 0) {
+		else if (GetScrewPos() > 0 && speed > 0) {
+			m_screwLeftTalon->Set(-speed);
+			m_screwRightTalon->Set(-speed);
+		}
+		else {
+			m_screwLeftTalon->Set(0);
+			m_screwRightTalon->Set(0);
+		}
+	}
+	else if (safety == false) {
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
-	}
-	else {
-		m_screwLeftTalon->Set(0);
-		m_screwRightTalon->Set(0);
 	}
 }
 
