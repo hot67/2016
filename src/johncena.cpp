@@ -52,7 +52,8 @@ using namespace std;
 enum auton_t {
 	kNothing,
 	kLowBar,
-	kLowBarBack
+	kLowBarBack,
+	kLowBarShoot
 };
 
 class johncena: public HotBot
@@ -151,6 +152,7 @@ public:
 		 * Default auton choice is nothing
 		 */
 		m_autonChoice = kNothing;
+		SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
 
 		/*
 		 * Sets auton case to 0
@@ -205,15 +207,22 @@ public:
 		 * Select auton choice
 		 * 	ToDo: Better auton UI
 		 *****/
-		if (m_operator->ButtonBack())
+		if (m_operator->ButtonBack()){
 			m_autonChoice = kNothing;
 			//operator's BACK button sets auton to NOTHING
-		else if (m_operator->ButtonA())
+			SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
+		} else if (m_operator->ButtonA()) {
 			m_autonChoice = kLowBar;
 			//operator's A button sets auton to UNDER LOW BAR
-		else if (m_operator->ButtonB())
+			SmartDashboard::PutString("Auton Choice", "Under Low Bar Auton");
+		} else if (m_operator->ButtonB()) {
 			m_autonChoice = kLowBarBack;
+			SmartDashboard::PutString("Auton Choice", "Under Low Bar and Back Auton");
 			//operator's B button sets auton to LOW BAR BACK
+		} else if (m_operator->ButtonY()) {
+			m_autonChoice = kLowBarShoot;
+			SmartDashboard::PutString("Auton Choice", "Low Bar Shoot Auton");
+		}
 	}
 
 	void AutonomousInit()
@@ -241,6 +250,9 @@ public:
 			case kLowBarBack:
 				AutonLowBarBack();
 				break;
+			case kLowBarShoot:
+				AutonLowBarShoot();
+				break;
 		}
 
 		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
@@ -255,31 +267,49 @@ public:
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
 
-		/*
-		switch(m_autonCase)
-		{
+		switch (m_autonCase) {
 			case 0:
-				if (f_armReset)
+				/**
+				 * 	Move the arm back to pick up
+				 */
+
+				if (m_arm->IsLightSensorTriggered() == true) {
+					m_arm->SetArm(0.);
+					m_arm->ZeroArmEncoder();
 					m_autonCase++;
+				}
+				else if (m_arm->IsLightSensorTriggered() == false) {
+					m_arm->SetArm(0.2);
+				}
 				break;
 			case 1:
-				//set arm to position zero to fit under low bar
-				//if arm is not enabled
-					//enable arm
-				m_autonCase++;
-				break;
-			case 2:
-				//m_drivetrain->SetDistance(); 6 ft to outerworks, outerworks are 4 ft, another 4 ft
-				//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
-				if (!m_drivetrain->IsEnabledDistance())
-					m_drivetrain->EnableDistance();
+				m_arm->SetArmPIDPoint(PICKUP);
+				m_arm->EnableArmPID();
 
-				if (m_drivetrain->DistanceAtSetpoint())
+				/**
+				 * 	Move the robot back for 10 ft
+				 * 		You may need to change this value
+				 */
+				m_drivetrain->SetDistance(-120);
+				m_drivetrain->EnableDistance();
+
+				/**
+				 * 	If we arrive to the setpoints, move to next case
+				 */
+				if (m_arm->ArmAtPIDSetPoint() && m_drivetrain->DistanceAtSetPoint()) {
+					m_arm->DisableArmPID();
 					m_drivetrain->DisableDistance();
 
-				m_autonCase++;
-
-		} */
+					m_autonCase++;
+				}
+				break;
+			case 2:
+				/**
+				 * 	Move the arm ready to carry
+				 */
+				m_arm->SetArmPIDPoint(CARRY);
+				m_arm->EnableArmPID();
+		}
 
 	}
 
@@ -587,6 +617,7 @@ public:
 			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonY()) {
 			/**
+			 *
 			 * 	High Goal
 			 * 		Arm: 45
 			 * 		Shooter: 1.0
@@ -854,7 +885,6 @@ public:
 		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
 		//	Check if we are below carry and tell camera to switch
 		SmartDashboard::PutBoolean("Below Carry", m_arm->GetArmPos() < CARRY + 5);
-
 
 		/*
 		 * Arm Encoder Rate
