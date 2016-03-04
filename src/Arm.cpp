@@ -106,12 +106,6 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 void Arm::SetArm(float speed) {
 	m_armLeftTalon->Set(-speed);
 	m_armRightTalon->Set(speed);
-
-	if (speed == 0.0) {
-		ApplyBrake();
-	} else {
-		ReleaseBrake();
-	}
 }
 
 void Arm::SetScrew(float speed) {
@@ -122,7 +116,7 @@ void Arm::SetScrew(float speed) {
 	 * go down when screwpos is more than 0
 	 */
 
-	if (GetScrewPos() < 22.13 && speed < 0) {
+	if (GetScrewPos() < 75 && speed < 0) {
 		//going up and screw position is less than 30
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
@@ -133,8 +127,8 @@ void Arm::SetScrew(float speed) {
 		m_screwRightTalon->Set(-speed);
 	}
 	else {
-		m_screwLeftTalon->Set(-speed);
-		m_screwRightTalon->Set(-speed);
+		m_screwLeftTalon->Set(0);
+		m_screwRightTalon->Set(0);
 	}
 }
 
@@ -143,19 +137,19 @@ void Arm::SetBrake(bool on) {
 }
 
 void Arm::ApplyBrake() {
-	m_brake->Set(true);
-}
-
-void Arm::ReleaseBrake() {
 	m_brake->Set(false);
 }
 
+void Arm::ReleaseBrake() {
+	m_brake->Set(true);
+}
+
 float Arm::GetArmPos() {
-	return - m_armLeftTalon->GetPosition() * 79.2;
+	return - m_armLeftTalon->GetPosition() * 79.2 + 7.75;
 }
 
 float Arm::GetRightArmPos() {
-	return - m_armRightTalon->GetPosition() * 79.2;
+	return - m_armRightTalon->GetPosition() * 79.2 + 7.75;
 }
 
 float Arm::GetScrewPos() {
@@ -178,8 +172,8 @@ float Arm::GetScrewSpeed() {
 
 
 void Arm::ZeroArmEncoder() {
-	m_armLeftTalon->SetPosition(LIGHT_SENSOR_POS / 79.2);
-	m_armRightTalon->SetPosition(LIGHT_SENSOR_POS / 79.2);
+	m_armLeftTalon->SetPosition(0.0);
+	m_armRightTalon->SetPosition(0.0);
 }
 
 void Arm::ZeroScrewEncoder() {
@@ -271,59 +265,59 @@ void Arm::SetArmPIDPoint(ArmSetPoint setpoint) {
 		/*
 		 * Far Away High Goal
 		 */
-		m_armPIDController->SetSetpoint(FAR_HIGH_GOAL);
+		SetArmPIDPoint(FAR_HIGH_GOAL);
 		break;
 	case kMediumLowGoal:
 
 		/*
 		 * Medium Away Low Goal
 		 */
-		m_armPIDController->SetSetpoint(MEDIUM_HIGH_GOAL);
+		SetArmPIDPoint(MEDIUM_HIGH_GOAL);
 		break;
 	case kCloseHighGoal:
 
 		/*
 		 * Close High Goal
 		 */
-		m_armPIDController->SetSetpoint(CLOSE_HIGH_GOAL);
+		SetArmPIDPoint(CLOSE_HIGH_GOAL);
 		break;
 	case kCarry:
 
 		/*
 		 * Carry Position
 		 */
-		m_armPIDController->SetSetpoint(CARRY);
+		SetArmPIDPoint(CARRY);
 		break;
 	case kCloseLowGoal:
 
 		/*
 		 * Close Low Goal
 		 */
-		m_armPIDController->SetSetpoint(CLOSE_LOW_GOAL);
+		SetArmPIDPoint(CLOSE_LOW_GOAL);
 		break;
 	case kPickup:
 
 		/*
 		 * Pickup Position
 		 */
-		m_armPIDController->SetSetpoint(PICKUP);
+		SetArmPIDPoint(PICKUP);
 		break;
 	case kObstacle:
 
 		/*
 		 * Obstacle Self-Lift Position
 		 */
-		m_armPIDController->SetSetpoint(OBSTACLE);
+		SetArmPIDPoint(OBSTACLE);
 		break;
 	case kClimbArm:
 
 		/*
 		 * Climb Position
 		 */
-		m_armPIDController->SetSetpoint(CLIMB_ARM);
+		SetArmPIDPoint(CLIMB_ARM);
 		break;
 	case kBatter:
-		m_armPIDController->SetSetpoint(BATTER_HIGH_GOAL);
+		SetArmPIDPoint(BATTER_HIGH_GOAL);
 		break;
 	}
 }
@@ -334,7 +328,7 @@ void Arm::SetArmPIDPoint(double setpoint) {
 	/*
 	 * Set the target, adjusting for true 0.
 	 */
-	m_armPIDController->SetSetpoint(setpoint);
+	m_armPIDController->SetSetpoint(setpoint - 7.75);
 
 }
 

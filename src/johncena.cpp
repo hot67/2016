@@ -299,6 +299,7 @@ public:
 					break;
 				case 2:
 					//m_drivetrain->SetDistance(); 6 ft to outerworks, outerworks are 4 ft, another 1 ft
+					 *
 					//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
 					if (!m_drivetrain->IsEnabledDistance())
 						m_drivetrain->EnableDistance();
@@ -512,18 +513,21 @@ public:
 		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
 			m_arm->SetScrew(m_operator->AxisLY());
+		} else {
+			 if ((m_operator->ButtonRB() && m_operator->ButtonY()) == false) {
+				 m_arm->SetScrew(0.0);
+			 }
 		}
-		else if (m_operator->ButtonBack() && m_operator->ButtonLB()) {
-			// Retract the extension all way in
-			m_arm->SetScrewPIDPoint(RETRACT_SCREW);
-			m_arm->EnableScrewPID();
-		}
-		else if (m_operator->ButtonBack()) {
-			m_arm->SetScrewPIDPoint(CLIMB_SCREW);
-			m_arm->EnableScrewPID();
-		}
-		else {
-			m_arm->SetScrew(0.0);
+
+		if (m_operator->ButtonRB() && m_operator->ButtonStart()) {
+			m_arm->ApplyBrake();
+		} else if (m_operator->ButtonStart()) {
+			m_intake->SetShooter(1.0);
+			m_arm->ReleaseBrake();
+		} else {
+			if ((m_operator->ButtonRB() && m_operator->ButtonB()) == false){
+				m_arm->ReleaseBrake();
+			}
 
 		}
 
@@ -531,43 +535,44 @@ public:
 			//Manual Control
 			m_arm->SetArm(m_operator->AxisRY());
 
-			if (m_operator->ButtonStart()) {
+			if (m_operator->ButtonRB() && m_operator->ButtonStart()) {
+				m_arm->ApplyBrake();
+			}
+			else if (m_operator->ButtonStart()) {
 				m_intake->SetShooter(1.0);
+				m_arm->ReleaseBrake();
 			}
 			else {
 				m_intake->SetShooter(0.0);
+				m_arm->ReleaseBrake();
 			}
 		}
 		else if (m_operator->ButtonY() && m_operator->ButtonRB()) {
 			/**
 			 * 	For Climb Up
+			 * 		Move the arm to climb position and extend the screw up
 			 */
-			m_arm->SetArmPIDPoint(kClimbArm);
+			m_arm->SetArmPIDPoint(CLIMB_ARM);
 			m_arm->EnableArmPID();
 
-			if (m_arm->ArmAtPIDSetPoint()) {
-				/**
-				 *  We arrived to set point, apply brake and move the screw up
-				 *  	This can conflict with manual screw down PID
-				 *  	Solution 1:
-				 *  		Disable Screw PID when we reach the setpoint.
-				 *  		If operator send signal to retract while the screw is going up, we end up sending two different setpoints to one PID
-				 *  	Solution 2:
-				 *  		When we see operator is sending signal to retract, change setpoint
-				 *  		Hard to debug, difficult to read
-				 */
-				m_arm->ApplyBrake();
-				m_arm->SetScrewPIDPoint(CLIMB_SCREW);
-				m_arm->EnableScrewPID();
-			} else {
-				/**
-				 *  We are moving toward the setpoint, release the brake
-				 */
-				m_arm->ReleaseBrake();
-				m_arm->DisableScrewPID();
-			}
-
 			m_intake->SetShooter(0.0);
+
+			if (m_arm->ArmAtPIDSetPoint()) {
+				m_arm->SetScrew(-1.0);
+			}
+		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
+			m_intake->SetShooter(0.0);
+
+			m_arm->SetArmPIDPoint(CLIMBING_ARM);
+			m_arm->EnableArmPID();
+
+			if (m_arm->ArmAtPIDSetPoint() == true) {
+				m_arm->ApplyBrake();
+				m_arm->DisableArmPID();
+			}
+			else {
+				m_arm->ReleaseBrake();
+			}
 		} else if (m_operator->ButtonY() && m_operator->ButtonLB()) {
 			/**
 			 * 	MEDIUM HIGH GOAL
@@ -655,9 +660,9 @@ public:
 			m_arm->EnableArmPID();
 
 			m_intake->SetShooter(0.0);
-		} else if (m_operator->ButtonStart()) {
-			m_intake->SetShooter(1.0);
-		} else {
+		} /*else if (m_operator->ButtonStart()) {
+			m_intake->SetShooter(1.0); }*/
+		 else {
 			/**
 			 * 	No command is given:
 			 * 		Disable Arm PID
@@ -668,7 +673,6 @@ public:
 			m_arm->DisableArmPID();
 			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
-			m_arm->ReleaseBrake();
 			m_intake->SetShooter(0.0);
 		}
 
@@ -996,3 +1000,4 @@ public:
 };
 
 START_ROBOT_CLASS(johncena);
+

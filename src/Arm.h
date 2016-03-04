@@ -92,7 +92,9 @@
 #define CARRY 15.06
 #define PICKUP 0
 #define OBSTACLE -10
-#define CLIMB_ARM 97.126
+#define CLIMB_ARM 92.
+
+#define CLIMBING_ARM 73.
 
 /**
  * 	Shooter Speed for Different Set points
