@@ -531,10 +531,10 @@ public:
 
 		if (fabs(m_operator->AxisLY()) > 0.2) {
 			//Manual Control
-			m_arm->SetScrew(m_operator->AxisLY(), false);
+			m_arm->SetScrew(m_operator->AxisLY());
 		} else {
 			 if ((m_operator->ButtonRB() && m_operator->ButtonY()) == false) {
-				 m_arm->SetScrew(0.0, false);
+				 m_arm->SetScrew(0.0);
 			 }
 		}
 
@@ -577,7 +577,7 @@ public:
 			m_intake->SetShooter(0.0);
 
 			if (m_arm->ArmAtPIDSetPoint()) {
-				m_arm->SetScrew(-1.0, true);
+				m_arm->SetScrew(-1.0);
 			}
 		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
 			m_intake->SetShooter(0.0);

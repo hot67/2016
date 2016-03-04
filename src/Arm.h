@@ -82,7 +82,7 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 45
+#define FAR_HIGH_GOAL 37.7
 #define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
 #define BATTER_HIGH_GOAL 35
@@ -232,7 +232,7 @@ public:
 	 * Uses m_armPIDWrapper, and m_screwPIDWrapper
 	 */
 	void SetArm(float speed);
-	void SetScrew(float speed, bool safety = true);
+	void SetScrew(float speed);
 
 	/*
 	 *  Braking

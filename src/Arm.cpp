@@ -108,7 +108,7 @@ void Arm::SetArm(float speed) {
 	m_armRightTalon->Set(speed);
 }
 
-void Arm::SetScrew(float speed, bool safety) {
+void Arm::SetScrew(float speed) {
 
 	/*
 	 * go up when screwpos is less than 30
@@ -116,25 +116,18 @@ void Arm::SetScrew(float speed, bool safety) {
 	 * go down when screwpos is more than 0
 	 */
 
-	if (safety == true) {
-		if (GetScrewPos() < 75 && speed < 0) {
-			//going up and screw position is less than 30
-			m_screwLeftTalon->Set(-speed);
-			m_screwRightTalon->Set(-speed);
-		}
-
-		else if (GetScrewPos() > 0 && speed > 0) {
-			m_screwLeftTalon->Set(-speed);
-			m_screwRightTalon->Set(-speed);
-		}
-		else {
-			m_screwLeftTalon->Set(0);
-			m_screwRightTalon->Set(0);
-		}
-	}
-	else if (safety == false) {
+	if (GetScrewPos() < 75 && speed < 0) {
+		//going up and screw position is less than 30
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
+	}
+	else if (GetScrewPos() > 0 && speed > 0) {
+		m_screwLeftTalon->Set(-speed);
+		m_screwRightTalon->Set(-speed);
+	}
+	else {
+		m_screwLeftTalon->Set(0);
+		m_screwRightTalon->Set(0);
 	}
 }
 
@@ -334,7 +327,7 @@ void Arm::SetArmPIDPoint(double setpoint) {
 	/*
 	 * Set the target, adjusting for true 0.
 	 */
-	m_armPIDController->SetSetpoint(setpoint - 7.75);
+	m_armPIDController->SetSetpoint(setpoint);
 
 }
 
