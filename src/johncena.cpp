@@ -111,6 +111,8 @@ private:
 
 	unsigned m_lineUpCase;
 
+	Timer *m_autonTimer;
+
 public:
 	johncena()
 	{
@@ -166,6 +168,8 @@ public:
 		 *  First no one has control
 		 */
 		f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
+
+		m_autonTimer = new Timer();
 	}
 
 	void RobotInit()
@@ -177,7 +181,7 @@ public:
 		 * Configure camera server
 		 */
 		CameraServer::GetInstance()->SetQuality(50);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
+		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		m_arm->ZeroArmEncoder();
 		m_arm->ZeroScrewEncoder();
@@ -239,6 +243,7 @@ public:
 		/*
 		 * Matches the enum to the auton function
 		 */
+		/*
 		 switch (m_autonChoice)
 		{
 			case kNothing:
@@ -252,10 +257,11 @@ public:
 				break;
 			case kLowBarShoot:
 				AutonLowBarShoot();
-				break; */
+				break;
 		}
+		*/
 
-		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
+		//m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
 	}
 
 	void AutonDoNothing ()
@@ -266,9 +272,7 @@ public:
 	void AutonUnderLowBar ()
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
-
-
-		/*switch (m_autonCase) {
+		switch (m_autonCase) {
 			case 0:
 				//	Move the arm back to pick up
 				if (m_arm->IsLightSensorTriggered() == true) {
@@ -298,7 +302,7 @@ public:
 
 				m_arm->SetArmPIDPoint(CARRY);
 				m_arm->EnableArmPID();
-		} */
+		}
 
 	}
 
@@ -487,7 +491,7 @@ public:
 		if (m_driver->ButtonBack()){
 			m_drivetrain->ResetEncoder();
 			m_arm->ZeroArmEncoder();
-			m_arm->ZeroScrewEncoder();
+			//m_arm->ZeroScrewEncoder();
 		}
 		/**
 		 * 	Hold Left Bumper to Shift low
@@ -577,7 +581,15 @@ public:
 			m_intake->SetShooter(0.0);
 
 			if (m_arm->ArmAtPIDSetPoint()) {
-				m_arm->SetScrew(-1.0);
+				if (m_arm->GetScrewPos() < 75) {
+					m_arm->SetScrew(-0.8);
+				}
+				else {
+					m_arm->SetScrew(m_operator->AxisLY());
+				}
+			}
+			else {
+				m_arm->SetScrew(m_operator->AxisLY());
 			}
 		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
 			m_intake->SetShooter(0.0);
@@ -854,6 +866,8 @@ public:
 		 * Total Power Data
 		 */
 		SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
+
+		SmartDashboard::PutBoolean("Arm Light Sensor", m_arm->IsLightSensorTriggered());
 
 		/*
 		 * Temperature

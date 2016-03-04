@@ -219,7 +219,6 @@ class Arm: public HotSubsystem {
 	ArmMotionProfiling *m_screwMPController;
 	float m_screwMPTargetPos;
 
-
 public:
 
 	/*
