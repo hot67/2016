@@ -86,6 +86,8 @@ private:
 	 */
 	Timer* m_rollForShootTime;
 
+	Timer* m_autonTimer;
+
 	/*
 	 * Flag for checking if we have rolled out or not
 	 */
@@ -102,6 +104,7 @@ private:
 	bool f_shooterDriverHasControl;
 	bool f_shooterOperatorHasControl;
 
+	bool f_autonRan;
 	/*
 	 * Auton choice/case selection initializations
 	 */
@@ -111,7 +114,6 @@ private:
 
 	unsigned m_lineUpCase;
 
-	Timer *m_autonTimer;
 
 public:
 	johncena()
@@ -150,6 +152,8 @@ public:
 		 */
 		m_rollForShootTime = new Timer;
 
+		m_autonTimer = new Timer;
+
 		/*
 		 * Default auton choice is nothing
 		 */
@@ -168,6 +172,8 @@ public:
 		 *  First no one has control
 		 */
 		f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
+
+		f_autonRan = false;
 
 		m_autonTimer = new Timer();
 	}
@@ -229,6 +235,12 @@ public:
 		 */
 		m_autonCase = 0;
 		m_autonLoop = 0;
+
+		f_autonRan = false;
+
+		m_autonTimer->Stop();
+		m_autonTimer->Reset();
+		m_autonTimer->Start();
 	}
 
 	void AutonomousPeriodic()
@@ -236,6 +248,8 @@ public:
 		/*
 		 * Matches the enum to the auton function
 		 */
+
+		PrintData();
 
 		switch (m_autonChoice)
 		{
@@ -287,24 +301,36 @@ public:
 			case 2:
 				m_drivetrain->SetDistance(180.);
 				m_drivetrain->EnableDistance();
-				if (m_drivetrain->DistanceAtSetPoint()) {
+				if (m_drivetrain->DistanceAtSetPoint() || m_autonTimer->Get() > 10.0) {
 					m_drivetrain->DisableDistance();
+					//m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 9.0);
 					m_autonCase++;
 				}
 				break;
-			case 3:
+			/*case 3:
 				// take current position and add 9 to clear the bar
 				// pid to that point
 				// disable pid when at setpoint so it rests on the bar
 				// zero the arm encoder
-				m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 9.0);
 				m_arm->EnableArmPID();
 
-				if (m_arm->ArmAtPIDSetPoint() == true) {
+				if (m_arm->ArmAtPIDSetPoint() == true || m_autonTimer->Get() >= 13.0) {
 					m_arm->DisableArmPID();
 					m_autonCase++;
 				}
 				break;
+			case 4:
+				if (m_autonTimer->Get() >= 13.0) {
+					m_arm->ZeroArmEncoder();
+					m_autonCase++;
+				}
+				break;
+			case 5:
+				if (f_autonRan == false) {
+					f_autonRan = true;
+				}
+				m_autonTimer->Stop();
+				m_autonCase++;*/
 		}
 
 	}
@@ -446,8 +472,6 @@ public:
 		 * Switches the auton case to 0 again...
 		 */
 		m_autonCase = 0;
-
-		m_arm->ZeroArmEncoder();
 	}
 
 	void TeleopPeriodic()
@@ -875,6 +899,8 @@ public:
 
 		SmartDashboard::PutBoolean("Arm Light Sensor", m_arm->IsLightSensorTriggered());
 
+		SmartDashboard::PutBoolean("Auton Finish", f_autonRan);
+
 		/*
 		 * Temperature
 		 */
@@ -947,6 +973,7 @@ public:
 		SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
 
 		SmartDashboard::PutNumber("Auton Case", m_autonCase);
+		SmartDashboard::PutNumber("Auton Timer", m_autonTimer->Get());
 
 		/*
 		 * Drive Right Encoder

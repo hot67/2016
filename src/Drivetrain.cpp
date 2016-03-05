@@ -46,7 +46,7 @@ Drivetrain::Drivetrain(HotBot* bot)
 */
 
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
-//    m_distancePID->SetAbsoluteTolerance(ToleranceDiplacement);
+    m_distancePID->SetAbsoluteTolerance(5.2);
 
 /*
 
