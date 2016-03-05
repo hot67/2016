@@ -67,6 +67,8 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armMPController = new ArmMotionProfiling(m_armLeftTalon);
 	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon);
 
+	m_offset = 7.75;
+
 }
 
 /*
@@ -144,11 +146,11 @@ void Arm::ReleaseBrake() {
 }
 
 float Arm::GetArmPos() {
-	return - m_armLeftTalon->GetPosition() * 79.2 + 7.75;
+	return - m_armLeftTalon->GetPosition() * 79.2 + m_offset;
 }
 
 float Arm::GetRightArmPos() {
-	return - m_armRightTalon->GetPosition() * 79.2 + 7.75;
+	return - m_armRightTalon->GetPosition() * 79.2 + m_offset;
 }
 
 float Arm::GetScrewPos() {
@@ -173,11 +175,20 @@ float Arm::GetScrewSpeed() {
 void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(0.0);
 	m_armRightTalon->SetPosition(0.0);
+
+	m_offset = 7.75;
 }
 
 void Arm::ZeroScrewEncoder() {
 	m_screwLeftTalon->SetPosition(0);
 	m_screwRightTalon->SetPosition(0);
+}
+
+void Arm::ZeroLightSensorArmEncoder() {
+	m_armLeftTalon->SetPosition(0);
+	m_armRightTalon->SetPosition(0);
+
+	m_offset = 58.73;
 }
 
 bool Arm::IsLightSensorTriggered() {

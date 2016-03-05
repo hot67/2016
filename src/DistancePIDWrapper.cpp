@@ -17,7 +17,7 @@ DistancePIDWrapper::~DistancePIDWrapper() {
 
 void DistancePIDWrapper::PIDWrite(float output) {
 	SmartDashboard::PutNumber("* Drive PID Write", output * 0.8);
-	m_drivetrain->SetSpeed(-output * 0.8);
+	m_drivetrain->SetSpeed(output * 0.8);
 }
 
 

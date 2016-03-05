@@ -219,6 +219,8 @@ class Arm: public HotSubsystem {
 	ArmMotionProfiling *m_screwMPController;
 	float m_screwMPTargetPos;
 
+	double m_offset;
+
 public:
 
 	/*
@@ -260,6 +262,8 @@ public:
 	 */
 	void ZeroArmEncoder();
 	void ZeroScrewEncoder();
+
+	void ZeroLightSensorArmEncoder();
 
 	/*
 	 * Raw Access to Light Sensor

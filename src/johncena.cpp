@@ -211,7 +211,7 @@ public:
 		 * Select auton choice
 		 * 	ToDo: Better auton UI
 		 *****/
-		/*if (m_operator->ButtonBack()){
+		if (m_operator->ButtonBack()){
 			m_autonChoice = kNothing;
 			//operator's BACK button sets auton to NOTHING
 			//SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
@@ -219,14 +219,7 @@ public:
 			m_autonChoice = kLowBar;
 			//operator's A button sets auton to UNDER LOW BAR
 			//SmartDashboard::PutString("Auton Choice", "Under Low Bar Auton");
-		} else if (m_operator->ButtonB()) {
-			m_autonChoice = kLowBarBack;
-			//SmartDashboard::PutString("Auton Choice", "Under Low Bar and Back Auton");
-			//operator's B button sets auton to LOW BAR BACK
-		} else if (m_operator->ButtonY()) {
-			m_autonChoice = kLowBarShoot;
-			 //SmartDashboard::PutString("Auton Choice", "Low Bar Shoot Auton");
-		} */
+		}
 	}
 
 	void AutonomousInit()
@@ -243,8 +236,8 @@ public:
 		/*
 		 * Matches the enum to the auton function
 		 */
-		/*
-		 switch (m_autonChoice)
+
+		switch (m_autonChoice)
 		{
 			case kNothing:
 				AutonDoNothing();
@@ -252,16 +245,10 @@ public:
 			case kLowBar:
 				AutonUnderLowBar();
 				break;
-			/*case kLowBarBack:
-				AutonLowBarBack();
-				break;
-			case kLowBarShoot:
-				AutonLowBarShoot();
-				break;
 		}
-		*/
 
-		//m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
+
+		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
 	}
 
 	void AutonDoNothing ()
@@ -272,36 +259,39 @@ public:
 	void AutonUnderLowBar ()
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
+
+		m_arm->ReleaseBrake();
+
+		m_drivetrain->ShiftLow();
+
 		switch (m_autonCase) {
 			case 0:
 				//	Move the arm back to pick up
 				if (m_arm->IsLightSensorTriggered() == true) {
-					m_arm->SetArm(0.);
-					m_arm->ZeroArmEncoder();
+					m_arm->ZeroLightSensorArmEncoder();
 					m_autonCase++;
 				}
 				else if (m_arm->IsLightSensorTriggered() == false) {
-					m_arm->SetArm(0.2);
+					m_arm->SetArm(0.0);
 				}
 				break;
 			case 1:
-				m_arm->SetArmPIDPoint(PICKUP);
+				m_arm->SetArmPIDPoint(CARRY);
 				m_arm->EnableArmPID();
 
-				m_drivetrain->SetDistance(-120);
-				m_drivetrain->EnableDistance();
-
-				if (m_arm->ArmAtPIDSetPoint() && m_drivetrain->DistanceAtSetPoint()) {
+				if (m_arm->ArmAtPIDSetPoint()) {
 					m_arm->DisableArmPID();
-					m_drivetrain->DisableDistance();
-
 					m_autonCase++;
 				}
 				break;
 			case 2:
-
-				m_arm->SetArmPIDPoint(CARRY);
-				m_arm->EnableArmPID();
+				m_drivetrain->SetDistance(180.);
+				m_drivetrain->EnableDistance();
+				if (m_drivetrain->DistanceAtSetPoint()) {
+					m_drivetrain->DisableDistance();
+					m_autonCase++;
+				}
+				break;
 		}
 
 	}
@@ -802,7 +792,6 @@ public:
 			m_intake->SetShooter(0.);
 		}
 
-
 		if ((m_operator->GetPOV()) == 0){
 			m_intake->IncreaseShooterSpeed();
 			//if operator presses up on DPAD, shooter speed increases by 1%
@@ -846,6 +835,8 @@ public:
 		 * Shooter Current Data
 		 */
 		SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
+
+		SmartDashboard::PutNumber("Auton Choice Enums", m_autonChoice);
 
 		/*
 		 * Gear Shift Current Data
@@ -933,10 +924,14 @@ public:
 		 */
 		SmartDashboard::PutNumber("Drive Encoder Distance", m_drivetrain->GetAverageDistance());
 
+		SmartDashboard::PutBoolean("Drive Distance at Setpoint", m_drivetrain->DistanceAtSetPoint());
+		SmartDashboard::PutNumber("Drive Distance PID Setpoint", m_drivetrain->GetDistancePIDSetPoint());
 		/*
 		 * Drive Left Encoder
 		 */
 		SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
+
+		SmartDashboard::PutNumber("Auton Case", m_autonCase);
 
 		/*
 		 * Drive Right Encoder
