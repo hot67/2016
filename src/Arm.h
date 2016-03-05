@@ -82,7 +82,7 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 37.7
+#define FAR_HIGH_GOAL 42
 #define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
 #define BATTER_HIGH_GOAL 35
@@ -94,7 +94,7 @@
 #define OBSTACLE -10
 #define CLIMB_ARM 92.
 
-#define CLIMBING_ARM 73.
+#define CLIMBING_ARM 63.
 
 /**
  * 	Shooter Speed for Different Set points

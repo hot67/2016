@@ -52,6 +52,7 @@ using namespace std;
 enum auton_t {
 	kNothing,
 	kLowBar,
+	kLowBarRaise,
 	kLowBarBack,
 	kLowBarShoot
 };
@@ -225,6 +226,8 @@ public:
 			m_autonChoice = kLowBar;
 			//operator's A button sets auton to UNDER LOW BAR
 			//SmartDashboard::PutString("Auton Choice", "Under Low Bar Auton");
+		} else if (m_operator->ButtonB()) {
+			m_autonChoice = kLowBarRaise;
 		}
 	}
 
@@ -259,6 +262,9 @@ public:
 			case kLowBar:
 				AutonUnderLowBar();
 				break;
+			case kLowBarRaise:
+				AutonUnderLowBarRaise();
+				break;
 		}
 
 
@@ -270,7 +276,7 @@ public:
 		//this auton does nothing
 	}
 
-	void AutonUnderLowBar ()
+	void AutonUnderLowBarRaise ()
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
 
@@ -281,11 +287,11 @@ public:
 		switch (m_autonCase) {
 			case 0:
 				//	Move the arm back to pick up
-				if (m_arm->IsLightSensorTriggered() == true) {
+				if (m_arm->IsLightSensorTriggered() == false) {
 					m_arm->ZeroLightSensorArmEncoder();
 					m_autonCase++;
 				}
-				else if (m_arm->IsLightSensorTriggered() == false) {
+				else if (m_arm->IsLightSensorTriggered() == true) {
 					m_arm->SetArm(0.0);
 				}
 				break;
@@ -303,18 +309,18 @@ public:
 				m_drivetrain->EnableDistance();
 				if (m_drivetrain->DistanceAtSetPoint() || m_autonTimer->Get() > 10.0) {
 					m_drivetrain->DisableDistance();
-					//m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 9.0);
+					m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 14.0);
 					m_autonCase++;
 				}
 				break;
-			/*case 3:
+			case 3:
 				// take current position and add 9 to clear the bar
 				// pid to that point
 				// disable pid when at setpoint so it rests on the bar
 				// zero the arm encoder
 				m_arm->EnableArmPID();
 
-				if (m_arm->ArmAtPIDSetPoint() == true || m_autonTimer->Get() >= 13.0) {
+				if (m_arm->ArmAtPIDSetPoint() == true) {
 					m_arm->DisableArmPID();
 					m_autonCase++;
 				}
@@ -330,9 +336,47 @@ public:
 					f_autonRan = true;
 				}
 				m_autonTimer->Stop();
-				m_autonCase++;*/
+				m_autonCase++;
 		}
 
+	}
+
+	void AutonUnderLowBar() {
+		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
+
+				m_arm->ReleaseBrake();
+
+				m_drivetrain->ShiftLow();
+
+				switch (m_autonCase) {
+					case 0:
+						//	Move the arm back to pick up
+						if (m_arm->IsLightSensorTriggered() == false) {
+							m_arm->ZeroLightSensorArmEncoder();
+							m_autonCase++;
+						}
+						else if (m_arm->IsLightSensorTriggered() == true) {
+							m_arm->SetArm(0.0);
+						}
+						break;
+					case 1:
+						m_arm->SetArmPIDPoint(CARRY);
+						m_arm->EnableArmPID();
+
+						if (m_arm->ArmAtPIDSetPoint()) {
+							m_arm->DisableArmPID();
+							m_autonCase++;
+						}
+						break;
+					case 2:
+						m_drivetrain->SetDistance(180.);
+						m_drivetrain->EnableDistance();
+						if (m_drivetrain->DistanceAtSetPoint()) {
+							m_drivetrain->DisableDistance();
+							m_autonCase++;
+						}
+						break;
+				}
 	}
 
 	void AutonLowBarBack()

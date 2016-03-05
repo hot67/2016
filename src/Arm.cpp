@@ -444,20 +444,14 @@ float Arm::GetScrewPIDSetPoint() {
 
 
 bool Arm::ArmAtPIDSetPoint() {
-	int error = m_armPIDController->GetError();
+	//return m_armPIDController->OnTarget();
 
-	/*
-	 * Check the error, how far we are from the
-	 * destination.
-	 */
-	switch (error) {
-	case 0:
+	if (fabs(GetArmPos() - GetArmPIDSetPoint()) <= 4) {
 		return true;
-	default:
+	}
+	else {
 		return false;
 	}
-
-
 }
 
 bool Arm::ScrewAtPIDSetPoint() { //If screw is at the given set point
