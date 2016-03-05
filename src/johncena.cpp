@@ -292,6 +292,19 @@ public:
 					m_autonCase++;
 				}
 				break;
+			case 3:
+				// take current position and add 9 to clear the bar
+				// pid to that point
+				// disable pid when at setpoint so it rests on the bar
+				// zero the arm encoder
+				m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 9.0);
+				m_arm->EnableArmPID();
+
+				if (m_arm->ArmAtPIDSetPoint() == true) {
+					m_arm->DisableArmPID();
+					m_autonCase++;
+				}
+				break;
 		}
 
 	}
@@ -433,6 +446,8 @@ public:
 		 * Switches the auton case to 0 again...
 		 */
 		m_autonCase = 0;
+
+		m_arm->ZeroArmEncoder();
 	}
 
 	void TeleopPeriodic()

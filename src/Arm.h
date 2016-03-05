@@ -265,6 +265,7 @@ public:
 
 	void ZeroLightSensorArmEncoder();
 
+	void CalibrateArm(double offset);
 	/*
 	 * Raw Access to Light Sensor
 	 */

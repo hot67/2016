@@ -191,6 +191,13 @@ void Arm::ZeroLightSensorArmEncoder() {
 	m_offset = 58.73;
 }
 
+void Arm::CalibrateArm(double offset) {
+	m_armLeftTalon->SetPosition(0.0);
+	m_armRightTalon->SetPosition(0.0);
+
+	m_offset = offset;
+}
+
 bool Arm::IsLightSensorTriggered() {
 	return m_armLightSensor->Get();
 }
