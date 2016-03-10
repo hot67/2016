@@ -29,12 +29,12 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
 
-	m_turnPIDWrapper = new TurnPIDWrapper (this);
+	m_anglePIDWrapper = new AnglePIDWrapper (this);
 
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
 
-    m_anglePID = new PIDController(0.12 * 0.5 / 0.7, 0.01 * 0.5 / 0.7, 0.0, m_turnPIDWrapper, m_turnPIDWrapper);
+    m_anglePID = new PIDController(0.086, 0.0071, 0.0, m_anglePIDWrapper, m_anglePIDWrapper);
     m_anglePID->SetAbsoluteTolerance(1.0);
 
     /*

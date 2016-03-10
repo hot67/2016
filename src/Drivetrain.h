@@ -20,10 +20,10 @@
 #ifndef SRC_DRIVETRAIN_H_
 #define SRC_DRIVETRAIN_H_
 
+#include <AnglePIDWrapper.h>
 #include "WPILib.h"
 #include "AHRS.h"
 #include "RobotUtils/HotSubsystem.h"
-#include "TurnPIDWrapper.h"
 #include <cmath>
 
 //#include "AHRS.h"
@@ -80,7 +80,7 @@
 //class TurnPIDWrapper;
 class DistancePIDWrapper;
 class SpanglePIDWrapper;
-class TurnPIDWrapper;
+class AnglePIDWrapper;
 
 class Drivetrain : public HotSubsystem {
 public:
@@ -276,7 +276,7 @@ private:
 
 	DistancePIDWrapper* m_distancePIDWrapper;
 
-	TurnPIDWrapper* m_turnPIDWrapper;
+	AnglePIDWrapper* m_anglePIDWrapper;
 
 	SpanglePIDWrapper* m_spanglePIDWrapper;
 

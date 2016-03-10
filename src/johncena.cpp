@@ -526,8 +526,8 @@ public:
 				SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
 				m_drivetrain->SetAngle(m_drivetrain->GetAngle() + m_camera->GetX());
 				m_drivetrain->EnableAngle();
+				m_gyroAutonLineUpStep++;
 			}
-			m_gyroAutonLineUpStep++;
 			break;
 		case 1:
 			//	If we moved, take another picture

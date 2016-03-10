@@ -15,7 +15,7 @@ CameraHandler::~CameraHandler() {
 
 double CameraHandler::GetTargetNormalizedCenter() {
 
-	double dist0 = SmartDashboard::GetNumber("distanceToTarget1", 0.0);
+	double dist0 = SmartDashboard::GetNumber("distanceToTarget0", 0.0);
 	double dist1 = SmartDashboard::GetNumber("distanceToTarget1", 0.0);
 	double dist2 = SmartDashboard::GetNumber("distanceToTarget2", 0.0);
 

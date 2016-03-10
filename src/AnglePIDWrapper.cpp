@@ -5,21 +5,20 @@
  *      Author: ROBO6
  */
 
-#include <TurnPIDWrapper.h>
+#include <AnglePIDWrapper.h>
 
-TurnPIDWrapper::TurnPIDWrapper(Drivetrain *drivetrain) {
+AnglePIDWrapper::AnglePIDWrapper(Drivetrain *drivetrain) {
 	m_drivetrain = drivetrain;
 }
 
-TurnPIDWrapper::~TurnPIDWrapper() {
-	// TODO Auto-generated destructor stub
+AnglePIDWrapper::~AnglePIDWrapper() {
 }
 
-void TurnPIDWrapper::PIDWrite(float output) {
+void AnglePIDWrapper::PIDWrite(float output) {
 	SmartDashboard::PutNumber("Turn PID Output", output);
 	m_drivetrain->ArcadeDrive(0.0, output * 0.7);
 }
 
-double TurnPIDWrapper::PIDGet() {
+double AnglePIDWrapper::PIDGet() {
 	return m_drivetrain->GetAngle();
 }
