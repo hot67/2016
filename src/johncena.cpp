@@ -115,6 +115,9 @@ private:
 
 	unsigned m_lineUpCase;
 
+	int m_gyroAutonLineUpStep = 0;
+	int m_gyroAutonLineUpCount = 0;
+
 
 public:
 	johncena()
@@ -193,6 +196,7 @@ public:
 		m_arm->ZeroArmEncoder();
 		m_arm->ZeroScrewEncoder();
 		m_drivetrain->ResetEncoder();
+		m_drivetrain->ResetGyro();
 	}
 
 	void DisabledInit()
@@ -510,6 +514,36 @@ public:
 		return false;
 	}
 
+	void GyroAutoLineUp () {
+		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
+		SmartDashboard::PutNumber("* Auto Line Up Count", m_gyroAutonLineUpCount);
+		m_drivetrain->ShiftLow();
+		switch (m_gyroAutonLineUpStep) {
+		case 0:
+			//	Get Target and start PID
+			if (m_camera->SeeTarget()) {
+				m_gyroAutonLineUpCount++;
+				SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
+				m_drivetrain->SetAngle(m_drivetrain->GetAngle() + m_camera->GetX());
+				m_drivetrain->EnableAngle();
+			}
+			m_gyroAutonLineUpStep++;
+			break;
+		case 1:
+			//	If we moved, take another picture
+			if (m_drivetrain->AngleAtSetPoint()) {
+				m_gyroAutonLineUpStep = 0;
+			}
+			break;
+		}
+	}
+
+	void DisableGyroAutoLineUp () {
+		m_drivetrain->DisableAngle();
+		m_gyroAutonLineUpStep = 0;
+		m_gyroAutonLineUpCount = 0;
+	}
+
 	void TeleopInit()
 	{
 		/*
@@ -569,10 +603,18 @@ public:
 		/**
 		 * 	Hold Left Bumper to Shift low
 		 */
+		/*
 		if (m_driver->ButtonLB()) {
 			m_drivetrain->ShiftLow();
 		} else {
 			m_drivetrain->ShiftHigh();
+		}
+		*/
+
+		if (m_driver->ButtonA()) {
+			GyroAutoLineUp();
+		} else {
+			DisableGyroAutoLineUp();
 		}
 	}
 
@@ -886,6 +928,8 @@ public:
 	}
 
 	void PrintData(){
+		SmartDashboard::PutNumber("Drive Angle", m_drivetrain->GetAngle());
+
 		/*********************************
 		 * Current Data to Dashboard
 		 *********************************/

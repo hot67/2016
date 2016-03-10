@@ -14,20 +14,29 @@ CameraHandler::~CameraHandler() {
 }
 
 double CameraHandler::GetTargetNormalizedCenter() {
-	int targetInd = 0;
-	float closestDist = SmartDashboard::GetNumber("distanceToTarget0", 0.0);
 
-	if (SmartDashboard::GetNumber("distanceToTarget1", 0.0) != 0.0 && SmartDashboard::GetNumber("distanceToTarget1", 0.0) < closestDist) {
-		targetInd = 1;
-		closestDist = SmartDashboard::GetNumber("distanceToTarget1", 0.0);
+	double dist0 = SmartDashboard::GetNumber("distanceToTarget1", 0.0);
+	double dist1 = SmartDashboard::GetNumber("distanceToTarget1", 0.0);
+	double dist2 = SmartDashboard::GetNumber("distanceToTarget2", 0.0);
+
+	double x0 = SmartDashboard::GetNumber("ImageXCenter0", 0.0);
+	double x1 = SmartDashboard::GetNumber("ImageXCenter1", 0.0);
+	double x2 = SmartDashboard::GetNumber("ImageXCenter2", 0.0);
+
+	double dist = dist0;
+	double x = x0;
+
+	if (dist1 != 0.0 && dist1 < dist) {
+		dist = dist1;
+		x = x1;
 	}
 
-	if (SmartDashboard::GetNumber("distanceToTarget2", 0.0) != 0.0 && SmartDashboard::GetNumber("distanceToTarget2", 0.0) < closestDist) {
-		targetInd = 2;
-		closestDist = SmartDashboard::GetNumber("distanceToTarget2", 0.0);
+	if (dist2 != 0.0 && dist2 < dist) {
+		dist = dist2;
+		x = x2;
 	}
 
-	return SmartDashboard::GetNumber("ImageXCenter0", 0.0);
+	return x;
 }
 
 bool CameraHandler::AtTarget() {
@@ -44,4 +53,8 @@ bool CameraHandler::SeeTargetRight() {
 
 bool CameraHandler::SeeTarget() {
 	return GetTargetNormalizedCenter() != 0.0;
+}
+
+double CameraHandler::GetX() {
+	return GetTargetNormalizedCenter() * 33.5;
 }

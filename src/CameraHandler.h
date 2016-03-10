@@ -22,6 +22,7 @@ public:
 	bool SeeTargetRight();
 	bool SeeTargetLeft();
 	bool SeeTarget();
+	double GetX();
 };
 
 #endif /* SRC_CAMERAHANDLER_H_ */

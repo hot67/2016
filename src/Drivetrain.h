@@ -21,7 +21,9 @@
 #define SRC_DRIVETRAIN_H_
 
 #include "WPILib.h"
+#include "AHRS.h"
 #include "RobotUtils/HotSubsystem.h"
+#include "TurnPIDWrapper.h"
 #include <cmath>
 
 //#include "AHRS.h"
@@ -78,6 +80,7 @@
 //class TurnPIDWrapper;
 class DistancePIDWrapper;
 class SpanglePIDWrapper;
+class TurnPIDWrapper;
 
 class Drivetrain : public HotSubsystem {
 public:
@@ -131,6 +134,9 @@ public:
 	double GetAverageSpeed();
 
 	void ResetEncoder();
+
+	double GetAngle();
+	void ResetGyro();
 
 	/******************************
 	 * Motor Control
@@ -193,31 +199,28 @@ public:
 	/*
 	 * Enabling and Disabling
 	 */
-//	void EnableAngle();
-//	void DisableAngle();
+	void EnableAngle();
+	void DisableAngle();
 
 	/*
 	 * Is Enabled?
 	 */
-//	bool IsEnabledAngle();
+	bool IsEnabledAngle();
 
 	/*
 	 * set turn set point
 	 */
-//	void SetAngle(double angle);
+	void SetAngle(double angle);
 
 	/*
 	 * What is goal now?
 	 */
-//	double GetAnglePIDSetPoint();
+	double GetAnglePIDSetPoint();
 
 	/**
 	 * 	Have we arrived to the set point?
 	 */
-//	bool AngleAtSetPoint();
-
-
-//	void DisableBothPIDs();
+	bool AngleAtSetPoint();
 
 	/******************************
 	 * Spangle PID
@@ -265,17 +268,19 @@ private:
 
 	Solenoid* m_shift;
 
+	AHRS *m_gyro;
+
 	Timer* m_timer;
 
 	RobotDrive* m_drive;
 
 	DistancePIDWrapper* m_distancePIDWrapper;
 
-//	TurnPIDWrapper* m_turnPIDWrapper;
+	TurnPIDWrapper* m_turnPIDWrapper;
 
 	SpanglePIDWrapper* m_spanglePIDWrapper;
 
-	//PIDController* m_turnPID;
+	PIDController* m_anglePID;
 	PIDController* m_distancePID;
 	//PIDController* m_spanglePID;
 

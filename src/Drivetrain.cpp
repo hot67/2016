@@ -19,6 +19,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, true);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, false);
 
+	m_gyro = new AHRS(SPI::Port::kMXP);
+
 	m_timer = new Timer;
 
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
@@ -27,38 +29,13 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
 
-	//m_turnPIDWrapper = new TurnPIDWrapper (this);
-
-	//m_spanglePIDWrapper = new SpanglePIDWrapper (this);
-
-/*
-
-    try {
-        m_euro = new AHRS(SPI::Port::kMXP);
-        SmartDashboard::PutBoolean("Gyro Init", true);
-    } catch (std::exception ex ) {
-        std::string err_string = "Error instantiating navX MXP:  ";
-        err_string += ex.what();
-        DriverStation::ReportError(err_string.c_str());
-        SmartDashboard::PutBoolean("Gyro Init", false);
-    }
-
-*/
+	m_turnPIDWrapper = new TurnPIDWrapper (this);
 
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
 
-/*
-
-	m_turnPID = new PIDController(turnP, turnI, turnD, turnF, m_euro, m_turnPIDWrapper);
-	m_turnPID->SetInputRange(-180.0f,  180.0f);
-	m_turnPID->SetOutputRange(-1.0, 1.0);
-	m_turnPID->SetAbsoluteTolerance(ToleranceDegrees);
-	m_turnPID->SetContinuous(true);
-
-*/
-
-	//m_spanglePID = new PIDController(spangleP, spangleI, spangleD, spangleF, m_spanglePIDWrapper, m_spanglePIDWrapper);
+    m_anglePID = new PIDController(0.12 * 0.5 / 0.7, 0.01 * 0.5 / 0.7, 0.0, m_turnPIDWrapper, m_turnPIDWrapper);
+    m_anglePID->SetAbsoluteTolerance(1.0);
 
     /*
      *  Initialize turning and speed
@@ -105,6 +82,18 @@ double Drivetrain::GetAverageSpeed(){
 void Drivetrain::ResetEncoder(){
 	m_lEncode->Reset();
 	m_rEncode->Reset();
+}
+
+double Drivetrain::GetAngle() {
+	if (m_gyro->GetAngle() > 180.0) {
+		return m_gyro->GetAngle() - 360.0;
+	} else {
+		return m_gyro->GetAngle();
+	}
+}
+
+void Drivetrain::ResetGyro() {
+	m_gyro->Reset();
 }
 
 /******************************
@@ -197,37 +186,33 @@ double Drivetrain::GetDistancePID () {
  * Turn PID
  ******************************/
 
-/*
-
-void Drivetrain::EnableAngle(){
-	m_turnPID->Enable();
+void Drivetrain::EnableAngle() {
+	if (!IsEnabledAngle()) {
+		m_anglePID->Enable();
+	}
 }
 
 void Drivetrain::DisableAngle(){
-	m_turnPID->Disable();
+	if (IsEnabledAngle()) {
+		m_anglePID->Disable();
+	}
 }
 
 bool Drivetrain::IsEnabledAngle() {
-	return m_turnPID->IsEnabled();
+	return m_anglePID->IsEnabled();
 }
 
 void Drivetrain::SetAngle(double angle) {
-	m_turnPID->SetSetpoint(angle);
+	m_anglePID->SetSetpoint(angle);
 }
 
 double Drivetrain::GetAnglePIDSetPoint() {
-	return m_turnPID->GetSetpoint();
+	return m_anglePID->GetSetpoint();
 }
 
 bool Drivetrain::AngleAtSetPoint() {
-	return m_turnPID->OnTarget();
+	return m_anglePID->OnTarget();
 }
-
-void Drivetrain::ResetGyroAngle(){
-	m_euro->Reset();
-}
-
-*/
 
 /*
 void Drivetrain::DisableBothPIDs(){
