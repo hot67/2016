@@ -59,12 +59,21 @@
 
 using namespace std;
 
-enum auton_t {
-	kNothing,
+enum autonDefenseType {
+	kRamparts,
+	kMoat,
 	kRockWall,
-	kRockWallRaise,
-	kLowBarBack,
-	kLowBarShoot
+	kRoughTerrain,
+	kLowBar,
+	kChiliFries //Cheval de Frise
+};
+
+enum autonDefenseLocation {
+	k1, //low bar
+	k2,
+	k3,
+	k4,
+	k5
 };
 
 class johncena: public HotBot
@@ -119,7 +128,9 @@ private:
 	/*
 	 * Auton choice/case selection initializations
 	 */
-	auton_t m_autonChoice;
+	autonDefenseType m_autonDefenseType;
+	autonDefenseLocation m_autonDefenseLocation;
+
 	unsigned m_autonCase;
 	unsigned m_autonLoop;
 
@@ -171,7 +182,6 @@ public:
 		/*
 		 * Default auton choice is nothing
 		 */
-		m_autonChoice = kNothing;
 		//SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
 
 		/*
@@ -227,22 +237,6 @@ public:
 
 
 		PrintData();
-
-		/*****
-		 * Select auton choice
-		 * 	ToDo: Better auton UI
-		 *****/
-		if (m_operator->ButtonBack()){
-			m_autonChoice = kNothing;
-			//operator's BACK button sets auton to NOTHING
-			//SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
-		} else if (m_operator->ButtonA()) {
-			m_autonChoice = kRockWall;
-			//operator's A button sets auton to UNDER LOW BAR
-			//SmartDashboard::PutString("Auton Choice", "Under Low Bar Auton");
-		} else if (m_operator->ButtonB()) {
-			m_autonChoice = kRockWallRaise;
-		}
 	}
 
 	void AutonomousInit()
@@ -262,51 +256,135 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		/*
-		 * Matches the enum to the auton function
-		 */
-
-		PrintData();
-
-		switch (m_autonChoice)
-		{
-			case kNothing:
-				AutonDoNothing();
+		switch (m_autonCase) {
+			case 0:
+				if (AutonBeforeDrive() == true) {
+					m_autonCase++;
+				}
 				break;
-			case kRockWall:
-				AutonOverRockWall();
+			case 1:
+				//if the auton arm initial flag is going up
+				if (AutonDuringDrive() == true) {
+					m_autonCase++;
+				}
 				break;
-			case kRockWallRaise:
-				AutonOverRockWallRaise();
+			case 2:
+				//if the auton drive initial flag is going up
+				if (AutonShooting() == true) {
+					m_autonCase++;
+				}
 				break;
+			case 3:
+				//zero the arm encoder
+				m_autonCase++;
+				break;
+			case 4:
+				f_autonRan = true;
 		}
 
+		PrintData();
 
 		m_arm->ArmPIDUpdate(); //to decrease PID coming down so it doesn't slam
 	}
 
-	void AutonDoNothing ()
-	{
-		//this auton does nothing
+	bool AutonBeforeDrive() {
+		//arm to desired location depending on defense type
+		//only is true when we're at the desired location
+
+		//the purpose of the truth is to move into next case in auton periodic
+
+		//pid is disabled when it returns true
+
+		static int m_beforeDriveAutonCase;
+
+		switch (m_autonDefenseType) {
+			case kRamparts:
+				AutonArmToKickstand();
+				//arm to kickstand
+				break;
+			case kMoat:
+				//arm kickstand
+				break;
+			case kRockWall:
+				//arm kickstand
+				break;
+			case kRoughTerrain:
+				//arm kickstand
+				break;
+			case kLowBar:
+				//arm ground
+				//you cannot use autonarmtokickstand function bc its to ground
+				break;
+			case kChiliFries:
+				//arm kickstand
+				break;
+		}
 	}
 
-	void AutonOverRockWallRaise ()
-	{
-		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
+	bool AutonDuringDrive() {
+		//drive across the defense
+		//distance may vary
+		//all should be done in low gear
 
-		m_arm->ReleaseBrake();
+		//drive pid should be disabled after returning true
 
-		m_drivetrain->ShiftLow();
+		//purpose of the truth is to move into next case in auton periodic
 
-		switch (m_autonCase) {
+		//robot is already over the defense
+
+		switch (m_autonDefenseType) {
+			case kRamparts:
+				//drive x amount of feet
+				break;
+			case kMoat:
+				//drive x feet
+				break;
+			case kRockWall:
+				//drive x feet
+				break;
+			case kRoughTerrain:
+				//drive x feet
+				break;
+			case kLowBar:
+				//drive x feet
+				break;
+			case kChiliFries:
+				//drive x feet
+				break;
+		}
+	}
+
+	bool AutonShooting() {
+		switch (m_autonDefenseLocation) {
+			case k1:
+				//turn right
+			case k2:
+				//turn a lil right
+			case k3:
+				//dont turn just shoot man
+			case k4:
+				//turn a lil left
+			case k5:
+				//turn left
+		}
+	}
+
+	bool AutonArmToKickstand() {
+		//moves the arm to kickstand
+		//zeroes the arm at the kickstand
+
+		static int m_autonArmToKickstand;
+
+		switch (m_autonArmToKickstand) {
 			case 0:
-				//	Move the arm back to pick up
 				if (m_arm->IsLightSensorTriggered() == false) {
 					m_arm->ZeroLightSensorArmEncoder();
 					m_autonCase++;
+					return false;
 				}
 				else if (m_arm->IsLightSensorTriggered() == true) {
 					m_arm->SetArm(0.0);
+					return false;
 				}
 				break;
 			case 1:
@@ -316,181 +394,10 @@ public:
 				if (m_arm->ArmAtPIDSetPoint()) {
 					m_arm->DisableArmPID();
 					m_autonCase++;
+					return true;
 				}
 				break;
-			case 2:
-				m_drivetrain->SetDistance(180.);
-				m_drivetrain->EnableDistance();
-				if (m_drivetrain->DistanceAtSetPoint() || m_autonTimer->Get() > 10.0) {
-					m_drivetrain->DisableDistance();
-					m_arm->SetArmPIDPoint(m_arm->GetArmPos() + 14.0);
-					m_autonCase++;
-				}
-				break;
-			case 3:
-				// take current position and add 9 to clear the bar
-				// pid to that point
-				// disable pid when at setpoint so it rests on the bar
-				// zero the arm encoder
-				m_arm->EnableArmPID();
-
-				if (m_arm->ArmAtPIDSetPoint() == true) {
-					m_arm->DisableArmPID();
-					m_autonCase++;
-				}
-				break;
-			case 4:
-				if (m_autonTimer->Get() >= 13.0) {
-					m_arm->ZeroArmEncoder();
-					m_autonCase++;
-				}
-				break;
-			case 5:
-				if (f_autonRan == false) {
-					f_autonRan = true;
-				}
-				m_autonTimer->Stop();
-				m_autonCase++;
 		}
-
-	}
-
-	void AutonOverRockWall() {
-		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
-
-				m_arm->ReleaseBrake();
-
-				m_drivetrain->ShiftLow();
-
-				switch (m_autonCase) {
-					case 0:
-						//	Move the arm back to pick up
-						if (m_arm->IsLightSensorTriggered() == false) {
-							m_arm->ZeroLightSensorArmEncoder();
-							m_autonCase++;
-						}
-						else if (m_arm->IsLightSensorTriggered() == true) {
-							m_arm->SetArm(0.0);
-						}
-						break;
-					case 1:
-						m_arm->SetArmPIDPoint(CARRY);
-						m_arm->EnableArmPID();
-
-						if (m_arm->ArmAtPIDSetPoint()) {
-							m_arm->DisableArmPID();
-							m_autonCase++;
-						}
-						break;
-					case 2:
-						m_drivetrain->SetDistance(180.);
-						m_drivetrain->EnableDistance();
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
-							m_autonCase++;
-						}
-						break;
-				}
-	}
-
-	void AutonLowBarBack()
-	{
-		/*switch(m_autonCase)
-			{
-				case 0:
-					if (f_armReset)
-						m_autonCase++;
-					break;
-				case 1:
-					//set arm to position zero to fit under low bar
-					//if arm is not enabled
-						//enable arm
-					m_autonCase++;
-					break;
-				case 2:
-					//m_drivetrain->SetDistance(); 6 ft to outerworks, outerworks are 4 ft, another 1 ft
-					 *
-					//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
-					if (!m_drivetrain->IsEnabledDistance())
-						m_drivetrain->EnableDistance();
-
-					if (m_drivetrain->DistanceAtSetpoint())
-						m_drivetrain->DisableDistance();
-
-					m_autonCase++;
-				case 3:
-					//m_drivetrain->SetDistance(); -1 ft, -4 ft for outerworks, -1 ft into neutral zone
-					//m_drivetrain->SetLimit(); speed?? how fast can we go over ramp
-					if (!m_drivetrain->IsEnabledDistance())
-						m_drivetrain->EnableDistance();
-
-					if (m_drivetrain->DistanceAtSetpoint())
-						m_drivetrain->DisableDistance();
-
-					m_autonCase++;
-
-			*/
-	}
-
-	void AutonLowBarShoot() {
-		/*switch (m_autonCase) {
-		case 0:
-			/**
-			 * 	Move the arm back to pick up
-			 *
-			m_arm->SetArmPIDPoint(PICKUP);
-			m_arm->EnableArmPID();
-
-			/**
-			 * 	Move the robot back for 10 ft
-			 * 		You may need to change this value
-			 *
-			m_drivetrain->SetDistance(-120);
-			m_drivetrain->EnableDistance();
-
-			/**
-			 * 	If we arrive to the setpoints, move to next case
-			 /
-			if (m_arm->ArmAtPIDSetPoint() && m_drivetrain->DistanceAtSetPoint()) {
-				m_arm->DisableArmPID();
-				m_drivetrain->DisableDistance();
-
-				m_autonCase++;
-			}
-			break;
-
-		case 1:
-			/**
-			 * 	Move the arm ready to shoot
-			 /
-			m_arm->SetArmPIDPoint(MEDIUM_HIGH_GOAL);
-			m_arm->EnableArmPID();
-
-			/**
-			 * 	Speed Up The shooter
-			 /
-			m_intake->SetShooter(1.0);
-
-			/**
-			 * 	Line Up
-			 /
-			AutoLineUp();
-
-			/**
-			 * 	Check if we are done
-			 /
-			if (m_camera->AtTarget() && m_arm->ArmAtPIDSetPoint()) {
-				m_autonCase++;
-			}
-			break;
-
-		case 2:
-			/**
-			 *	Shoot
-			 *	ToDo: Do we stop this? Or keep it running until the auton ends
-			 /
-			m_intake->SetRoller(1.0);
-		} */
 	}
 
 	double GetManualTotalCurrent() {
