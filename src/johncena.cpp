@@ -6,11 +6,21 @@
 #include "Arm.h"
 #include "CameraHandler.h"
 
+ /*
+  * ToDo:
+  *
+  * RB, Y - bring arm away from tower, screw out, then move arm towards tower with fully etended screw
+  * RB, B - start retracting screw and once its like 1/4 way in, move arm up (bringing up the drivetrain) and lock break
+  *
+  * full speed on the screw
+  *
+  */
+
 /*
  * ARM MAPPING
  *
  * operator right bumper & y-button - arm to climb, screw extend
- * operator right bumper & a-button - arm does nothing, screw retract
+ * operator right bumper & b-button - arm does nothing, screw retract
  *
  * operator left bumper & y-button - arm to medium low goal, prepares to shoot
  * operator left bumper & x-button - arm to obstacle
@@ -51,8 +61,8 @@ using namespace std;
 
 enum auton_t {
 	kNothing,
-	kLowBar,
-	kLowBarRaise,
+	kRockWall,
+	kRockWallRaise,
 	kLowBarBack,
 	kLowBarShoot
 };
@@ -227,11 +237,11 @@ public:
 			//operator's BACK button sets auton to NOTHING
 			//SmartDashboard::PutString("Auton Choice", "Do Nothing Auton");
 		} else if (m_operator->ButtonA()) {
-			m_autonChoice = kLowBar;
+			m_autonChoice = kRockWall;
 			//operator's A button sets auton to UNDER LOW BAR
 			//SmartDashboard::PutString("Auton Choice", "Under Low Bar Auton");
 		} else if (m_operator->ButtonB()) {
-			m_autonChoice = kLowBarRaise;
+			m_autonChoice = kRockWallRaise;
 		}
 	}
 
@@ -263,11 +273,11 @@ public:
 			case kNothing:
 				AutonDoNothing();
 				break;
-			case kLowBar:
-				AutonUnderLowBar();
+			case kRockWall:
+				AutonOverRockWall();
 				break;
-			case kLowBarRaise:
-				AutonUnderLowBarRaise();
+			case kRockWallRaise:
+				AutonOverRockWallRaise();
 				break;
 		}
 
@@ -280,7 +290,7 @@ public:
 		//this auton does nothing
 	}
 
-	void AutonUnderLowBarRaise ()
+	void AutonOverRockWallRaise ()
 	{
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
 
@@ -345,7 +355,7 @@ public:
 
 	}
 
-	void AutonUnderLowBar() {
+	void AutonOverRockWall() {
 		//this auton will go under the lowbar and into the opponent's courtyard if robot is in front of lowbar
 
 				m_arm->ReleaseBrake();
