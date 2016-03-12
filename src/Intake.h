@@ -8,9 +8,7 @@
 #ifndef SRC_INTAKE_H_
 #define SRC_INTAKE_H_
 
-#include "RobotUtils/HotSubsystem.h"
-
-#include "ShooterPIDWrapper.h"
+#include "RobotUtils/RobotUtils.h"
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
@@ -48,19 +46,6 @@
 class ShooterPIDWrapper;
 
 class Intake: public HotSubsystem {
-private:
-
-	CANTalon* m_rollerTalon;
-	CANTalon* m_shooterTalon;
-
-	Encoder* m_shooterEncoder;
-
-	ShooterPIDWrapper *m_shooterPIDWrapper;
-	PIDController* m_shooterSpeedPID;
-
-	Timer *m_pulseOutTimer;
-	bool f_rollingIn;
-
 public:
 	enum ShooterStatus {
 		kShooterStopped = 0,
@@ -70,89 +55,39 @@ public:
 
 	Intake(HotBot* bot);
 
-	virtual ~Intake();
+	/******************************
+	 * MOTORS
+	 ******************************/
+	/*
+	 * 	Request signal to motor
+	 * 		speed must be in [-1, 1]
+	 * 		higher priority signal will go
+	 */
+	void SetRoller(float speed, int priority = 0);
+	void SetShooter(float speed, int priority = 0);
 
-	float m_desiredShooterSpeed = DEFAULT_SHOOTER_SPEED; // sets initial shooter speed to default speed
-
+	/*
+	 * 	Update system
+	 * 		Reflect request to motor
+	 */
+	void Update();
 
 	/******************************
 	 * SENSORS
 	 ******************************/
-
 	/*
-	 * get encoder rate
-	 * 			the black-white sensor
+	 * 	Measure shooter speed in RPM
 	 */
 	double GetShooterSpeed();
-	double GetShooterPeriod();
-
-	/******************************
-	 * MOTORS
-	 ******************************/
-
-	/*
-	 * Setting raw roller speed
-	 * 		on a scale of -1 to 1
-	 */
-	void SetRoller(float speed); //set roller speed
-
-	/*
-	 * Setting raw shooter speed
-	 * 		on a scale of -1 to 1
-	 */
-	void SetShooter(float speed); //set shooter speed
-
-	float GetShooter();
-
-	void ResetRollerStatus();
-
-
-	/******************************
-	 * Shooter specifics
-	 ******************************/
-
-	/*
-	 * setting shooter default to 0.8
-	 */
-	void SetShooterDefault();
-
-	/*
-	 * rolls the ball into the shooter if the shooter PID is on target (if the shooter is up to speed)
-	 */
-	void Shoot();
-
-	/*
-	 * Shooter status function
-	 */
-	ShooterStatus GetShooterStatus();
-
-	/*
-	 * Increase Shooter Speed by 0.01
-	 */
-	void IncreaseShooterSpeed();
-
-	/*
-	 * Decrease shooter speed by 0.01
-	 */
-	void DecreaseShooterSpeed();
-
-	/*
-	 * sets shooter speed to m_desiredshooterspeed
-	 * 			which is the adjustable variable by the IncreaseShooterSpeed() and the DecreaseShooterSpeed()
-	 */
-	void SetDesiredShooterSpeed();
-
-
 
 	/******************************
 	 * 	SHOOTER PID
 	 ******************************/
-
 	/*
 	 * Enable and Disable Shooter PID
 	 */
-	void EnableShooterPID();
-	void DisableShooterPID();
+	void EnableShooterPID(int priority = 0);
+	void DisableShooterPID(int priority = 0);
 
 	/*
 	 * Is enabled?
@@ -179,7 +114,55 @@ public:
 	 */
 	void IntakePrintData();
 
+	/******************************
+	 * 	Shooter PID Wrapper
+	 ******************************/
+	class ShooterPIDWrapper : public PIDSource, public PIDOutput {
+	public:
+		ShooterPIDWrapper(Intake *intake);
 
+		void PIDWrite(float output);
+		double PIDGet();
+
+	private:
+		Intake *m_intake;
+		float m_speed = 0.0;
+	};
+private:
+
+	/*
+	 * 	Functions to actually send signal to motor
+	 */
+	void _SetRoller(float speed);
+	void _SetShooter(float speed);
+
+	/*
+	 * 	Enable Disable
+	 */
+	void _EnableShooterPID();
+	void _DisableShooterPID();
+
+	/*
+	 * 	Talons
+	 */
+	CANTalon* m_rollerTalon;
+	CANTalon* m_shooterTalon;
+
+	/*
+	 * 	Buffers
+	 */
+	DoubleBuffer *m_rollerBuf, *m_shooterBuf;
+	BooleanBuffer *m_shooterPIDBuf;
+
+	/*
+	 * 	Shooter Encoder
+	 */
+	Encoder* m_shooterEncoder;
+
+	/*
+	 * 	PID
+	 */
+	PIDController* m_shooterPID;
 };
 
 

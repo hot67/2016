@@ -7,81 +7,124 @@
 
 #include "Drivetrain.h"
 
-Drivetrain::Drivetrain(HotBot* bot)
-	: HotSubsystem(bot, "Drivetrain") {
-	m_lDriveF = new CANTalon(TALON_DRIVE_LF);
-	m_lDriveR = new CANTalon(TALON_DRIVE_LR);
-	m_rDriveF = new CANTalon(TALON_DRIVE_RF);
-	m_rDriveR = new CANTalon(TALON_DRIVE_RR);
+Drivetrain::Drivetrain(HotBot* bot) : HotSubsystem(bot, "Drivetrain") {
+	/*
+	 * 	Drive
+	 */
+	m_lfDrive = new CANTalon(TALON_DRIVE_LF);
+	m_lrDrive = new CANTalon(TALON_DRIVE_LR);
+	m_rfDrive = new CANTalon(TALON_DRIVE_RF);
+	m_rfDrive = new CANTalon(TALON_DRIVE_RR);
 
+	m_drive = new RobotDrive(m_lfDrive, m_lrDrive, m_rfDrive, m_rrDrive);
+	m_drive->SetSafetyEnabled(false);
+
+	/*
+	 * 	Buffer For Driving
+	 */
+	m_speedBuf = new DoubleBuffer(BufferPriority::kAbsMax);
+	m_turnBuf = new DoubleBuffer(BufferPriority::kAbsMax);
+
+	/*
+	 *	Shifting
+	 */
 	m_shift = new Solenoid(SOLENOID_SHIFT);
+	m_shiftBuf = new BooleanBuffer(false);
 
-	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, true);
-	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, false);
+	/*
+	 * 	Encoders
+	 */
+	m_lEncoder = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, true);
+	m_rEncoder = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, false);
 
+	/*
+	 * 	Gyro
+	 */
 	m_gyro = new AHRS(SPI::Port::kMXP);
 
-	m_timer = new Timer;
-
-	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
-	m_drive->SetSafetyEnabled(false);
-    m_drive->SetExpiration(0.1);
-
-	m_distancePIDWrapper = new DistancePIDWrapper(this);
-
-	m_anglePIDWrapper = new AnglePIDWrapper (this);
-
-    m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
+	DistancePIDWrapper *distancePIDWrapper = new DistancePIDWrapper(this);
+    m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D,
+    		distancePIDWrapper, distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
+    m_distancePIDBuf = new BooleanBuffer(false);
 
-    m_anglePID = new PIDController(0.086, 0.0071, 0.0, m_anglePIDWrapper, m_anglePIDWrapper);
+	AnglePIDWrapper *anglePIDWrapper = new AnglePIDWrapper (this);
+    m_anglePID = new PIDController(0.086, 0.0071, 0.0,
+    		anglePIDWrapper, anglePIDWrapper);
     m_anglePID->SetAbsoluteTolerance(1.0);
-
-    /*
-     *  Initialize turning and speed
-     */
-    m_turn = m_speed = 0.0;
+    m_anglePIDBuf = new BooleanBuffer(false);
 }
 
 /******************************
+ * 	Motor
+ ******************************/
+void Drivetrain::_ArcadeDrive(float speed, float turn) {
+	m_drive->ArcadeDrive(speed, turn);
+}
+void Drivetrain::_SetShift(bool on) {
+	m_shift->Set(on);
+}
+
+void Drivetrain::ArcadeDrive(float speed, float turn, int priority) {
+	m_speedBuf->Write(speed, priority);
+	m_turnBuf->Write(turn, priority);
+}
+void Drivetrain::SetShift(bool on, int priority) {
+	m_shiftBuf->Write(on, priority);
+}
+void Drivetrain::ShiftHigh(int priority) {
+	SetShift(false, priority);
+}
+void Drivetrain::ShiftLow(int priority) {
+	SetShift(true, priority);
+}
+
+void Drivetrain::Update() {
+	if (!m_speedBuf->IsLocked() && !m_turnBuf->IsLocked()) {
+		_ArcadeDrive(m_speedBuf->Read(), m_turnBuf->Read());
+	}
+
+	if (!m_shiftBuf->IsLocked()) {
+		_SetShift(m_shiftBuf->Read());
+	}
+
+	if (!m_distancePIDBuf->IsLocked()) {
+		if (m_distancePIDBuf->Read()) {
+			_EnableDistancePID();
+		} else {
+			_DisableDistancePID();
+		}
+	}
+
+	if (!m_anglePIDBuf->IsLocked()) {
+		if (m_anglePIDBuf->Read()) {
+			_EnableAnglePID();
+		} else {
+			_DisableAnglePID();
+		}
+	}
+}
+/******************************
  * Sensors
  ******************************/
-
-/*
-
-double Drivetrain::GetAngle(){
-	return (m_euro->GetAngle());
+double Drivetrain::GetLDistance() {
+	return m_lEncoder->GetDistance() * .0084275;
+}
+double Drivetrain::GetRDistance() {
+	return m_rEncoder->GetDistance() * .0084275;
+}
+double Drivetrain::GetDistance() {
+	return (GetLDistance() + GetRDistance()) / 2;
 }
 
-*/
-
-double Drivetrain::GetAverageDistance(){
-	return((GetLDistance() + GetRDistance()) / 2);
+double Drivetrain::GetLSpeed() {
+	return m_lEncoder->GetRate() * .0084275;
 }
-
-double Drivetrain::GetLDistance(){
-	return(m_lEncode->GetDistance() * .0084275);
+double Drivetrain::GetRSpeed() {
+	return m_rEncoder->GetRate() * .0084275;
 }
-
-double Drivetrain::GetRDistance(){
-	return(m_rEncode->GetDistance() * .0084275);
-}
-
-double Drivetrain::GetLSpeed(){
-	return(m_lEncode->GetRate() * .0084275);
-}
-
-double Drivetrain::GetRSpeed(){
-	return(m_rEncode->GetRate() * .0084275);
-}
-
-double Drivetrain::GetAverageSpeed(){
-	return((GetLSpeed() + GetRSpeed()) / 2);
-}
-
-void Drivetrain::ResetEncoder(){
-	m_lEncode->Reset();
-	m_rEncode->Reset();
+double Drivetrain::GetSpeed() {
+	return (GetLSpeed() + GetRSpeed()) / 2;
 }
 
 double Drivetrain::GetAngle() {
@@ -91,165 +134,108 @@ double Drivetrain::GetAngle() {
 		return m_gyro->GetAngle();
 	}
 }
-
-void Drivetrain::ResetGyro() {
-	m_gyro->Reset();
-}
-
-/******************************
- * Motors
- ******************************/
-void Drivetrain::ArcadeDrive(double speed, double angle){
-	m_speed = speed;
-	m_turn = angle;
-	m_drive->ArcadeDrive(speed, angle);
-
-//	SmartDashboard::PutBoolean("TurnPID Enabled", m_turnPID->IsEnabled());
-	SmartDashboard::PutBoolean("DistancePID Enabled", m_distancePID->IsEnabled());
-
-//	SmartDashboard::PutBoolean("SpanglePID Enabled", m_spanglePID->IsEnabled());
-
-//	SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
-//	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-//	SmartDashboard::PutNumber("m_lEncode Rate", m_lEncode->GetRate());
-//	SmartDashboard::PutNumber("m_rEncode Rate", m_rEncode->GetRate());
-}
-
-void Drivetrain::SetSpeed(double speed) {
-	ArcadeDrive(speed, m_turn);
-}
-
-void Drivetrain::SetTurn(double turn) {
-	ArcadeDrive(m_speed, turn);
-}
-
-void Drivetrain::SetShift(bool on){
-	m_shift->Set(on);
-}
-
-void Drivetrain::ShiftHigh(){
-	SetShift(false);
-	m_distancePID->SetPID(DISTANCE_SHIFTH_P, DISTANCE_SHIFTH_I, DISTANCE_SHIFTH_D);
-}
-
-void Drivetrain::ShiftLow(){
-	SetShift(true);
-	m_distancePID->SetPID(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D);
-}
-
-float Drivetrain::GetSpeed(){
-	return(m_speed);
-}
-
-float Drivetrain::GetTurn(){
-	return(m_turn);
+double Drivetrain::GetAngularSpeed() {
+	return m_gyro->GetRate();
 }
 
 /******************************
  * 	Distance PID
  ******************************/
-
-void Drivetrain::EnableDistance(){
-	if (!IsEnabledDistance()) {
+void Drivetrain::_EnableDistancePID() {
+	if (!IsDistancePIDEnabled()) {
 		m_distancePID->Enable();
 	}
 }
-
-void Drivetrain::DisableDistance(){
-	if (IsEnabledDistance()) {
+void Drivetrain::_DisableDistancePID() {
+	if (IsDistancePIDEnabled()) {
 		m_distancePID->Disable();
 	}
 }
-
-bool Drivetrain::IsEnabledDistance(){
-	return (m_distancePID->IsEnabled());
+void Drivetrain::EnableDistancePID(int priority){
+	if (!IsDistancePIDEnabled()) {
+		m_distancePIDBuf->Write(true, priority);
+	}
 }
 
-void Drivetrain::SetDistance(double distance) {
-	m_distancePID->SetSetpoint(distance);
+void Drivetrain::DisableDistancePID(int priority){
+	if (IsDistancePIDEnabled()) {
+		m_distancePIDBuf->Write(false, priority);
+	}
 }
 
-double Drivetrain::GetDistancePIDSetPoint() {
+bool Drivetrain::IsDistancePIDEnabled(){
+	return m_distancePID->IsEnabled();
+}
+
+void Drivetrain::SetDistancePIDSetpoint(double inches) {
+	m_distancePID->SetSetpoint(inches);
+}
+
+double Drivetrain::GetDistancePIDSetpoint() {
 	return m_distancePID->GetSetpoint();
 }
 
-bool Drivetrain::DistanceAtSetPoint () {
+bool Drivetrain::DistanceAtPIDSetpoint () {
 	return m_distancePID->OnTarget();
 }
 
-double Drivetrain::GetDistancePID () {
-	return (m_distancePIDWrapper->PIDGet());
+Drivetrain::DistancePIDWrapper::DistancePIDWrapper(Drivetrain *drivetrain) {
+	m_drivetrain = drivetrain;
+}
+void Drivetrain::DistancePIDWrapper::PIDWrite(float output) {
+	m_drivetrain->_ArcadeDrive(output, 0.0);
+}
+double Drivetrain::DistancePIDWrapper::PIDGet() {
+	return m_drivetrain->GetDistance();
 }
 
-
 /******************************
- * Turn PID
+ * 	Angle PID
  ******************************/
-
-void Drivetrain::EnableAngle() {
-	if (!IsEnabledAngle()) {
+void Drivetrain::_EnableAnglePID() {
+	if (!IsAnglePIDEnabled()) {
 		m_anglePID->Enable();
 	}
 }
-
-void Drivetrain::DisableAngle(){
-	if (IsEnabledAngle()) {
+void Drivetrain::_DisableAnglePID() {
+	if (IsAnglePIDEnabled()) {
 		m_anglePID->Disable();
 	}
 }
+void Drivetrain::EnableAnglePID(int priority){
+	if (!IsAnglePIDEnabled()) {
+		m_anglePIDBuf->Write(true, priority);
+	}
+}
 
-bool Drivetrain::IsEnabledAngle() {
+void Drivetrain::DisableAnglePID(int priority){
+	if (IsAnglePIDEnabled()) {
+		m_anglePIDBuf->Write(false, priority);
+	}
+}
+
+bool Drivetrain::IsAnglePIDEnabled(){
 	return m_anglePID->IsEnabled();
 }
 
-void Drivetrain::SetAngle(double angle) {
-	m_anglePID->SetSetpoint(angle);
+void Drivetrain::SetAnglePIDSetpoint(double inches) {
+	m_anglePID->SetSetpoint(inches);
 }
 
-double Drivetrain::GetAnglePIDSetPoint() {
+double Drivetrain::GetAnglePIDSetpoint() {
 	return m_anglePID->GetSetpoint();
 }
 
-bool Drivetrain::AngleAtSetPoint() {
+bool Drivetrain::AngleAtPIDSetpoint () {
 	return m_anglePID->OnTarget();
 }
 
-/*
-void Drivetrain::DisableBothPIDs(){
-	DisableDistance();
-//	DisableAngle();
+Drivetrain::AnglePIDWrapper::AnglePIDWrapper(Drivetrain *drivetrain) {
+	m_drivetrain = drivetrain;
 }
-
-*/
-
-/******************************
- * Spangle PID
- ******************************/
-/*
-void Drivetrain::EnableSpangle(){
-	m_spanglePID->Enable();
+void Drivetrain::AnglePIDWrapper::PIDWrite(float output) {
+	m_drivetrain->ArcadeDrive(0.0, output);
 }
-
-void Drivetrain::DisableSpangle(){
-	m_spanglePID->Disable();
-}
-
-void Drivetrain::SetSpangle(float angle){
-	m_spanglePID->SetSetpoint(angle);
-}
-bool Drivetrain::SpangleAtSetPoint() {
-	return m_spanglePID->OnTarget();
-}
-
-double Drivetrain::GetSpanglePIDSetPoint(){
-	return m_spanglePID->GetSetpoint();
-}
-
-bool Drivetrain::IsEnabledSpangle() {
-	return m_spanglePID->IsEnabled();
-}
- */
-
-Drivetrain::~Drivetrain() {
-
+double Drivetrain::AnglePIDWrapper::PIDGet() {
+	return m_drivetrain->GetAngle();
 }

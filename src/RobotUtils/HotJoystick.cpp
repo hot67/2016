@@ -1,230 +1,245 @@
 #include <RobotUtils/HotJoystick.h>
 
-HotJoystick::HotJoystick(unsigned int port)
-: Joystick(port) {
-	f_A = f_B = f_X = f_Y = f_LB = f_RB = f_Back = f_Start = f_L3 = f_R3 = f_LT = f_RT = false;
-	db_LX = db_LY = db_LT = db_RT = db_RX = db_RY = 0.0;
+HotButton::HotButton(HotJoystick *joystick, uint32_t buttonID, bool isAxis, float threshold) {
+	m_joystick = joystick;
+	m_buttonID = buttonID;
+	f_axis = isAxis;
+	m_threshold = threshold;
+}
+
+uint32_t HotButton::GetButtonID() {
+	return m_buttonID;
+}
+
+bool HotButton::IsAxis() {
+	return f_axis;
+}
+
+void HotButton::SetModifier(HotButton *modifier) {
+	m_modifiers.push_back(modifier);
+}
+
+bool HotButton::ReadRaw() {
+	if (IsAxis()) {
+		return m_joystick->GetRawAxis(GetButtonID()) > m_threshold;
+	} else {
+		return m_joystick->GetRawButton(GetButtonID());
+	}
+}
+
+bool HotButton::Read() {
+	//	When No other button is pressed
+	if (!ReadRaw()) {
+		return false;
+	}
+
+	for (unsigned int i = 0; i < m_modifiers.size(); i++) {
+		if (m_modifiers[i]->ReadRaw()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+bool HotButton::Read(HotButton *modifier) {
+	if (!ReadRaw()) {
+		return false;
+	}
+
+	if (!modifier->ReadRaw()) {
+		return false;
+	}
+
+	for (unsigned int i = 0; i < m_modifiers.size(); i++) {
+		if (!(m_modifiers[i]->GetButtonID() == modifier->GetButtonID() && m_modifiers[i]->IsAxis() == modifier->IsAxis()) && m_modifiers[i]->ReadRaw()) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+HotJoystick::HotJoystick(unsigned int port) : Joystick(port) {
+	/*
+	 * 	Initialize Buttons
+	 */
+	A = new HotButton(this, 1);
+	B = new HotButton(this, 2);
+	X = new HotButton(this, 3);
+	Y = new HotButton(this, 4);
+	LB = new HotButton(this, 5);
+	RB = new HotButton(this, 6);
+	Back = new HotButton(this, 7);
+	Start = new HotButton(this, 8);
+	LT = new HotButton(this, 2, true, 0.4);
+	RT = new HotButton(this, 3, true, 0.4);
+
+	m_deadband = 0.4;
+}
+
+HotButton* HotJoystick::GetButton(HotButton::Button btn) {
+	switch (btn) {
+	case HotButton::kA:
+		return A;
+		break;
+	case HotButton::kB:
+		return B;
+		break;
+	case HotButton::kX:
+		return X;
+		break;
+	case HotButton::kY:
+		return Y;
+		break;
+	case HotButton::kLB:
+		return LB;
+		break;
+	case HotButton::kRB:
+		return RB;
+		break;
+	case HotButton::kBack:
+		return Back;
+		break;
+	case HotButton::kStart:
+		return Start;
+		break;
+	case HotButton::kLT:
+		return LT;
+		break;
+	case HotButton::kRT:
+		return RT;
+		break;
+	}
+	return A;
 }
 
 /**
  * 	Configuration
  */
-void HotJoystick::SetDeadband(int channels, float value) {
-	if (channels & kAxisLX) {
-		db_LX = value;
-	}
-	if (channels & kAxisLY) {
-		db_LY = value;
-	}
-	if (channels & kAxisLT) {
-		db_LT = value;
-	}
-	if (channels & kAxisRT) {
-		db_LX = value;
-	}
-	if (channels & kAxisRX) {
-		db_RX = value;
-	}
-	if (channels & kAxisRY) {
-		db_RY = value;
-	}
+void HotJoystick::SetDeadband(float threshold) {
+	m_deadband = threshold;
 }
 
-float HotJoystick::GetDeadband(kAxis axis) {
-	switch(axis) {
-	case kAxisLX:
-		return db_LX;
-	case kAxisLY:
-		return db_LY;
-	case kAxisLT:
-		return db_LT;
-	case kAxisRT:
-		return db_RT;
-	case kAxisRX:
-		return db_RX;
-	case kAxisRY:
-		return db_RY;
-	default:
-		return 0.0;
-	}
+void HotJoystick::SetModifier(HotButton::Button btn, HotButton::Button modifier) {
+	GetButton(btn)->SetModifier(GetButton(modifier));
 }
 
-/**
- * 	Simple Button Access
+/*
+ * 	Read Button
  */
-bool HotJoystick::Button(kButton btn) {
-	switch (btn) {
-	case kButtonA:
-		return GetRawButton(1);
-	case kButtonB:
-		return GetRawButton(2);
-	case kButtonX:
-		return GetRawButton(3);
-	case kButtonY:
-		return GetRawButton(4);
-	case kButtonLB:
-		return GetRawButton(5);
-	case kButtonRB:
-		return GetRawButton(6);
-	case kButtonStart:
-		return GetRawButton(8);
-	case kButtonBack:
-		return GetRawButton(7);
-	case kButtonLT:
-		return GetRawAxis(2) > 0.4;
-	case kButtonRT:
-		return GetRawAxis(3) > 0.4;
-	default:
-		return false;
-	}
+bool HotJoystick::Button(HotButton* btn) {
+	return btn->Read();
+}
+bool HotJoystick::Button(HotButton* btn, HotButton* modifier) {
+	return btn->Read(modifier);
 }
 
-
-bool HotJoystick::Button(int btn) {
-	if ((btn & kButtonA) && !Button(kButtonA)) {
-		return false;
-	} else if ((btn & kButtonB) && !Button(kButtonB)) {
-		return false;
-	} else if ((btn & kButtonX) && !Button(kButtonX)) {
-		return false;
-	} else if ((btn & kButtonY) && !Button(kButtonY)) {
-		return false;
-	} else if ((btn & kButtonLB) && !Button(kButtonLB)) {
-		return false;
-	} else if ((btn & kButtonRB) && !Button(kButtonRB)) {
-		return false;
-	} else if ((btn & kButtonLT) && !Button(kButtonLT)) {
-		return false;
-	} else if ((btn & kButtonRT) && !Button(kButtonRT)) {
-		return false;
-	}
-
-	return true;
+bool HotJoystick::ButtonA() {
+	return Button(A);
+}
+bool HotJoystick::ButtonA(HotButton* modifier) {
+	return Button(A, modifier);
+}
+bool HotJoystick::ButtonA(HotButton::Button btn) {
+	return Button(A, GetButton(btn));
+}
+bool HotJoystick::ButtonB() {
+	return Button(B);
+}
+bool HotJoystick::ButtonB(HotButton* modifier) {
+	return Button(B, modifier);
+}
+bool HotJoystick::ButtonB(HotButton::Button btn) {
+	return Button(B, GetButton(btn));
+}
+bool HotJoystick::ButtonX() {
+	return Button(X);
+}
+bool HotJoystick::ButtonX(HotButton* modifier) {
+	return Button(X, modifier);
+}
+bool HotJoystick::ButtonX(HotButton::Button btn) {
+	return Button(X, GetButton(btn));
+}
+bool HotJoystick::ButtonY() {
+	return Button(Y);
+}
+bool HotJoystick::ButtonY(HotButton* modifier) {
+	return Button(Y, modifier);
+}
+bool HotJoystick::ButtonY(HotButton::Button btn) {
+	return Button(Y, GetButton(btn));
+}
+bool HotJoystick::ButtonLB() {
+	return Button(LB);
+}
+bool HotJoystick::ButtonLB(HotButton* modifier) {
+	return Button(LB, modifier);
+}
+bool HotJoystick::ButtonLB(HotButton::Button btn) {
+	return Button(LB, GetButton(btn));
+}
+bool HotJoystick::ButtonRB() {
+	return Button(RB);
+}
+bool HotJoystick::ButtonRB(HotButton* modifier) {
+	return Button(RB, modifier);
+}
+bool HotJoystick::ButtonRB(HotButton::Button btn) {
+	return Button(RB, GetButton(btn));
+}
+bool HotJoystick::ButtonBack() {
+	return Button(Back);
+}
+bool HotJoystick::ButtonBack(HotButton* modifier) {
+	return Button(Back, modifier);
+}
+bool HotJoystick::ButtonBack(HotButton::Button btn) {
+	return Button(Back, GetButton(btn));
+}
+bool HotJoystick::ButtonStart() {
+	return Button(Start);
+}
+bool HotJoystick::ButtonStart(HotButton* modifier) {
+	return Button(Start, modifier);
+}
+bool HotJoystick::ButtonStart(HotButton::Button btn) {
+	return Button(Start, GetButton(btn));
+}
+bool HotJoystick::ButtonLT() {
+	return Button(LT);
+}
+bool HotJoystick::ButtonLT(HotButton* modifier) {
+	return Button(LT, modifier);
+}
+bool HotJoystick::ButtonLT(HotButton::Button btn) {
+	return Button(LT, GetButton(btn));
+}
+bool HotJoystick::ButtonRT() {
+	return Button(RT);
+}
+bool HotJoystick::ButtonRT(HotButton* modifier) {
+	return Button(RT, modifier);
+}
+bool HotJoystick::ButtonRT(HotButton::Button btn) {
+	return Button(RT, GetButton(btn));
 }
 
-bool HotJoystick::ButtonPressed(kButton btn) {
-	switch (btn) {
-	case kButtonA:
-		if (Button(btn)) {
-			return (f_A) ? false : f_A = true;
-		} else {
-			return f_A = false;
-		}
-	case kButtonB:
-		if (Button(btn)) {
-			return (f_B) ? false : f_B = true;
-		} else {
-			return f_B = false;
-		}
-	case kButtonX:
-		if (Button(btn)) {
-			return (f_X) ? false : f_X = true;
-		} else {
-			return f_X = false;
-		}
-	case kButtonY:
-		if (Button(btn)) {
-			return (f_Y) ? false : f_Y = true;
-		} else {
-			return f_Y = false;
-		}
-	case kButtonLB:
-		if (Button(btn)) {
-			return (f_LB) ? false : f_LB = true;
-		} else {
-			return f_LB = false;
-		}
-	case kButtonRB:
-		if (Button(btn)) {
-			return (f_RB) ? false : f_RB = true;
-		} else {
-			return f_RB = false;
-		}
-	case kButtonBack:
-		if (Button(btn)) {
-			return (f_Back) ? false : f_Back = true;
-		} else {
-			return f_Back = false;
-		}
-	case kButtonStart:
-		if (Button(btn)) {
-			return (f_Start) ? false : f_Start = true;
-		} else {
-			return f_Start = false;
-		}
-	case kButtonL3:
-		if (Button(btn)) {
-			return (f_L3) ? false : f_L3 = true;
-		} else {
-			return f_L3 = false;
-		}
-	case kButtonR3:
-		if (Button(btn)) {
-			return (f_R3) ? false : f_R3 = true;
-		} else {
-			return f_R3 = false;
-		}
-	case kButtonLT:
-		if (Button(btn)) {
-			return (f_LT) ? false : f_LT = true;
-		} else {
-			return f_LT = false;
-		}
-	case kButtonRT:
-		if (Button(btn)) {
-			return (f_RT) ? false : f_RT = true;
-		} else {
-			return f_RT = false;
-		}
-	default:
-		return false;
-	}
+float HotJoystick::AxisLX() {
+	return fabs(GetRawAxis(0)) > m_deadband ? GetRawAxis(0) : 0.0;
 }
-bool HotJoystick::ButtonPressed(int btn) {
-	if ((btn & kButtonA) && !ButtonPressed(kButtonA)) {
-		return false;
-	} else if ((btn & kButtonB) && !ButtonPressed(kButtonB)) {
-		return false;
-	} else if ((btn & kButtonX) && !ButtonPressed(kButtonX)) {
-		return false;
-	} else if ((btn & kButtonY) && !ButtonPressed(kButtonY)) {
-		return false;
-	} else if ((btn & kButtonLB) && !ButtonPressed(kButtonLB)) {
-		return false;
-	} else if ((btn & kButtonRB) && !ButtonPressed(kButtonRB)) {
-		return false;
-	} else if ((btn & kButtonLT) && !ButtonPressed(kButtonLT)) {
-		return false;
-	} else if ((btn & kButtonRT) && !ButtonPressed(kButtonRT)) {
-		return false;
-	}
-
-	return true;
+float HotJoystick::AxisLY() {
+	return fabs(GetRawAxis(1)) > m_deadband ? GetRawAxis(1) : 0.0;
 }
-/**
- * 	Simple Axis Access
- */
-float HotJoystick::Axis(kAxis axis) {
-	switch(axis) {
-	case kAxisLX:
-		return fabs(GetRawAxis(0)) > db_LX ? GetRawAxis(0) : 0.0;
-		break;
-	case kAxisLY:
-		return fabs(GetRawAxis(1)) > db_LY ? GetRawAxis(1) : 0.0;
-		break;
-	case kAxisLT:
-		return fabs(GetRawAxis(2)) > db_LX ? GetRawAxis(2) : 0.0;
-		break;
-	case kAxisRT:
-		return fabs(GetRawAxis(3)) > db_LX ? GetRawAxis(3) : 0.0;
-		break;
-	case kAxisRX:
-		return fabs(GetRawAxis(4)) > db_LX ? GetRawAxis(4) : 0.0;
-		break;
-	case kAxisRY:
-		return fabs(GetRawAxis(5)) > db_LX ? GetRawAxis(5) : 0.0;
-		break;
-	default:
-		return 0.0;
-	}
+float HotJoystick::AxisLT() {
+	return fabs(GetRawAxis(2)) > m_deadband ? GetRawAxis(2) : 0.0;
+}
+float HotJoystick::AxisRT() {
+	return fabs(GetRawAxis(3)) > m_deadband ? GetRawAxis(3) : 0.0;
+}
+float HotJoystick::AxisRX() {
+	return fabs(GetRawAxis(4)) > m_deadband ? GetRawAxis(4) : 0.0;
+}
+float HotJoystick::AxisRY() {
+	return fabs(GetRawAxis(5)) > m_deadband ? GetRawAxis(5) : 0.0;
 }

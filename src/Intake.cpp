@@ -9,37 +9,77 @@
 
 
 Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
-
+	/*
+	 * 	Talons
+	 */
 	m_rollerTalon = new CANTalon(ROLLER_ID);
 	m_shooterTalon = new CANTalon(SHOOTER_ID);
 
+	/*
+	 * 	Buffers
+	 */
+	m_rollerBuf = new DoubleBuffer(BufferPriority::kAbsMax);
+	m_shooterBuf = new DoubleBuffer(BufferPriority::kAbsMax);
+	m_shooterPIDBuf = new BooleanBuffer(false);
+
+	/*
+	 * 	Sensors
+	 */
 	DigitalInput *m_shooterLight = new DigitalInput(6);
 	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
 	m_shooterEncoder->SetDistancePerPulse(1);
-	//m_shooterEncoder->SetSamplesToAverage(127);
 
-	//what is distance per pulse (ask jim/rodney)
-
-	//seems like encoder but is actually white-black sensor
-
-	m_shooterPIDWrapper = new ShooterPIDWrapper(this);
-
-	m_shooterSpeedPID = new PIDController(SHOOTER_SPEED_P, SHOOTER_SPEED_I, SHOOTER_SPEED_D,
-			m_shooterPIDWrapper, m_shooterPIDWrapper);
-	m_shooterSpeedPID->SetPercentTolerance(0.05);
-
-	m_pulseOutTimer = new Timer();
-	f_rollingIn = false;
+	/*
+	 * 	PID
+	 */
+	ShooterPIDWrapper *wrapper = new ShooterPIDWrapper(this);
+	m_shooterPID = new PIDController(SHOOTER_SPEED_P, SHOOTER_SPEED_I, SHOOTER_SPEED_D,
+			wrapper, wrapper);
+	m_shooterPID->SetPercentTolerance(0.05);
 }
 
-Intake::~Intake() {
+/******************************
+ * MOTORS
+ ******************************/
+//	Send signal to motor
+//		All signal to motor mast go through this function
+void Intake::_SetRoller(float speed) {
+	m_rollerTalon->Set(speed);
+}
+void Intake::_SetShooter(float speed) {
+	m_shooterTalon->Set(speed);
+}
 
+//	Request signal to motor
+void Intake::SetRoller(float speed, int priority) {
+	m_rollerBuf->Write(speed, priority);
+}
+void Intake::SetShooter(float speed, int priority) {
+	m_shooterBuf->Write(speed, priority);
+}
+
+//	Update
+void Intake::Update() {
+	if (!m_rollerBuf->IsLocked()) {
+		_SetRoller(m_rollerBuf->Read());
+	}
+
+	if (!m_shooterBuf->IsLocked()) {
+		_SetShooter(m_shooterBuf->Read());
+	}
+
+	if (!m_shooterPIDBuf->IsLocked()) {
+		if (m_shooterPIDBuf->Read()) {
+			_EnableShooterPID();
+		} else {
+			_DisableShooterPID();
+		}
+	}
 }
 
 /******************************
  * SENSORS
  ******************************/
-
 /*
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
@@ -47,134 +87,59 @@ double Intake::GetShooterSpeed(){
 	return m_shooterEncoder->GetRate() * 60;
 }
 
-double Intake::GetShooterPeriod(){
-	return m_shooterEncoder->GetPeriod();
-}
-
-
-/******************************
- * MOTORS
- ******************************/
-
-void Intake::SetRoller(float speed){
-	//negative values roll in
-	//positive values roll out
-//	m_rollerTalon->Set(speed);
-
-	if (speed > 0.0) {
-		SmartDashboard::PutNumber("Roller Get", speed);
-		m_rollerTalon->Set(speed);
-		f_rollingIn = true;
-	} else if (speed == 0.0) {
-		if (f_rollingIn == true) {
-			m_pulseOutTimer->Stop();
-			m_pulseOutTimer->Reset();
-			m_pulseOutTimer->Start();
-
-			SmartDashboard::PutNumber("Roller Get", -1.0);
-			m_rollerTalon->Set(-0.6);
-			f_rollingIn = false;
-		}
-		else if (f_rollingIn == false) {
-			if (m_pulseOutTimer->Get() < 0.1) {
-			} else {
-				SmartDashboard::PutNumber("Roller Get", 0.0);
-				m_rollerTalon->Set(0.0);
-			}
-		}
-	} else {
-		SmartDashboard::PutNumber("Roller Get", speed);
-		m_rollerTalon->Set(speed);
-		f_rollingIn = false;
-	}
-}
-
-void Intake::ResetRollerStatus() {
-	f_rollingIn = false;
-}
-
-void Intake::SetShooter(float speed){ //set speed of shooter
-	//positive values roll out
-	//negative values will destroy the robot
-
-	m_shooterTalon->Set(speed);
-
-	// we will never accidently destroy the robot
-	//if there's a negative value, it won't run
-}
-
-float Intake::GetShooter(){
-	return m_shooterTalon->Get();
-}
-
-/******************************
- * SHOOTER SPECIFICS
- ******************************/
-
-void Intake::SetShooterDefault(){
-	//default speed for shooting before changed by DPAD
-	SetShooter(DEFAULT_SHOOTER_SPEED);
-}
-
-Intake::ShooterStatus Intake::GetShooterStatus() {
-	if (GetShooter() == 0) {
-		return ShooterStatus::kShooterStopped;
-	}
-	else if (ShooterAtSetPoint() == true) {
-		return ShooterStatus::kShooterAtSpeed;
-	}
-	else {
-		return ShooterStatus::kShooterAtSpeed;
-		//return ShooterStatus::kShooterSpeeding;
-	}
-}
-
-void Intake::Shoot(){
-	//if minimum shooter speed is 95% of the speed that the talon is saying, then roll in
-	if (m_shooterSpeedPID->OnTarget()) {
-		SetRoller(1.0);
-	}
-}
-
-void Intake::IncreaseShooterSpeed(){
-	//updates desired shooter speed by a positive 0.01
-	m_desiredShooterSpeed += 0.01;
-}
-
-void Intake::DecreaseShooterSpeed(){
-	//updates desired shooter speed by a negative 0.01
-	m_desiredShooterSpeed -= 0.01;
-}
-
-void Intake::SetDesiredShooterSpeed(){
-	SetShooter(-m_desiredShooterSpeed);
-}
-
-
-
 /******************************
  * SHOOTER	PID
  ******************************/
-void Intake::EnableShooterPID(){
-	m_shooterSpeedPID->Enable();
+void Intake::_EnableShooterPID() {
+	if (!IsShooterPIDEnabled()) {
+		m_shooterPID->Enable();
+		m_shooterPIDBuf->Lock();
+	}
+}
+void Intake::_DisableShooterPID() {
+	if (IsShooterPIDEnabled()) {
+		m_shooterPID->Disable();
+		m_shooterPIDBuf->Unlock();
+	}
+}
+void Intake::EnableShooterPID(int priority){
+	m_shooterPIDBuf->Write(true, priority);
 }
 
-void Intake::DisableShooterPID(){
-	m_shooterSpeedPID->Disable();
+void Intake::DisableShooterPID(int priority){
+	m_shooterPIDBuf->Write(false, priority);
 }
 
 bool Intake::IsShooterPIDEnabled(){
-	return m_shooterSpeedPID->IsEnabled();
+	return m_shooterPID->IsEnabled();
 }
 
 void Intake::SetShooterPIDSetPoint(float speed){
-	m_shooterSpeedPID->SetSetpoint(speed);
+	m_shooterPID->SetSetpoint(speed);
 }
 
 double Intake::GetShooterPIDSetPoint(){
-	return m_shooterSpeedPID->GetSetpoint();
+	return m_shooterPID->GetSetpoint();
 }
 
 bool Intake::ShooterAtSetPoint(){
-	return m_shooterSpeedPID->OnTarget();
+	return m_shooterPID->OnTarget();
+}
+
+/******************************
+ * 	Shooter PID Wrapper
+ ******************************/
+Intake::ShooterPIDWrapper::ShooterPIDWrapper(Intake *intake) {
+	m_intake = intake;
+}
+void Intake::ShooterPIDWrapper::PIDWrite(float output) {
+	m_speed += output;
+
+	m_speed = (m_speed > 1.0) ? 1.0 : m_speed;
+	m_speed = (m_speed < -1.0) ? -1.0 : m_speed;
+
+	m_intake->_SetShooter(m_speed);
+}
+double Intake::ShooterPIDWrapper::PIDGet() {
+	return m_intake->GetShooterSpeed();
 }

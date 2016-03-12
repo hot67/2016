@@ -20,19 +20,10 @@
 #ifndef SRC_DRIVETRAIN_H_
 #define SRC_DRIVETRAIN_H_
 
-#include <AnglePIDWrapper.h>
+#include <cmath>
 #include "WPILib.h"
 #include "AHRS.h"
-#include "RobotUtils/HotSubsystem.h"
-#include <cmath>
-
-//#include "AHRS.h"
-
-#include "DistancePIDWrapper.h"
-
-//#include "TurnPIDWrapper.h"
-
-#include "SpanglePIDWrapper.h"
+#include "RobotUtils/RobotUtils.h"
 
 /*
  * Talons' Can Bus Location
@@ -86,206 +77,119 @@ class Drivetrain : public HotSubsystem {
 public:
 	Drivetrain(HotBot* bot);
 
-	friend class HotSubsystemHandler;
-	virtual ~Drivetrain();
+	/******************************
+	 * 	Motor
+	 ******************************/
+	void ArcadeDrive(float speed, float turn, int priority = 0);
+
+	void SetShift(bool on, int priority = 0);
+	void ShiftHigh(int priority = 0);
+	void ShiftLow(int priority = 0);
+
+	void Update();
 
 	/******************************
-	 * 	Sensors
+	 *	Sensors
 	 ******************************/
-
-	/*
-	 * Gets current angle of gyro
-	 */
-//	double GetAngle();
-
-	/*
-	 * Resets angle to zero (yaw?)
-	 */
-//	void ResetGyroAngle();
-
-	/*
-	 * Gets average encoder distance
-	 */
-	double GetAverageDistance();
-
-	/*
-	 * Gets left encoder distance
-	 */
 	double GetLDistance();
-
-	/*
-	 * Gets right encoder distance
-	 */
 	double GetRDistance();
+	double GetDistance();
 
-	/*
-	 * Gets left encoder speed
-	 */
 	double GetLSpeed();
-
-	/*
-	 * Gets right encoder speed
-	 */
 	double GetRSpeed();
-
-	/*
-	 * Gets average encoder speed
-	 */
-	double GetAverageSpeed();
-
-	void ResetEncoder();
+	double GetSpeed();
 
 	double GetAngle();
-	void ResetGyro();
+	double GetAngularSpeed();
 
 	/******************************
-	 * Motor Control
+	 * 	Distance PID
 	 ******************************/
-	void ArcadeDrive(double speed, double turn);
-	void SetTurn(double turn);
-	void SetSpeed(double speed);
-	float GetSpeed();
-	float GetTurn();
-	/*
-	 * Shifting
-	 */
-	void SetShift(bool on);
+	void EnableDistancePID(int priority = 0);
+	void DisableDistancePID(int priority = 0);
 
-	void ShiftHigh();
-	void ShiftLow();
+	bool IsDistancePIDEnabled();
+
+	void SetDistancePIDSetpoint(double inches);
+
+	double GetDistancePIDSetpoint();
+
+	bool DistanceAtPIDSetpoint();
 
 	/******************************
-	 * Distance PID
+	 * 	Distance PID Wrapper
 	 ******************************/
+	class DistancePIDWrapper : public PIDSource, public PIDOutput {
+	public:
+		DistancePIDWrapper(Drivetrain *drivetrain);
 
-	/*
-	 * Enable and Disable
-	 */
-
-	void EnableDistance();
-	void DisableDistance();
-
-	/*
-	 *  Is Enabled?
-	 */
-	bool IsEnabledDistance();
-
-	/*
-	 * Set Setpoint
-	 */
-	void SetDistance(double distance);
-
-	/*
-	 * What is goal now?
-	 */
-	double GetDistancePIDSetPoint();
-
-	/*
-	 * Have we arrived to the set point?
-	 */
-
-	bool DistanceAtSetPoint();
-
-	/*
-	 * Current encoder value to send to PID
-	 */
-
-	double GetDistancePID();
+		void PIDWrite(float output);
+		double PIDGet();
+	private:
+		Drivetrain *m_drivetrain;
+	};
 
 	/******************************
-	 * Angle PID
+	 * 	Angle PID
 	 ******************************/
+	void EnableAnglePID(int priority = 0);
+	void DisableAnglePID(int priority = 0);
 
-	/*
-	 * Enabling and Disabling
-	 */
-	void EnableAngle();
-	void DisableAngle();
+	bool IsAnglePIDEnabled();
 
-	/*
-	 * Is Enabled?
-	 */
-	bool IsEnabledAngle();
+	void SetAnglePIDSetpoint(double degree);
 
-	/*
-	 * set turn set point
-	 */
-	void SetAngle(double angle);
+	double GetAnglePIDSetpoint();
 
-	/*
-	 * What is goal now?
-	 */
-	double GetAnglePIDSetPoint();
-
-	/**
-	 * 	Have we arrived to the set point?
-	 */
-	bool AngleAtSetPoint();
+	bool AngleAtPIDSetpoint();
 
 	/******************************
-	 * Spangle PID
+	 * 	Angle PID Wrapper
 	 ******************************/
+	class AnglePIDWrapper : public PIDSource, public PIDOutput {
+	public:
+		AnglePIDWrapper(Drivetrain *drivetrain);
 
-	/*
-	 * Enabling and Disabling
-	 */
-
-	//void EnableSpangle();
-//	void DisableSpangle();
-
-	/*
-	 * Set Angle
-	 */
-
-//	void SetSpangle(float angle);
-
-	/*
-	 * Get Spangle
-	 */
-
-//	double GetSpanglePIDSetPoint();
-
-	/*
-	 * At Setpoint
-	 */
-
-//	bool SpangleAtSetPoint();
-
-	/*
-	 * Is Enabled
-	 */
-
-//	bool IsEnabledSpangle();
+		void PIDWrite(float output);
+		double PIDGet();
+	private:
+		Drivetrain *m_drivetrain;
+	};
 
 private:
-	CANTalon* m_lDriveF;
-	CANTalon* m_lDriveR;
-	CANTalon* m_rDriveF;
-	CANTalon* m_rDriveR;
+	void _ArcadeDrive(float speed, float turn);
+	void _SetShift(bool on);
+	void _EnableDistancePID();
+	void _DisableDistancePID();
+	void _EnableAnglePID();
+	void _DisableAnglePID();
 
-	Encoder* m_lEncode;
-	Encoder* m_rEncode;
+	/*
+	 * 	Talons
+	 */
+	CANTalon *m_lfDrive, *m_lrDrive, *m_rfDrive, *m_rrDrive;
+	RobotDrive* m_drive;
+	DoubleBuffer *m_speedBuf, *m_turnBuf;
 
-	Solenoid* m_shift;
+	/*
+	 * 	Shifting
+	 */
+	Solenoid *m_shift;
+	BooleanBuffer *m_shiftBuf;
+
+	/*
+	 * 	Encoders
+	 */
+	Encoder *m_lEncoder, *m_rEncoder;
 
 	AHRS *m_gyro;
 
-	Timer* m_timer;
-
-	RobotDrive* m_drive;
-
-	DistancePIDWrapper* m_distancePIDWrapper;
-
-	AnglePIDWrapper* m_anglePIDWrapper;
-
-	SpanglePIDWrapper* m_spanglePIDWrapper;
-
+	/*
+	 * 	PID
+	 */
 	PIDController* m_anglePID;
 	PIDController* m_distancePID;
-	//PIDController* m_spanglePID;
-
-	float m_turn, m_speed;
-
+	BooleanBuffer *m_anglePIDBuf, *m_distancePIDBuf;
 };
 
 #endif /* SRC_DRIVETRAIN_H_ */

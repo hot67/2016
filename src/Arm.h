@@ -1,8 +1,7 @@
 #ifndef SRC_ARM_H_
 #define SRC_ARM_H_
 
-#include <ArmMotionProfiling.h>
-#include <RobotUtils/HotSubsystem.h>
+#include <RobotUtils/RobotUtils.h>
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
@@ -157,186 +156,114 @@ enum ScrewSetPoint {
 
 
 class Arm: public HotSubsystem {
-
-	/*****************************
-	 *		Arm PID
-	 *****************************/
-
-	class ArmPIDWrapper : public PIDSource , public PIDOutput {
-		Arm *m_arm;
-	public:
-		double PIDGet();
-		void PIDWrite(float output);
-		ArmPIDWrapper(Arm *arm);
-	};
-
-	/*****************************
-	 * 		Screw PID
-	 ******************************/
-
-	class ScrewPIDWrapper : public PIDSource, public PIDOutput {
-		Arm *m_arm;
-	public:
-		double PIDGet();
-		void PIDWrite(float output);
-		ScrewPIDWrapper(Arm *arm);
-	};
-
-	/*
-	 * CANTalons
-	 */
-	CANTalon* m_armLeftTalon;
-	CANTalon* m_armRightTalon;
-	CANTalon* m_screwLeftTalon;
-	CANTalon* m_screwRightTalon;
-
-	/*
-	 * Brake
-	 */
-	Solenoid* m_brake;
-
-	/*
-	 * Light Sensor
-	 */
-	DigitalInput* m_armLightSensor;
-
-	/*
-	 * PID Wrappers
-	 */
-	ArmPIDWrapper * m_armPIDWrapper;
-	ScrewPIDWrapper * m_screwPIDWrapper;
-
-	/*
-	 * PID Controllers
-	 */
-	PIDController * m_armPIDController;
-	PIDController * m_screwPIDController;
-	/*
-	 * Motion Profiling Controllers and Variables
-	 */
-	ArmMotionProfiling *m_armMPController;
-	float m_armMPTargetPos;
-	ArmMotionProfiling *m_screwMPController;
-	float m_screwMPTargetPos;
-
-	double m_offset;
-
 public:
-
-	/*
-	 * Arm Constructor
-	 */
 	Arm(HotBot* bot);
 
+	/*********************************
+	 * 	Motor
+	 *********************************/
+	void SetArm(float speed, int priority = 0);
+	void SetScrew(float speed, int priority = 0);
+
+	void SetBrake(bool on, int priority = 0);
+	void ApplyBrake(int priority = 0);
+	void ReleaseBrake(int priority = 0);
+
+	void Update();
+
+	/*********************************
+	 * 	Sensor
+	 *********************************/
 	/*
-	 * Raw Access to Talons
-	 * Uses m_armPIDWrapper, and m_screwPIDWrapper
+	 * 	Arm
 	 */
-	void SetArm(float speed);
-	void SetScrew(float speed);
+	double GetArmLAngle();
+	double GetArmRAngle();
+	double GetArmAngle();
+
+	double GetArmLSpeed();
+	double GetArmRSpeed();
+	double GetArmSpeed();
+
+	bool GetLight();
 
 	/*
-	 *  Braking
+	 * 	Screw
 	 */
-	void SetBrake(bool on);
-	void ApplyBrake();
-	void ReleaseBrake();
+	double GetScrewLPosition();
+	double GetScrewRPosition();
+	double GetScrewPosition();
 
-	/*
-	* Raw access to Encoder Values.
-	*/
-	float GetScrewPos();
-	float GetArmPos();
+	double GetScrewLSpeed();
+	double GetScrewRSpeed();
+	double GetScrewSpeed();
 
-	float GetRightArmPos();
-	float GetRightScrewPos();
+	/*********************************
+	 * 	Arm PID
+	 *********************************/
+	void EnableArmPID(int priority = 0);
+	void DisableArmPID(int priority = 0);
 
-	/*
-	 * Raw access to Encoder Speed
-	 */
-	float GetArmSpeed();
-	float GetScrewSpeed();
-
-	/*
-	 * Encoder Resetter
-	 */
-	void ZeroArmEncoder();
-	void ZeroScrewEncoder();
-
-	void ZeroLightSensorArmEncoder();
-
-	void CalibrateArm(double offset);
-	/*
-	 * Raw Access to Light Sensor
-	 */
-	bool IsLightSensorTriggered();
-
-	/*
-	 * Print Encoder Data to Smart Dashboard
-	 */
-	void ArmPrintData();
-
-	/*
-	 * Enable and Disable
-	 */
-	void EnableArmPID();
-	void DisableArmPID();
-
-	/*
-	 * Is Enabled?
-	 */
 	bool IsArmPIDEnabled();
 
-	/*
-	 * Set Setpoint
-	 */
-	void SetArmPIDPoint(double setpoint);
-	void SetArmPIDPoint(ArmSetPoint setpoint);
+	void SetArmPIDSetpoint(double angle);
 
-	/*
-	 * What is goal now?
-	 */
-	float GetArmPIDSetPoint();
+	double GetArmPIDSetpoint();
 
-	/*
-	 * Have we arrived at the Set Point?
-	 */
-	bool ArmAtPIDSetPoint();
+	bool ArmAtPIDSetpoint();
 
-	/*
-	 * PID Update
-	 * because gravity is bringing arm down too hard
-	 */
+	/*********************************
+	 * 	Arm PID Wrapper
+	 *********************************/
+	class ArmPIDWrapper : public PIDSource, public PIDOutput {
+	public:
+		ArmPIDWrapper(Arm *arm);
 
-	void ArmPIDUpdate();
+		void PIDWrite(float output);
+		double PIDGet();
+	private:
+		Arm *m_arm;
+	};
 
-	/*
-	 * Enable and Disable
-	 */
-	void EnableScrewPID();
-	void DisableScrewPID();
 
+private:
 	/*
-	 * Is Enabled?
+	 * 	Function to send signal
+	 * 		all signal to motor/solenoid/etc.. must go through here
 	 */
-	bool IsScrewPIDEnabled();
+	void _SetArm(float speed);
+	void _SetScrew(float speed);
+	void _SetBrake(bool on);
 
 	/*
-	 * Set Setpoint
+	 * 	Arm PID
 	 */
-	void SetScrewPIDPoint(ScrewSetPoint setpoint);
-	void SetScrewPIDPoint(double setpoint);
+	void _EnableArmPID();
+	void _DisableArmPID();
 
 	/*
-	 * What is the goal now?
+	 * 	Motors
 	 */
-	float GetScrewPIDSetPoint();
+	CANTalon *m_lArm, *m_rArm;
+	CANTalon *m_lScrew, *m_rScrew;
+	DoubleBuffer *m_armBuf, *m_screwBuf;
 
 	/*
-	 * Have we arrived at the Set Point?
+	 * 	Brake Solenoid
 	 */
-	bool ScrewAtPIDSetPoint();
+	Solenoid *m_brake;
+	BooleanBuffer *m_brakeBuf;
 
+	/*
+	 * 	Light Sensor
+	 */
+	DigitalInput *m_light;
+
+	/*
+	 * 	PID
+	 */
+	PIDController *m_armPID;
+	BooleanBuffer *m_armPIDBuf;
 };
 
 #endif /* SRC_ARM_H_ */
