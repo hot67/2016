@@ -79,7 +79,6 @@
 
 //class TurnPIDWrapper;
 class DistancePIDWrapper;
-class SpanglePIDWrapper;
 class AnglePIDWrapper;
 
 class Drivetrain : public HotSubsystem {
@@ -277,8 +276,6 @@ private:
 	DistancePIDWrapper* m_distancePIDWrapper;
 
 	AnglePIDWrapper* m_anglePIDWrapper;
-
-	SpanglePIDWrapper* m_spanglePIDWrapper;
 
 	PIDController* m_anglePID;
 	PIDController* m_distancePID;

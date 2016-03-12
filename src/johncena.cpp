@@ -5,6 +5,7 @@
 #include "Drivetrain.h"
 #include "Arm.h"
 #include "CameraHandler.h"
+#include <string>
 
  /*
   * ToDo:
@@ -60,20 +61,22 @@
 using namespace std;
 
 enum autonDefenseType {
-	kRamparts,
-	kMoat,
-	kRockWall,
-	kRoughTerrain,
-	kLowBar,
-	kChiliFries //Cheval de Frise
+	kNoDefense = 0,
+	kRamparts = 1,
+	kMoat = 2,
+	kRockWall = 3,
+	kRoughTerrain = 4,
+	kLowBar = 5,
+	kChiliFries = 6 //Cheval de Frise
 };
 
 enum autonDefenseLocation {
-	k1, //low bar
-	k2,
-	k3,
-	k4,
-	k5
+	kNoLocation = 0,
+	k1 = 1, //low bar
+	k2 = 2,
+	k3 = 3,
+	k4 = 4,
+	k5 = 5
 };
 
 class johncena: public HotBot
@@ -125,6 +128,8 @@ private:
 	bool f_shooterOperatorHasControl;
 
 	bool f_autonRan;
+
+	bool f_shootingOrNot;
 	/*
 	 * Auton choice/case selection initializations
 	 */
@@ -196,12 +201,18 @@ public:
 
 		m_lineUpCase = 0;
 
+		m_autonDefenseLocation = kNoLocation;
+		m_autonDefenseType = kNoDefense;
+
 		/**
 		 *  First no one has control
 		 */
 		f_shooterDriverHasControl = f_shooterOperatorHasControl = false;
 
 		f_autonRan = false;
+		f_rollingIn = false;
+
+		f_shootingOrNot = false;
 
 		m_autonTimer = new Timer();
 	}
@@ -239,6 +250,37 @@ public:
 
 		SmartDashboard::PutNumber("Recieved Image X 0 ", 1);
 
+		/*
+
+		std::string dType = SmartDashboard::GetString("Defense Type", "None");
+
+		if (dType.compare("Low Bar")) {
+			m_autonDefenseType = kLowBar;
+		}
+		else if (dType.compare("Ramparts")) {
+			m_autonDefenseType = kRamparts;
+		}
+		else if (dType.compare("Moat")) {
+			m_autonDefenseType = kMoat;
+		}
+		else if (dType.compare("Rock Wall")) {
+			m_autonDefenseType = kRockWall;
+		}
+		else if (dType.compare("Rough Terrain")) {
+			m_autonDefenseType = kRoughTerrain;
+		}
+		else if (dType.compare("Chili Fries")) {
+			m_autonDefenseType = kChiliFries;
+		}
+		else if (dType.compare("None")) {
+			m_autonDefenseType = kNoDefense;
+		} */
+
+
+		m_autonDefenseType = (autonDefenseType)SmartDashboard::GetNumber("Defense Type", 0);
+		m_autonDefenseLocation = (autonDefenseLocation)SmartDashboard::GetNumber("Defense Location", 0);
+
+		f_shootingOrNot = SmartDashboard::GetBoolean("Shoot", false);
 
 		PrintData();
 	}
@@ -251,6 +293,11 @@ public:
 		m_autonCase = 0;
 		m_autonLoop = 0;
 
+		m_autonArmToKickstandCase = 0;
+		m_autonArmToGroundCase = 0;
+		m_autonDuringDriveCase = 0;
+
+
 		f_autonRan = false;
 
 		m_autonTimer->Stop();
@@ -260,29 +307,36 @@ public:
 
 	void AutonomousPeriodic()
 	{
+		m_arm->ReleaseBrake();
+
 		switch (m_autonCase) {
 			case 0:
-				if (AutonBeforeDrive() == true) {
+				/*if (AutonBeforeDrive() == true) {
 					m_autonCase++;
 				}
-				break;
+				break; */
 			case 1:
 				//if the auton arm initial flag is going up
-				if (AutonDuringDrive() == true) {
+				if (AutonDuringDrive() == true && f_shootingOrNot == true) {
 					m_autonCase++;
 				}
 				break;
 			case 2:
 				//if the auton drive initial flag is going up
-				if (AutonShooting() == true) {
+				if (AutonBeforeShoot() == true) {
 					m_autonCase++;
 				}
 				break;
 			case 3:
+				if (AutonShooting() == true) {
+					m_autonCase++;
+				}
+				break;
+			case 4:
 				//zero the arm encoder
 				m_autonCase++;
 				break;
-			case 4:
+			case 5:
 				f_autonRan = true;
 		}
 
@@ -299,44 +353,46 @@ public:
 
 		//pid is disabled when it returns true
 
-		static int m_beforeDriveAutonCase;
-
 		switch (m_autonDefenseType) {
 			case kRamparts:
-				if (AutonArmToKickstand() == true) {
+				//if (AutonArmToKickstand() == true) {
 					return true;
-				}
+				//}
 				//arm to kickstand
 				break;
 			case kMoat:
-				if (AutonArmToKickstand() == true) {
+				//if (AutonArmToKickstand() == true) {
 					return true;
-				}
+				//}
 				//arm kickstand
 				break;
 			case kRockWall:
-				if (AutonArmToKickstand() == true){
+				//if (AutonArmToKickstand() == true){
 					return true;
-				}
+				//}
 				//arm kickstand
 				break;
 			case kRoughTerrain:
-				if (AutonArmToKickstand() == true) {
+				//if (AutonArmToKickstand() == true) {
 					return true;
-				}
+				//}
 				//arm kickstand
 				break;
 			case kLowBar:
-				if (AutonArmToGround() == true) {
+				//if (AutonArmToGround() == true) {
 					return true;
-				}
+				//}
 				//arm ground
 				//you cannot use autonarmtokickstand function bc its to ground
 				break;
 			case kChiliFries:
-				if (AutonArmToKickstand() == true) {
+				/*if (AutonArmToKickstand() == true) {
 					return true;
-				}
+				} */
+
+
+				return true;
+
 				//arm kickstand ???
 				break;
 		}
@@ -355,30 +411,35 @@ public:
 
 		switch (m_autonDefenseType) {
 			case kRamparts:
-				switch(m_autonDuringDriveCase) {
+				/*switch(m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(180);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 						break;
 					case 1:
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
+							return true;
+							m_autonDuringDriveCase++;
 						}
 						break;
 				}
+				*/
 
 				//driveX amount of feet
 				break;
 
 			case kMoat:
-				switch (m_autonDuringDriveCase) {
+				/*switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(84);
 						m_arm->SetArmPIDPoint(CARRY);
 						m_arm->EnableArmPID();
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 
 						break;
 
@@ -386,6 +447,7 @@ public:
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
 							m_arm->DisableArmPID();
+							return true;
 						}
 
 						break;
@@ -393,114 +455,198 @@ public:
 
 				//driveX feet
 				//arm to kickstand
-
+				 *
+				 */
 				break;
 			case kRockWall:
+				/*
 				switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 						break;
 					case 1:
 						if (m_drivetrain->DistanceAtSetPoint()){
 							m_drivetrain->DisableDistance();
+							return true;
 							break;
 						}
 				//driveX feet
 				}
+				*/
 				break;
 			case kRoughTerrain:
-				switch (m_autonDuringDriveCase) {
+
+				/*switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 						break;
 					case 1:
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
+							return true;
 							break;
 						}
 				}
+				*/
 				//driveX feet
 				break;
 			case kLowBar:
-				switch (m_autonDuringDriveCase) {
+				/*
+				 *
+				 switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 						break;
 					case 1:
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
+							return true;
 							break;
 						}
 				}
 				//driveX feet
+				*/
 				break;
 			case kChiliFries:
-				switch (m_autonDuringDriveCase) {
+				/*switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance;
+						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
+						return false;
 						break;
 					case 1:
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
+							return true;
 							break;
 						}
-				}
+				} */
+
+				m_light->Set(Relay::kForward);
 				//driveX feet
 				break;
 		}
 	}
 
-	bool AutonShooting() {
+	bool AutonBeforeShoot() {
 		switch (m_autonDefenseLocation) {
-			case k1:
-				 if (AutoRightLineUp() == true) {
-					//shoot
-					//if we have shot
-					 return true;
-				 }
+
+			 case k1:
+
+			/*
+				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+				m_arm->EnableArmPID();
+
+				m_intake->SetShooter(1.0);
+
+				if (m_camera->SeeTarget() == false) {
+					m_drivetrain->SetTurn(0.55);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					return false;
+				} else {
+					GyroAutoLineUp();
+					return true;
+				}
+
+			*/
+				 return false;
 				break;
 				//turn right
 			case k2:
-				if (AutoRightLineUp() == true) {
-					//shoot
-					//if we have shot
+				/*m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+				m_arm->EnableArmPID();
+
+				m_intake->SetShooter(1.0);
+
+				if (m_camera->SeeTarget() == false) {
+					m_drivetrain->SetTurn(0.55);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					return false;
+				} else {
+					GyroAutoLineUp();
 					return true;
-				}
+				} */
+				return false;
 				break;
 				//turn a lil right
 			case k3:
-				if (AutoRightLineUp() == true) {
-					//shoot
-					//if we have shot
+
+				/*
+				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+				m_arm->EnableArmPID();
+
+				m_intake->SetShooter(1.0);
+
+				if (m_camera->SeeTarget() == false) {
+					m_drivetrain->SetTurn(0.55);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					return false;
+				} else {
+					GyroAutoLineUp();
 					return true;
 				}
+
+				*/
+				return false;
 				break;
 				//dont turn just shoot man
 			case k4:
-				if (AutoLeftLineUp() == true) {
-					//shoot
-					//if we have shot
+
+				/*
+				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+				m_arm->EnableArmPID();
+
+				m_intake->SetShooter(1.0);
+
+				if (m_camera->SeeTarget() == false) {
+					m_drivetrain->SetTurn(-0.55);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					return false;
+				} else {
+					GyroAutoLineUp();
 					return true;
 				}
+
+				*/
+				return false;
 				break;
 				//turn a lil left
 			case k5:
-				if (AutoLeftLineUp() == true) {
-					//shoot
-					//if we have shot
+
+				/*
+				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+				m_arm->EnableArmPID();
+
+				m_intake->SetShooter(1.0);
+
+				if (m_camera->SeeTarget() == false) {
+					m_drivetrain->SetTurn(-0.55);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					return false;
+				} else {
+					GyroAutoLineUp();
 					return true;
 				}
+				*/
+				return false;
 				break;
 				//turn left
 		}
+	}
+
+	bool AutonShooting() {
+		//m_intake->SetRoller(-1.0);
+
 	}
 
 	bool AutonArmToKickstand() {
@@ -528,10 +674,6 @@ public:
 					m_autonArmToKickstandCase++;
 					return false;
 				}
-				break;
-			case 2:
-				m_arm->ZeroArmEncoder();
-				return true;
 				break;
 		}
 	}
@@ -1113,6 +1255,13 @@ public:
 		 */
 		SmartDashboard::PutNumber("PDP Temperature", m_pdp->GetTemperature());
 
+		/*
+		 * Auton Selection
+		 */
+
+		SmartDashboard::PutNumber("Auton Defense Location", m_autonDefenseLocation);
+		SmartDashboard::PutNumber("Auton Defense Type", m_autonDefenseType);
+		SmartDashboard::PutBoolean("Auton Shooting Or Not", f_shootingOrNot);
 		/*********************************
 		 * ENCODER DATA
 		 *********************************/
@@ -1179,6 +1328,9 @@ public:
 		 */
 		SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
 
+		/*
+		 * Auton Data
+		 */
 		SmartDashboard::PutNumber("Auton Case", m_autonCase);
 		SmartDashboard::PutNumber("Auton Timer", m_autonTimer->Get());
 
