@@ -250,6 +250,7 @@ public:
 
 		SmartDashboard::PutNumber("Recieved Image X 0 ", 1);
 
+		m_light->Set(Relay::kForward);
 		/*
 
 		std::string dType = SmartDashboard::GetString("Defense Type", "None");
@@ -780,7 +781,6 @@ public:
 	void GyroAutoLineUp () {
 		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
 		SmartDashboard::PutNumber("* Auto Line Up Count", m_gyroAutonLineUpCount);
-		m_drivetrain->ShiftLow();
 		switch (m_gyroAutonLineUpStep) {
 		case 0:
 			//	Get Target and start PID
@@ -866,13 +866,14 @@ public:
 		/**
 		 * 	Hold Left Bumper to Shift low
 		 */
-		/*
+
 		if (m_driver->ButtonLB()) {
 			m_drivetrain->ShiftLow();
+
 		} else {
 			m_drivetrain->ShiftHigh();
 		}
-		*/
+
 
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();

@@ -56,5 +56,5 @@ bool CameraHandler::SeeTarget() {
 }
 
 double CameraHandler::GetX() {
-	return GetTargetNormalizedCenter() * 33.5;
+	return GetTargetNormalizedCenter() * 33.5 - (0.1 * 33.5);
 }
