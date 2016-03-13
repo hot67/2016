@@ -532,7 +532,6 @@ public:
 						}
 				} */
 
-				m_light->Set(Relay::kForward);
 				//driveX feet
 				break;
 		}
@@ -576,6 +575,7 @@ public:
 					GyroAutoLineUp();
 					return true;
 				} */
+				m_light->Set(Relay::kForward);
 				return false;
 				break;
 				//turn a lil right
