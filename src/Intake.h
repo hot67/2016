@@ -63,6 +63,8 @@ private:
 	PIDController* m_shooterSpeedPID;
 
 	Timer *m_pulseOutTimer;
+
+	Timer *m_shootingTimer;
 	bool f_rollingIn;
 
 public:

@@ -31,6 +31,8 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 	m_shooterSpeedPID->SetPercentTolerance(0.05);
 
 	m_pulseOutTimer = new Timer();
+	m_shootingTimer = new Timer();
+
 	f_rollingIn = false;
 }
 
@@ -99,8 +101,23 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 	//positive values roll out
 	//negative values will destroy the robot
 
-	m_lShooterTalon->Set(speed);
-	m_rShooterTalon->Set(-speed);
+	if (speed == 0) {
+		m_shootingTimer->Stop();
+		m_shootingTimer->Reset();
+		m_shootingTimer->Start();
+	}
+
+	if (m_shootingTimer->Get() < 1.0) {
+
+		//y-int is 0.5, m is 0.5, time is x, speed is
+		m_lShooterTalon->Set((0.5 + 0.5*m_shootingTimer->Get())*(speed));
+		m_rShooterTalon->Set((0.5 + 0.5*m_shootingTimer->Get())*(-speed));
+	}
+	else {
+		m_lShooterTalon->Set(speed);
+		m_rShooterTalon->Set(-speed);
+	}
+
 
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
