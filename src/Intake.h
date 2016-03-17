@@ -32,7 +32,9 @@
 
 //roller and shooter CAN locations
 #define ROLLER_ID 13
-#define SHOOTER_ID 16
+
+#define LEFT_SHOOTER_ID 16
+#define RIGHT_SHOOTER_ID 17
 
 //encoder DIO location
 #define SHOOTER_ENCODER 8
@@ -51,7 +53,9 @@ class Intake: public HotSubsystem {
 private:
 
 	CANTalon* m_rollerTalon;
-	CANTalon* m_shooterTalon;
+
+	CANTalon* m_lShooterTalon;
+	CANTalon* m_rShooterTalon;
 
 	Encoder* m_shooterEncoder;
 
@@ -102,7 +106,8 @@ public:
 	 */
 	void SetShooter(float speed); //set shooter speed
 
-	float GetShooter();
+	float GetLeftShooter();
+	float GetRightShooter();
 
 	void ResetRollerStatus();
 

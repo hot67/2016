@@ -11,7 +11,9 @@
 Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 
 	m_rollerTalon = new CANTalon(ROLLER_ID);
-	m_shooterTalon = new CANTalon(SHOOTER_ID);
+
+	m_lShooterTalon = new CANTalon(LEFT_SHOOTER_ID);
+	m_rShooterTalon = new CANTalon(RIGHT_SHOOTER_ID);
 
 	DigitalInput *m_shooterLight = new DigitalInput(6);
 	m_shooterEncoder = new Encoder(m_shooterLight, m_shooterLight, true);
@@ -97,14 +99,19 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 	//positive values roll out
 	//negative values will destroy the robot
 
-	m_shooterTalon->Set(speed);
+	m_lShooterTalon->Set(speed);
+	m_rShooterTalon->Set(-speed);
 
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
 }
 
-float Intake::GetShooter(){
-	return m_shooterTalon->Get();
+float Intake::GetLeftShooter(){
+	return m_lShooterTalon->Get();
+}
+
+float Intake::GetRightShooter(){
+	return m_rShooterTalon->Get();
 }
 
 /******************************
