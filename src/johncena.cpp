@@ -1275,6 +1275,7 @@ public:
 		 */
 		SmartDashboard::PutNumber("Arm Encoder Position", m_arm->GetArmPos());
 		SmartDashboard::PutNumber("Screw Encoder Position", m_arm->GetScrewPos());
+		SmartDashboard::PutNumber("Arm Angle", m_arm->GetArmAngle());
 		//	Check if we are below carry and tell camera to switch
 		SmartDashboard::PutBoolean("Below Carry", m_arm->GetArmPos() < CARRY + 5);
 

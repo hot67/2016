@@ -3,6 +3,7 @@
 
 #include <ArmMotionProfiling.h>
 #include <RobotUtils/HotSubsystem.h>
+#include <TiltSensor.h>
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
@@ -183,6 +184,13 @@ class Arm: public HotSubsystem {
 	};
 
 	/*
+	 * Arm Tilt Sensor
+	 */
+	ADXL345_I2C *m_armAccelerometer;
+	AnalogGyro *m_armGyro;
+	TiltSensor *m_armAngle;
+
+	/*
 	 * CANTalons
 	 */
 	CANTalon* m_armLeftTalon;
@@ -247,6 +255,7 @@ public:
 	*/
 	float GetScrewPos();
 	float GetArmPos();
+	double GetArmAngle();
 
 	float GetRightArmPos();
 	float GetRightScrewPos();
