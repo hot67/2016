@@ -124,7 +124,7 @@ void Intake::SetShooterDefault(){
 }
 
 Intake::ShooterStatus Intake::GetShooterStatus() {
-	if (GetShooter() == 0) {
+	if (GetLeftShooter() == 0 && GetRightShooter() == 0) {
 		return ShooterStatus::kShooterStopped;
 	}
 	else if (ShooterAtSetPoint() == true) {

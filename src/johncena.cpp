@@ -10,7 +10,7 @@
  /*
   * ToDo:
   *
-  * RB, Y - bring arm away from tower, screw out, then move arm towards tower with fully etended screw
+  * OK - RB, Y - bring arm away from tower, screw out, then move arm towards tower with fully etended screw
   * RB, B - start retracting screw and once its like 1/4 way in, move arm up (bringing up the drivetrain) and lock break
   *
   * full speed on the screw
@@ -954,7 +954,7 @@ public:
 			 * 	For Climb Up
 			 * 		Move the arm to climb position and extend the screw up
 			 */
-			m_arm->SetArmPIDPoint(CLIMB_ARM);
+			m_arm->SetArmPIDPoint(CLIMB_ARM - 10);
 			m_arm->EnableArmPID();
 
 			m_intake->SetShooter(0.0);
@@ -965,6 +965,8 @@ public:
 				}
 				else {
 					m_arm->SetScrew(m_operator->AxisLY());
+					m_arm->SetArmPIDPoint(CLIMB_ARM);
+					m_arm->EnableArmPID();
 				}
 			}
 			else {
@@ -973,15 +975,32 @@ public:
 		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
 			m_intake->SetShooter(0.0);
 
-			m_arm->SetArmPIDPoint(CLIMBING_ARM);
-			m_arm->EnableArmPID();
+			if (m_arm->GetScrewPos() >= 3) {
 
-			if (m_arm->ArmAtPIDSetPoint() == true) {
-				m_arm->ApplyBrake();
-				m_arm->DisableArmPID();
+				m_arm->SetScrew(0.8);
+
+				if (m_arm->GetScrewPos() < 60) {
+					m_arm->SetArmPIDPoint(CLIMBING_ARM);
+					m_arm->EnableArmPID();
+				}
+				else {
+					m_arm->SetArm(m_operator->AxisLY());
+				}
+			}
+			else if (m_arm->GetScrewPos() < 3.0 && m_arm->GetScrewPos() > 0.0) {
+				m_arm->SetScrew(0.5);
+
+				if (m_arm->GetScrewSpeed() < 0.00002) {
+					m_arm->SetScrew(m_operator->AxisLY());
+				}
 			}
 			else {
-				m_arm->ReleaseBrake();
+				m_arm->SetScrew(m_operator->AxisLY());
+
+				if (m_arm->ArmAtPIDSetPoint()) {
+					m_arm->ApplyBrake();
+					m_arm->DisableArmPID();
+				}
 			}
 		} else if (m_operator->ButtonY() && m_operator->ButtonLB()) {
 			/**
@@ -1086,9 +1105,6 @@ public:
 			m_arm->SetArm(0.0);
 			m_intake->SetShooter(0.0);
 		}
-
-
-
 	}
 
 	void TeleopIntake (){
