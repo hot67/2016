@@ -15,6 +15,12 @@
   *
   * full speed on the screw
   *
+  *TEST
+  *		Right bumper b
+  *		rodneys gyro stuff
+  *		shooter stuff
+  *		shooter encoder
+  *
   */
 
 /*
