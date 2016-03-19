@@ -17,47 +17,79 @@
   *
   *TEST
   *		Right bumper b
+  *		Right bumper y
   *		rodneys gyro stuff
   *		shooter stuff
+  *			two motors & the speed up
   *		shooter encoder
   *
   */
 
 /*
+ * DRIVE MAPPING
+ *
+ * driver left joystick - forward/backwards
+ * driver right joystick - right/left
+ *
+ *
+ * driver back - reset drivetrain encoders, reset arm encoder
+ *
+ *
+ * driver a - gyro line up
+ *
+ *
+ * driver left bumper - shift low when held
+ * 		otherwise, drivetrain is shifted high
+*/
+
+/*
  * ARM MAPPING
  *
- * operator right bumper & y-button - arm to climb, screw extend
- * operator right bumper & b-button - arm does nothing, screw retract
- *
- * operator left bumper & y-button - arm to medium low goal, prepares to shoot
- * operator left bumper & x-button - arm to obstacle
- * operator left button & a-button - arm to close low goal, prepares to shoot
- *
- * operator y-button - arm to far high goal
- * operator x-button - arm to carry
- * operator a-button - arm to floor pickup
- * operator b-button - arm to close high goal
- *
  * operator left joystick - manual screw
- * operator right joystick - manual pivot
+ * operator right joystick - manual arm
+ *
+ *
+ * operator right bumper & start - manual apply brake
+ * operator right bumper & y - about to climb arm
+ * 		arm away from tower, screw out, arm towards tower once finished screwing
+ * operator right bumper & b - climbing arm
+ * 		screw in, once past a certain amount of screw, bring drivetrain up and lock the arm
+ *
+ *
+ * operator left bumper & x - arm to 15
+ * 		"close low goal" -> but i don't think they use it for this
+ * operator left bumper & y - arm to 50
+ * 		"medium high goal" -> but i don't think they use it for this
+ * operator left bumper & a - arm to -10
+ * 		"over obstacles" -> but i doubt we will ever use it for this purpose
+ * operator left bumper & b - arm to 35
+ * 		"batter high goal" -> but i don't think the use it for this
+ *
+ *
+ * operator x - arm to 15
+ * 		carry position
+ * operator y - arm to 42
+ * 		"far high goal" -> but i don't think they use it for this
+ * operator a - arm to 5
+ * 		pickup position
+ * operator b - arm to 65
+ * 		"close high goal"
+ *
+ *
+ * operator start - shooter manual
  *
  */
 
 /*
  * INTAKE MAPPING
- *
- * operator left trigger - intake roll out
- * operator right trigger - intake roll in
- *
- * operator DPAD up - shoot speed increases by 1%
- * operator DPAD down - shoot speed decreases by 1%
- *
- * driver right trigger - shoots (runs into the shooter)
- * driver left trigger - roll out
- *
- * operator back button - runs up the shooter
- *
- */
+	 *
+	 * driver right trigger - roll in
+	 * driver left trigger - roll out
+	 *
+	 * operator right trigger - roll in
+	 * operator left trigger - roll out
+	 *
+	 */
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
@@ -853,6 +885,23 @@ public:
 
 	void TeleopDrive ()
 	{
+		/*
+		 * DRIVE MAPPING
+		 *
+		 * driver left joystick - forward/backwards
+		 * driver right joystick - right/left
+		 *
+		 *
+		 * driver back - reset drivetrain encoders, reset arm encoder
+		 *
+		 *
+		 * driver a - gyro line up
+		 *
+		 *
+		 * driver left bumper - shift low when held
+		 * 		otherwise, drivetrain is shifted high
+		 */
+
 		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
 			m_drivetrain->ArcadeDrive(-m_driver->AxisLY(), m_driver->AxisRX());
 		} else if (m_driver->ButtonA()) {
@@ -880,7 +929,6 @@ public:
 			m_drivetrain->ShiftHigh();
 		}
 
-
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();
 		} else {
@@ -894,25 +942,38 @@ public:
 		/*
 		 * ARM MAPPING
 		 *
-		 * operator right bumper & y-button - arm to climb, screw extend
-		 * operator right bumper & a-button - arm does nothing, screw retract
-		 *
-		 * operator left bumper & y-button - arm to medium low goal, prepares to shoot
-		 * operator left bumper & x-button - arm to obstacle
-		 * operator left bumper & a-button - arm to close low goal, prepares to shoot
-		 * operator left bumper & b-button - arm to batter high goal
-		 *
-		 * operator y-button - arm to far high goal
-		 * operator x-button - arm to carry
-		 * operator a-button - arm to floor pickup
-		 * operator b-button - arm to close high goal
-		 *
 		 * operator left joystick - manual screw
-		 * operator right joystick - manual pivot
+		 * operator right joystick - manual arm
 		 *
-		 * operator button start - zero arm encoder
 		 *
-		 * operator button back
+		 * operator right bumper & start - manual apply brake
+		 * operator right bumper & y - about to climb arm
+		 * 		arm away from tower, screw out, arm towards tower once finished screwing
+		 * operator right bumper & b - climbing arm
+		 * 		screw in, once past a certain amount of screw, bring drivetrain up and lock the arm
+		 *
+		 *
+		 * operator left bumper & x - arm to 15
+		 * 		"close low goal" -> but i don't think they use it for this
+		 * operator left bumper & y - arm to 50
+		 * 		"medium high goal" -> but i don't think they use it for this
+		 * operator left bumper & a - arm to -10
+		 * 		"over obstacles" -> but i doubt we will ever use it for this purpose
+		 * operator left bumper & b - arm to 35
+		 * 		"batter high goal" -> but i don't think the use it for this
+		 *
+		 *
+		 * operator x - arm to 15
+		 * 		carry position
+		 * operator y - arm to 42
+		 * 		"far high goal" -> but i don't think they use it for this
+		 * operator a - arm to 5
+		 * 		pickup position
+		 * operator b - arm to 65
+		 * 		"close high goal"
+		 *
+		 *
+		 * operator start - shooter manual
 		 *
 		 */
 
@@ -1092,7 +1153,7 @@ public:
 			/**
 			 * 	Floor Pick up
 			 */
-			m_arm->SetArmPIDPoint(5);
+			m_arm->SetArmPIDPoint(PICKUP);
 			m_arm->EnableArmPID();
 
 			m_intake->SetShooter(0.0);
@@ -1118,16 +1179,11 @@ public:
 		/*
 		 * INTAKE MAPPING
 		 *
-		 * operator left trigger - intake roll out
-		 * operator right trigger - intake roll in
-		 *
-		 * operator DPAD up - shoot speed increases by 1%
-		 * operator DPAD down - shoot speed decreases by 1%
-		 *
-		 * driver right trigger - shoots (runs into the shooter)
+		 * driver right trigger - roll in
 		 * driver left trigger - roll out
 		 *
-		 * operator back button - runs up the shooter
+		 * operator right trigger - roll in
+		 * operator left trigger - roll out
 		 *
 		 */
 

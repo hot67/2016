@@ -91,7 +91,7 @@
 #define CLOSE_LOW_GOAL 15
 
 #define CARRY 15.06
-#define PICKUP 0
+#define PICKUP 5
 #define OBSTACLE -10
 #define CLIMB_ARM 92.
 
