@@ -124,6 +124,7 @@ void Arm::SetScrew(float speed) {
 	 *
 	 * go down when screwpos is more than 0
 	 */
+	SmartDashboard::PutNumber("Screw speed", speed);
 
 	if (GetScrewPos() < 75 && speed < 0) {
 		//going up and screw position is less than 30
@@ -165,7 +166,8 @@ float Arm::GetRightArmPos() {
 }
 
 float Arm::GetScrewPos() {
-	return m_screwLeftTalon->GetPosition() / 4;
+	return m_screwLeftTalon->GetPosition() / 4 * SCREW_ENCODER_VALUE;
+	//the screw encoder value for practice bot is -1, while for competition bot is 1
 }
 
 float Arm::GetRightScrewPos() {
@@ -180,8 +182,6 @@ float Arm::GetArmSpeed() {
 float Arm::GetScrewSpeed() {
 	return - m_screwLeftTalon->GetSpeed() / 4;
 }
-
-
 
 void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(0.0);
@@ -200,6 +200,13 @@ void Arm::ZeroLightSensorArmEncoder() {
 	m_armRightTalon->SetPosition(0);
 
 	m_offset = 58.73;
+}
+
+void Arm::ZeroAccelerometerArmEncoder() {
+	m_armLeftTalon->SetPosition(0);
+	m_armRightTalon->SetPosition(0);
+
+	m_offset = GetArmAngle();
 }
 
 void Arm::CalibrateArm(double offset) {

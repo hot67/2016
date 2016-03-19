@@ -61,9 +61,9 @@
 /*
  * PID coefficients for turning
  */
-#define TURN_P 0
-#define TURN_I 0
-#define TURN_D 0
+#define ANGLE_P 0.12 //0.086
+#define ANGLE_I 0.0035 //0.0071
+#define ANGLE_D 0
 
 #define SPANGLE_P 0
 #define SPANGLE_I 0

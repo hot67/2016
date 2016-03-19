@@ -34,8 +34,8 @@ Drivetrain::Drivetrain(HotBot* bot)
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
 
-    m_anglePID = new PIDController(0.086, 0.0071, 0.0, m_anglePIDWrapper, m_anglePIDWrapper);
-    m_anglePID->SetAbsoluteTolerance(1.0);
+    m_anglePID = new PIDController(ANGLE_P, ANGLE_I, ANGLE_D, m_anglePIDWrapper, m_anglePIDWrapper);
+    m_anglePID->SetAbsoluteTolerance(2.0);
 
     /*
      *  Initialize turning and speed
@@ -85,6 +85,7 @@ void Drivetrain::ResetEncoder(){
 }
 
 double Drivetrain::GetAngle() {
+	//credit to mark the true genius
 	if (m_gyro->GetAngle() > 180.0) {
 		return m_gyro->GetAngle() - 360.0;
 	} else {
@@ -211,7 +212,12 @@ double Drivetrain::GetAnglePIDSetPoint() {
 }
 
 bool Drivetrain::AngleAtSetPoint() {
-	return m_anglePID->OnTarget();
+	if (fabs(GetAnglePIDSetPoint() - GetAngle()) < 2) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 /*

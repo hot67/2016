@@ -59,6 +59,36 @@
 #define SCREW_I 0
 #define SCREW_D 0
 
+
+#define FAR_HIGH_GOAL 42
+#define MEDIUM_HIGH_GOAL 50
+#define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
+#define BATTER_HIGH_GOAL 35
+
+#define CLOSE_LOW_GOAL 15
+
+#define CARRY 15.06
+#define PICKUP 5
+#define OBSTACLE -10
+#define CLIMB_ARM 92.
+
+#define CLIMBING_ARM 63.
+
+#define SCREW_ENCODER_VALUE 1
+
+/**
+ * 	Shooter Speed for Different Set points
+ */
+#define FAR_HIGH_GOAL_SHOOTER 1.0
+#define MEDIUM_HIGH_GOAL_SHOOTER 1.0
+#define CLOSE_HIGH_GOAL_SHOOTER 1.0
+#define BATTER_HIGH_GOAL_SHOOTER 0.6
+
+/*
+ * PID Setpoints for screw
+ */
+#define CLIMB_SCREW 22.13
+#define RETRACT_SCREW 0
 /*
  * Motion Profiling Constants,
  * need to get these from the motors.
@@ -83,7 +113,7 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 42
+#define FAR_HIGH_GOAL 47
 #define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
 #define BATTER_HIGH_GOAL 35
@@ -95,8 +125,9 @@
 #define OBSTACLE -10
 #define CLIMB_ARM 92.
 
-#define CLIMBING_ARM 63.
+#define CLIMBING_ARM 58.
 
+#define SCREW_ENCODER_VALUE -1
 /**
  * 	Shooter Speed for Different Set points
  */
@@ -273,6 +304,8 @@ public:
 	void ZeroScrewEncoder();
 
 	void ZeroLightSensorArmEncoder();
+
+	void ZeroAccelerometerArmEncoder();
 
 	void CalibrateArm(double offset);
 	/*

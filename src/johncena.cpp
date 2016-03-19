@@ -11,17 +11,31 @@
   * ToDo:
   *
   * OK - RB, Y - bring arm away from tower, screw out, then move arm towards tower with fully etended screw
-  * RB, B - start retracting screw and once its like 1/4 way in, move arm up (bringing up the drivetrain) and lock break
+  * OK - RB, B - start retracting screw and once its like 1/4 way in, move arm up (bringing up the drivetrain) and lock break
   *
   * full speed on the screw
   *
-  *TEST
+  * drive straight code for ramparts in auton
+  *
+  * autonomous
+  * 	low bar autonomous
+  * 	moat autonomous
+  * 		hold the arm up and drive a little further
+  * 	ramparts autonomous
+  * 		requiring gyro for driving straight
+  * 	CDF autonomous
+  * 		"dead reckoning" - Jim Meyer
+  * 	shooting high
+  *
+  * shooter speed optical sensor working
+  *
+  * MUST TEST
   *		Right bumper b
   *		Right bumper y
-  *		rodneys gyro stuff
+  *		rodneys gyro for the arm
   *		shooter stuff
   *			two motors & the speed up
-  *		shooter encoder
+  *		OK - shooter encoder (tested on the board, but must be tested on the actual robot)
   *
   */
 
@@ -68,7 +82,7 @@
  *
  * operator x - arm to 15
  * 		carry position
- * operator y - arm to 42
+ * operator y - arm to 45
  * 		"far high goal" -> but i don't think they use it for this
  * operator a - arm to 5
  * 		pickup position
@@ -336,12 +350,15 @@ public:
 		m_autonArmToGroundCase = 0;
 		m_autonDuringDriveCase = 0;
 
+		m_drivetrain->ResetGyro();
 
 		f_autonRan = false;
 
 		m_autonTimer->Stop();
 		m_autonTimer->Reset();
 		m_autonTimer->Start();
+
+		m_arm->ZeroAccelerometerArmEncoder();
 	}
 
 	void AutonomousPeriodic()
@@ -580,8 +597,6 @@ public:
 		switch (m_autonDefenseLocation) {
 
 			 case k1:
-
-			/*
 				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
 				m_arm->EnableArmPID();
 
@@ -589,14 +604,12 @@ public:
 
 				if (m_camera->SeeTarget() == false) {
 					m_drivetrain->SetTurn(0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					SmartDashboard::PutNumber("* Line Up Turn", 0.55);
 					return false;
 				} else {
 					GyroAutoLineUp();
 					return true;
 				}
-
-			*/
 				 return false;
 				break;
 				//turn right
@@ -670,7 +683,7 @@ public:
 
 				if (m_camera->SeeTarget() == false) {
 					m_drivetrain->SetTurn(-0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
+					SmartDashboard::PutNumber("* Line Up Turn", -0.6);
 					return false;
 				} else {
 					GyroAutoLineUp();
@@ -689,22 +702,10 @@ public:
 	}
 
 	bool AutonArmToKickstand() {
-		//moves the arm to kickstand
-		//zeroes the arm at the kickstand
+		//moves arm to kickstand
 
 		switch (m_autonArmToKickstandCase) {
 			case 0:
-				if (m_arm->IsLightSensorTriggered() == false) {
-					m_arm->ZeroLightSensorArmEncoder();
-					m_autonArmToKickstandCase++;
-					return false;
-				}
-				else if (m_arm->IsLightSensorTriggered() == true) {
-					m_arm->SetArm(0.0);
-					return false;
-				}
-				break;
-			case 1:
 				m_arm->SetArmPIDPoint(CARRY);
 				m_arm->EnableArmPID();
 
@@ -790,7 +791,6 @@ public:
 			SmartDashboard::PutNumber("* Line Up Turn", -0.6);
 			return false;
 		}
-
 		return false;
 	}
 
@@ -833,6 +833,7 @@ public:
 		case 1:
 			//	If we moved, take another picture
 			if (m_drivetrain->AngleAtSetPoint()) {
+				m_drivetrain->DisableAngle();
 				m_gyroAutonLineUpStep = 0;
 			}
 			break;
@@ -931,8 +932,14 @@ public:
 
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();
+			/*m_drivetrain->SetAngle(0);
+			m_drivetrain->EnableAngle();
+			if (m_drivetrain->AngleAtSetPoint()) {
+				m_drivetrain->DisableAngle();
+			}*/
 		} else {
 			DisableGyroAutoLineUp();
+			//m_drivetrain->DisableAngle();
 		}
 	}
 
@@ -983,9 +990,9 @@ public:
 			//Manual Control
 			m_arm->SetScrew(m_operator->AxisLY());
 		} else {
-			 if ((m_operator->ButtonRB() && m_operator->ButtonY()) == false) {
-				 m_arm->SetScrew(0.0);
-			 }
+			if (!(m_operator->ButtonRB())) {
+				m_arm->SetScrew(0.0);
+			}
 		}
 
 		if (m_operator->ButtonRB() && m_operator->ButtonStart()) {
@@ -1021,24 +1028,21 @@ public:
 			 * 	For Climb Up
 			 * 		Move the arm to climb position and extend the screw up
 			 */
-			m_arm->SetArmPIDPoint(CLIMB_ARM - 10);
-			m_arm->EnableArmPID();
-
-			m_intake->SetShooter(0.0);
-
-			if (m_arm->ArmAtPIDSetPoint()) {
-				if (m_arm->GetScrewPos() < 75) {
-					m_arm->SetScrew(-0.8);
-				}
-				else {
+			if (m_arm->GetScrewPos() < 75){
+				m_arm->SetScrew(-0.8);
+				m_arm->SetArmPIDPoint(CLIMB_ARM - 10);
+				m_arm->EnableArmPID();
+			}
+			else {
+				if (m_arm->ArmAtPIDSetPoint()) {
 					m_arm->SetScrew(m_operator->AxisLY());
 					m_arm->SetArmPIDPoint(CLIMB_ARM);
 					m_arm->EnableArmPID();
 				}
 			}
-			else {
-				m_arm->SetScrew(m_operator->AxisLY());
-			}
+
+			m_intake->SetShooter(0.0);
+
 		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
 			m_intake->SetShooter(0.0);
 
@@ -1170,7 +1174,9 @@ public:
 			m_arm->DisableArmPID();
 			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
-			m_intake->SetShooter(0.0);
+			if (!m_operator->ButtonStart()) {
+				m_intake->SetShooter(0.0);
+			}
 		}
 	}
 
@@ -1207,7 +1213,7 @@ public:
 		}
 		else if (m_intake->GetShooterStatus() == Intake::kShooterSpeeding) {
 			if (m_driver->AxisLT() > 0.2) {
-				m_intake->SetRoller(-1);
+				m_intake->SetRoller(-1.);
 			}
 			else {
 				m_intake->SetRoller(0);
@@ -1272,6 +1278,10 @@ public:
 	void PrintData(){
 		SmartDashboard::PutNumber("Drive Angle", m_drivetrain->GetAngle());
 
+		SmartDashboard::PutNumber("AutoLine Difference", m_drivetrain->GetAnglePIDSetPoint() - m_drivetrain->GetAngle());
+		SmartDashboard::PutNumber("AutoLine Angle Setpoint", m_drivetrain->GetAnglePIDSetPoint());
+		SmartDashboard::PutNumber("ANGLE", m_drivetrain->GetAngle());
+		SmartDashboard::PutBoolean("Drive Angle at Setpoint", m_drivetrain->AngleAtSetPoint());
 		/*********************************
 		 * Current Data to Dashboard
 		 *********************************/

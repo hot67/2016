@@ -65,6 +65,7 @@ void Intake::SetRoller(float speed){
 	//positive values roll out
 //	m_rollerTalon->Set(speed);
 
+	SmartDashboard::PutNumber("Roller Get", speed);
 	if (speed > 0.0) {
 		SmartDashboard::PutNumber("Roller Get", speed);
 		m_rollerTalon->Set(speed);
