@@ -56,7 +56,7 @@ double Drivetrain::GetAngle(){
 */
 
 double Drivetrain::GetAverageDistance(){
-	return((GetLDistance() + GetRDistance()) / 2);
+	return((GetLDistance() + GetRDistance()) / 2 * -1);
 }
 
 double Drivetrain::GetLDistance(){
@@ -76,7 +76,7 @@ double Drivetrain::GetRSpeed(){
 }
 
 double Drivetrain::GetAverageSpeed(){
-	return((GetLSpeed() + GetRSpeed()) / 2);
+	return((GetLSpeed() + GetRSpeed()) / 2 * -1);
 }
 
 void Drivetrain::ResetEncoder(){
@@ -175,7 +175,11 @@ double Drivetrain::GetDistancePIDSetPoint() {
 }
 
 bool Drivetrain::DistanceAtSetPoint () {
-	return m_distancePID->OnTarget();
+	if (fabs(GetDistancePIDSetPoint() - GetAverageDistance()) < 4) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 double Drivetrain::GetDistancePID () {

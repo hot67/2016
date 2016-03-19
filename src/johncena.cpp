@@ -367,17 +367,17 @@ public:
 
 		switch (m_autonCase) {
 			case 0:
-				/*if (AutonBeforeDrive() == true) {
+				if (AutonBeforeDrive() == true) {
 					m_autonCase++;
 				}
-				break; */
+				break;
 			case 1:
 				//if the auton arm initial flag is going up
 				if (AutonDuringDrive() == true && f_shootingOrNot == true) {
 					m_autonCase++;
 				}
 				break;
-			case 2:
+			/*case 2:
 				//if the auton drive initial flag is going up
 				if (AutonBeforeShoot() == true) {
 					m_autonCase++;
@@ -393,7 +393,7 @@ public:
 				m_autonCase++;
 				break;
 			case 5:
-				f_autonRan = true;
+				f_autonRan = true; */
 		}
 
 		PrintData();
@@ -411,40 +411,40 @@ public:
 
 		switch (m_autonDefenseType) {
 			case kRamparts:
-				//if (AutonArmToKickstand() == true) {
+				if (AutonArmToKickstand() == true) {
 					return true;
-				//}
+				}
 				//arm to kickstand
 				break;
 			case kMoat:
-				//if (AutonArmToKickstand() == true) {
+				if (AutonArmToKickstand() == true) {
 					return true;
-				//}
+				}
 				//arm kickstand
 				break;
 			case kRockWall:
-				//if (AutonArmToKickstand() == true){
+				if (AutonArmToKickstand() == true){
 					return true;
-				//}
+				}
 				//arm kickstand
 				break;
 			case kRoughTerrain:
-				//if (AutonArmToKickstand() == true) {
+				if (AutonArmToKickstand() == true) {
 					return true;
-				//}
+				}
 				//arm kickstand
 				break;
 			case kLowBar:
-				//if (AutonArmToGround() == true) {
+				if (AutonArmToGround() == true) {
 					return true;
-				//}
+				}
 				//arm ground
 				//you cannot use autonarmtokickstand function bc its to ground
 				break;
 			case kChiliFries:
-				/*if (AutonArmToKickstand() == true) {
+				if (AutonArmToKickstand() == true) {
 					return true;
-				} */
+				}
 
 
 				return true;
@@ -467,9 +467,9 @@ public:
 
 		switch (m_autonDefenseType) {
 			case kRamparts:
-				/*switch(m_autonDuringDriveCase) {
+				switch(m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(180);
+						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
 						return false;
@@ -482,24 +482,29 @@ public:
 						}
 						break;
 				}
-				*/
+
 
 				//driveX amount of feet
 				break;
 
 			case kMoat:
-				/*switch (m_autonDuringDriveCase) {
+			switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(84);
-						m_arm->SetArmPIDPoint(CARRY);
-						m_arm->EnableArmPID();
+						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
 						m_autonDuringDriveCase++;
 						return false;
-
 						break;
 
 					case 1:
+						if (m_drivetrain->GetAverageSpeed() < 5.0) {
+							m_arm->SetArmPIDPoint(CARRY+ 10);
+							m_arm->EnableArmPID();
+						}
+						else {
+							m_arm->DisableArmPID();
+						}
+
 						if (m_drivetrain->DistanceAtSetPoint()) {
 							m_drivetrain->DisableDistance();
 							m_arm->DisableArmPID();
@@ -511,11 +516,10 @@ public:
 
 				//driveX feet
 				//arm to kickstand
-				 *
-				 */
-				break;
+
+			break;
 			case kRockWall:
-				/*
+
 				switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
@@ -531,11 +535,11 @@ public:
 						}
 				//driveX feet
 				}
-				*/
+
 				break;
 			case kRoughTerrain:
 
-				/*switch (m_autonDuringDriveCase) {
+				switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
@@ -549,13 +553,11 @@ public:
 							break;
 						}
 				}
-				*/
+
 				//driveX feet
 				break;
 			case kLowBar:
-				/*
-				 *
-				 switch (m_autonDuringDriveCase) {
+				switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
@@ -570,10 +572,9 @@ public:
 						}
 				}
 				//driveX feet
-				*/
 				break;
 			case kChiliFries:
-				/*switch (m_autonDuringDriveCase) {
+				switch (m_autonDuringDriveCase) {
 					case 0:
 						m_drivetrain->SetDistance(144);
 						m_drivetrain->EnableDistance();
@@ -586,7 +587,7 @@ public:
 							return true;
 							break;
 						}
-				} */
+				}
 
 				//driveX feet
 				break;
@@ -724,38 +725,12 @@ public:
 
 		switch (m_autonArmToGroundCase) {
 		case 0:
-			if (m_arm->IsLightSensorTriggered() == false) {
-				m_arm->ZeroLightSensorArmEncoder();
-				m_autonArmToGroundCase++;
-				return false;
-			}
-			else if (m_arm->IsLightSensorTriggered() == true) {
-				m_arm->SetArm(0.0);
-				return false;
-			}
+			m_arm->SetArmPIDPoint(PICKUP - 1);
+			m_arm->EnableArmPID();
+			m_autonArmToGroundCase++;
+			return false;
 			break;
 		case 1:
-			m_arm->SetArmPIDPoint(CARRY);
-			m_arm->EnableArmPID();
-
-			if (m_arm->ArmAtPIDSetPoint()) {
-				m_arm->DisableArmPID();
-				m_autonArmToGroundCase++;
-				return false;
-			}
-			break;
-		case 2:
-			m_arm->ZeroArmEncoder();
-			m_autonArmToGroundCase++;
-			return false;
-			break;
-		case 3:
-			m_arm->SetArmPIDPoint(PICKUP);
-			m_arm->EnableArmPID();
-			m_autonArmToGroundCase++;
-			return false;
-			break;
-		case 4:
 			if (m_arm->ArmAtPIDSetPoint()){
 				m_arm->DisableArmPID();
 				return true;
