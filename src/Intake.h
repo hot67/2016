@@ -105,8 +105,6 @@ public:
 	 */
 
 	void UpdateShooterArray();
-	void UpdateShooterSpeed();
-	double GetFilteredShooterSpeed();
 	double GetShooterSpeed();
 
 	/******************************

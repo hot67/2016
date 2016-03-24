@@ -62,24 +62,6 @@ double Intake::GetShooterSpeed () {
 	return ((ringBuffer[(loopCount - 1) % 50] - ringBuffer[loopCount]) / 2) * 60;
 }
 
-void Intake::UpdateShooterSpeed () {
-	if (m_timer->Get() > 1) {
-		m_speed = (m_counter->Get() / m_timer->Get()) / 2 * 60;
-		m_NF = m_output;
-		m_output = 0.5 * (m_speed - m_NF) + m_NF;
-
-		m_timer->Stop();
-		m_timer->Reset();
-		m_timer->Start();
-		m_counter->Reset();
-	}
-}
-
-
-double Intake::GetFilteredShooterSpeed () {
-	return m_output;
-}
-
 
 /******************************
  * MOTORS
