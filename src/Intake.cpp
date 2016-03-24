@@ -30,8 +30,12 @@ Intake::Intake(HotBot* bot) : HotSubsystem(bot, "Intake") {
 			m_shooterPIDWrapper, m_shooterPIDWrapper);
 	m_shooterSpeedPID->SetPercentTolerance(0.05);
 
+	m_timer = new Timer();
 	m_pulseOutTimer = new Timer();
 	m_shootingTimer = new Timer();
+
+	m_counter = new Counter(m_di);
+	m_timer->Start();
 
 	f_rollingIn = false;
 }
@@ -47,12 +51,33 @@ Intake::~Intake() {
 /*
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
-double Intake::GetShooterSpeed(){
-	return m_shooterEncoder->GetRate() * 60;
+
+void Intake::UpdateShooterArray () {
+	ringBuffer[loopCount++] = m_counter->Get();
+
+	loopCount %= 50;
 }
 
-double Intake::GetShooterPeriod(){
-	return m_shooterEncoder->GetPeriod();
+double Intake::GetShooterSpeed () {
+	return ((ringBuffer[(loopCount - 1) % 50] - ringBuffer[loopCount]) / 2) * 60;
+}
+
+void Intake::UpdateShooterSpeed () {
+	if (m_timer->Get() > 1) {
+		m_speed = (m_counter->Get() / m_timer->Get()) / 2 * 60;
+		m_NF = m_output;
+		m_output = 0.5 * (m_speed - m_NF) + m_NF;
+
+		m_timer->Stop();
+		m_timer->Reset();
+		m_timer->Start();
+		m_counter->Reset();
+	}
+}
+
+
+double Intake::GetFilteredShooterSpeed () {
+	return m_output;
 }
 
 

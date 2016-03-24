@@ -1370,7 +1370,7 @@ public:
 		 * Shooter Speed
 		 */
 		SmartDashboard::PutNumber("Shooter RPM", m_intake->GetShooterSpeed());
-		SmartDashboard::PutNumber("Shooter Period", m_intake->GetShooterPeriod());
+		SmartDashboard::PutNumber("Shooter Filtered Speed", m_intake->GetFilteredShooterSpeed());
 
 		/*
 		 *  Shooter Status

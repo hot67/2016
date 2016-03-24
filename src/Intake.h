@@ -59,13 +59,27 @@ private:
 
 	Encoder* m_shooterEncoder;
 
+	Counter* m_counter;
+
+	Timer* m_timer;
+
+	DigitalInput* m_di;
+
 	ShooterPIDWrapper *m_shooterPIDWrapper;
 	PIDController* m_shooterSpeedPID;
 
 	Timer *m_pulseOutTimer;
 
 	Timer *m_shootingTimer;
+
 	bool f_rollingIn;
+
+	int ringBuffer[50];
+	int loopCount = 0;
+
+	double m_speed = 0;
+	double m_output = 0;
+	double m_NF = 0;
 
 public:
 	enum ShooterStatus {
@@ -89,8 +103,11 @@ public:
 	 * get encoder rate
 	 * 			the black-white sensor
 	 */
+
+	void UpdateShooterArray();
+	void UpdateShooterSpeed();
+	double GetFilteredShooterSpeed();
 	double GetShooterSpeed();
-	double GetShooterPeriod();
 
 	/******************************
 	 * MOTORS
