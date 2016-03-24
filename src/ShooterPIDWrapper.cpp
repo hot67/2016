@@ -24,5 +24,5 @@ void ShooterPIDWrapper::PIDWrite(float output) {
 }
 
 double ShooterPIDWrapper::PIDGet() {
-	return 0;//return m_intake->GetShooterSpeed();
+	return m_intake->GetShooterSpeed();
 }

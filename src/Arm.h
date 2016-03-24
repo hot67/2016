@@ -155,9 +155,6 @@
  */
 #define SOLENOID_BRAKE 1
 
-/*
- * Solenoid for Portcullis
- */
 #define SOLENOID_PORTCULLIS_WEDGE 2
 
 /*
@@ -238,10 +235,6 @@ class Arm: public HotSubsystem {
 	 * Brake
 	 */
 	Solenoid* m_brake;
-
-	/*
-	 * Portcullis Wedge
-	 */
 	Solenoid* m_portcullisWedge;
 
 	/*
@@ -291,9 +284,6 @@ public:
 	void ApplyBrake();
 	void ReleaseBrake();
 
-	/*
-	 * Portcullis Wedge
-	 */
 	void WedgeOut();
 	void WedgeIn();
 

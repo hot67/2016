@@ -31,7 +31,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_brake = new Solenoid(SOLENOID_BRAKE);
 
 	/*
-	 * Portcullis Wedge
+	 * Portcullis
 	 */
 	m_portcullisWedge = new Solenoid(SOLENOID_PORTCULLIS_WEDGE);
 
@@ -41,7 +41,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armLightSensor = new DigitalInput(LIGHT_ARM);
 
 	/*
-	 * Tell the talon it is using digital encoders. These counts willbe multiplied by four,
+	 * Tell the talon it is using digital encoders. These counts will be multiplied by four,
 	 * so in later use we need to divide them by four.
 	 */
 	m_armLeftTalon->SetFeedbackDevice(CANTalon::QuadEncoder);
