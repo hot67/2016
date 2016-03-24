@@ -31,6 +31,11 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_brake = new Solenoid(SOLENOID_BRAKE);
 
 	/*
+	 * Portcullis Wedge
+	 */
+	m_portcullisWedge = new Solenoid(SOLENOID_PORTCULLIS_WEDGE);
+
+	/*
 	 * Initialize the light sensor for the arm.
 	 */
 	m_armLightSensor = new DigitalInput(LIGHT_ARM);
@@ -151,6 +156,14 @@ void Arm::ApplyBrake() {
 
 void Arm::ReleaseBrake() {
 	m_brake->Set(true);
+}
+
+void Arm::WedgeOut() {
+	m_portcullisWedge->Set(true);
+}
+
+void Arm::WedgeIn() {
+	m_portcullisWedge->Set(false);
 }
 
 float Arm::GetArmPos() {

@@ -156,6 +156,11 @@
 #define SOLENOID_BRAKE 1
 
 /*
+ * Solenoid for Portcullis
+ */
+#define SOLENOID_PORTCULLIS_WEDGE 2
+
+/*
  * Light Sensor Location
  */
 #define LIGHT_ARM 9
@@ -235,6 +240,11 @@ class Arm: public HotSubsystem {
 	Solenoid* m_brake;
 
 	/*
+	 * Portcullis Wedge
+	 */
+	Solenoid* m_portcullisWedge;
+
+	/*
 	 * Light Sensor
 	 */
 	DigitalInput* m_armLightSensor;
@@ -280,6 +290,12 @@ public:
 	void SetBrake(bool on);
 	void ApplyBrake();
 	void ReleaseBrake();
+
+	/*
+	 * Portcullis Wedge
+	 */
+	void WedgeOut();
+	void WedgeIn();
 
 	/*
 	* Raw access to Encoder Values.

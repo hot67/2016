@@ -888,6 +888,13 @@ public:
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
 		}
 
+		if (m_driver->ButtonRB()) {
+			m_arm->WedgeOut();
+		}
+		else {
+			m_arm->WedgeIn();
+		}
+
 
 		if (m_driver->ButtonBack()){
 			m_drivetrain->ResetEncoder();
