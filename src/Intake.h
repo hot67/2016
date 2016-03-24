@@ -74,6 +74,7 @@ private:
 
 	bool f_rollingIn;
 
+	/*
 	int ringBuffer[50];
 	int loopCount = 0;
 
@@ -81,6 +82,7 @@ private:
 	double m_output = 0;
 	double m_NF = 0;
 
+	*/
 public:
 	enum ShooterStatus {
 		kShooterStopped = 0,
@@ -104,8 +106,8 @@ public:
 	 * 			the black-white sensor
 	 */
 
-	void UpdateShooterArray();
-	double GetShooterSpeed();
+	//void UpdateShooterArray();
+	//double GetShooterSpeed();
 
 	/******************************
 	 * MOTORS

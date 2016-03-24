@@ -51,7 +51,7 @@ Intake::~Intake() {
 /*
  * encoder picks each reflective thing however many times per rotation (defined as SHOOTER_PULSE_PER_ROTATION) and is then divided by shooter pulse per rotation
  */
-
+/*
 void Intake::UpdateShooterArray () {
 	ringBuffer[loopCount++] = m_counter->Get();
 
@@ -62,6 +62,7 @@ double Intake::GetShooterSpeed () {
 	return ((ringBuffer[(loopCount - 1) % 50] - ringBuffer[loopCount]) / 2) * 60;
 }
 
+*/
 
 /******************************
  * MOTORS
