@@ -880,9 +880,6 @@ public:
 
 		if (fabs(m_driver->AxisLY()) > 0.2 || fabs(m_driver->AxisRX()) > 0.2) {
 			m_drivetrain->ArcadeDrive(-m_driver->AxisLY(), m_driver->AxisRX());
-		} else if (m_driver->ButtonA()) {
-			//m_drivetrain->ShiftLow();
-			//AutoLineUp();
 		} else {
 			m_drivetrain->DisableDistance();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
@@ -1431,6 +1428,12 @@ public:
 		 */
 	//	SmartDashboard::PutNumber("Drive Angle ahh", m_drivetrain->GetAngle());
 
+		/*
+		 * Accelerometer Things
+		 */
+		SmartDashboard::PutNumber("Accel X Sketchiness", m_drivetrain->GetAccelXSketchiness());
+		SmartDashboard::PutNumber("Accel Y Sketchiness", m_drivetrain->GetAccelYSketchiness());
+		SmartDashboard::PutNumber("Accel Z Sketchiness", m_drivetrain->GetAccelZSketchiness());
 		/***************
 		 *  Camera
 		 ***************/

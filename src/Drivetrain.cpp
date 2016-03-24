@@ -21,6 +21,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 
 	m_gyro = new AHRS(SPI::Port::kMXP);
 
+	m_accel = new BuiltInAccelerometer();
+
 	m_timer = new Timer;
 
 	m_drive = new RobotDrive(m_lDriveF, m_lDriveR, m_rDriveF, m_rDriveR);
@@ -136,6 +138,38 @@ void Drivetrain::ShiftHigh(){
 void Drivetrain::ShiftLow(){
 	SetShift(true);
 	m_distancePID->SetPID(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D);
+}
+
+void Drivetrain::UpdateAccelArray(){
+	double averageX = 0;
+	double averageY = 0;
+	double averageZ = 0;
+
+	m_xRing[m_index++ % 50] = fabs(m_accel->GetX());
+	m_yRing[m_index++ % 50] = fabs(m_accel->GetY());
+	m_zRing[m_index++ % 50] = fabs(m_accel->GetZ() - 1);
+
+	for (int i = 0; i < 50; i++) {
+		averageX += m_xRing[i];
+		averageY += m_yRing[i];
+		averageZ += m_zRing[i];
+	}
+
+	oldAccelX = averageX /50;
+	oldAccelY = averageY /50;
+	oldAccelZ = averageZ /50;
+}
+
+double Drivetrain::GetAccelXSketchiness(){
+	return oldAccelX;
+}
+
+double Drivetrain::GetAccelYSketchiness(){
+	return oldAccelY;
+}
+
+double Drivetrain::GetAccelZSketchiness(){
+	return oldAccelZ;
 }
 
 float Drivetrain::GetSpeed(){

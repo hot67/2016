@@ -154,6 +154,15 @@ public:
 	void ShiftLow();
 
 	/******************************
+	 * ACCELEROMETER THING
+	 ******************************/
+	void UpdateAccelArray();
+
+	double GetAccelXSketchiness();
+	double GetAccelYSketchiness();
+	double GetAccelZSketchiness();
+
+	/******************************
 	 * Distance PID
 	 ******************************/
 
@@ -269,6 +278,8 @@ private:
 
 	AHRS *m_gyro;
 
+	BuiltInAccelerometer * m_accel;
+
 	Timer* m_timer;
 
 	RobotDrive* m_drive;
@@ -282,6 +293,17 @@ private:
 	//PIDController* m_spanglePID;
 
 	float m_turn, m_speed;
+
+	double m_xRing[50];
+	double m_yRing[50];
+	double m_zRing[50];
+
+	double oldAccelX = 0;
+	double oldAccelY = 0;
+	double oldAccelZ = 0;
+
+
+	int m_index = 0;
 
 };
 
