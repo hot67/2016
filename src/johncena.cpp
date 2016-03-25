@@ -296,7 +296,7 @@ public:
 
 	void DisabledPeriodic()
 	{
-
+		m_drivetrain->UpdateAccelArray();
 		//m_camera->SetExposureManual(100);
 		//m_camera->SetExposureHoldCurrent();
 
@@ -834,6 +834,9 @@ public:
 		/*
 		 * Activates drive, arm and intake functions
 		 */
+
+		m_drivetrain->UpdateAccelArray();
+
 		TeleopDrive();
 		TeleopArm();
 		TeleopIntake();
@@ -1495,6 +1498,10 @@ public:
 
 		SmartDashboard::PutNumber("Operator Right Trigger Axis", m_operator->AxisRT());
 		SmartDashboard::PutNumber("Operator Left Trigger Axis", m_operator->AxisLT());
+
+		SmartDashboard::PutNumber("Accel X", m_drivetrain->GetAccelX());
+		SmartDashboard::PutNumber("Accel Y", m_drivetrain->GetAccelY());
+		SmartDashboard::PutNumber("ACcel Z", m_drivetrain->GetAccelZ());
 	}
 
 };

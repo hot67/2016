@@ -137,6 +137,12 @@ public:
 	double GetAngle();
 	void ResetGyro();
 
+	void UpdateAccelArray();
+
+	double GetAccelX();
+	double GetAccelY();
+	double GetAccelZ();
+
 	/******************************
 	 * Motor Control
 	 ******************************/
@@ -268,6 +274,7 @@ private:
 	Solenoid* m_shift;
 
 	AHRS *m_gyro;
+	BuiltInAccelerometer *m_accel;
 
 	Timer* m_timer;
 
@@ -282,6 +289,16 @@ private:
 	//PIDController* m_spanglePID;
 
 	float m_turn, m_speed;
+
+	double m_xRing[50];
+	double m_yRing[50];
+	double m_zRing[50];
+
+	int m_index = 0;
+
+	double oldAccelX = 0;
+	double oldAccelY = 0;
+	double oldAccelZ = 0;
 
 };
 
