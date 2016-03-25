@@ -159,108 +159,21 @@ public:
 	void ShiftHigh();
 	void ShiftLow();
 
-	/******************************
-	 * Distance PID
-	 ******************************/
+	/*****************************
+	 * 	PID
+	 *****************************/
+	void EnablePID();
+	void DisablePID();
 
-	/*
-	 * Enable and Disable
-	 */
+	bool IsPIDEnabled();
 
-	void EnableDistance();
-	void DisableDistance();
+	void SetPIDSetpoint(double distance, double angle);
 
-	/*
-	 *  Is Enabled?
-	 */
-	bool IsEnabledDistance();
+	double GetDistancePIDSetpoint();
+	double GetAnglePIDSetpoint();
 
-	/*
-	 * Set Setpoint
-	 */
-	void SetDistance(double distance);
-
-	/*
-	 * What is goal now?
-	 */
-	double GetDistancePIDSetPoint();
-
-	/*
-	 * Have we arrived to the set point?
-	 */
-
-	bool DistanceAtSetPoint();
-
-	/*
-	 * Current encoder value to send to PID
-	 */
-
-	double GetDistancePID();
-
-	/******************************
-	 * Angle PID
-	 ******************************/
-
-	/*
-	 * Enabling and Disabling
-	 */
-	void EnableAngle();
-	void DisableAngle();
-
-	/*
-	 * Is Enabled?
-	 */
-	bool IsEnabledAngle();
-
-	/*
-	 * set turn set point
-	 */
-	void SetAngle(double angle);
-
-	/*
-	 * What is goal now?
-	 */
-	double GetAnglePIDSetPoint();
-
-	/**
-	 * 	Have we arrived to the set point?
-	 */
-	bool AngleAtSetPoint();
-
-	/******************************
-	 * Spangle PID
-	 ******************************/
-
-	/*
-	 * Enabling and Disabling
-	 */
-
-	//void EnableSpangle();
-//	void DisableSpangle();
-
-	/*
-	 * Set Angle
-	 */
-
-//	void SetSpangle(float angle);
-
-	/*
-	 * Get Spangle
-	 */
-
-//	double GetSpanglePIDSetPoint();
-
-	/*
-	 * At Setpoint
-	 */
-
-//	bool SpangleAtSetPoint();
-
-	/*
-	 * Is Enabled
-	 */
-
-//	bool IsEnabledSpangle();
+	bool DistanceAtSetpoint();
+	bool AngleAtSetpoint();
 
 private:
 	CANTalon* m_lDriveF;

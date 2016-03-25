@@ -149,7 +149,7 @@ private:
 	Intake* m_intake;
 	Arm* m_arm;
 	CameraHandler *m_camera;
-	std::shared_ptr<USBCamera> m_USBCamera;
+	//std::shared_ptr<USBCamera> m_USBCamera;
 
 	/*
 	 * Power Distribution Panel
@@ -194,6 +194,7 @@ private:
 	unsigned m_lineUpCase;
 
 	int m_autonDuringDriveCase = 0;
+	int m_autonBeforeShootCase = 0;
 
 	int m_gyroAutonLineUpStep = 0;
 	int m_gyroAutonLineUpCount = 0;
@@ -226,7 +227,7 @@ public:
 		m_arm = new Arm(this);
 		m_camera = new CameraHandler();
 
-		m_USBCamera = std::make_shared<USBCamera>("cam0", true);
+		//m_USBCamera = std::make_shared<USBCamera>("cam0", true);
 
 		/*
 		 * Power Distribution Panel initialization
@@ -271,8 +272,8 @@ public:
 
 	void RobotInit()
 	{
-		m_USBCamera->SetExposureManual(0);
-		m_USBCamera->SetExposureHoldCurrent();
+		//m_USBCamera->SetExposureManual(0);
+		//m_USBCamera->SetExposureHoldCurrent();
 
 		/*
 		 * Configure camera server
@@ -465,18 +466,93 @@ public:
 
 		//robot is already over the defense
 
+		switch (m_autonDefenseLocation) {
+		case k1:
+			switch (m_autonDuringDriveCase) {
+			case 0:
+				m_drivetrain->SetPIDSetpoint(234.13, m_drivetrain->GetAngle());
+				m_drivetrain->EnablePID();
+				m_autonDuringDriveCase++;
+				return false;
+			case 1:
+				if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->DisablePID();
+					return true;
+				}
+			}
+			break;
+		case k2:
+			switch (m_autonDuringDriveCase) {
+			case 0:
+				m_drivetrain->SetPIDSetpoint(262.7, m_drivetrain->GetAngle());
+				m_drivetrain->EnablePID();
+				m_autonDuringDriveCase++;
+				return false;
+			case 1:
+				if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->DisablePID();
+					return true;
+				}
+			}
+			break;
+		case k3:
+			switch (m_autonDuringDriveCase) {
+			case 0:
+				m_drivetrain->SetPIDSetpoint(215.75, m_drivetrain->GetAngle());
+				m_drivetrain->EnablePID();
+				m_autonDuringDriveCase++;
+				return false;
+			case 1:
+				if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->DisablePID();
+					return true;
+				}
+			}
+			break;
+		case k4:
+			switch (m_autonDuringDriveCase) {
+			case 0:
+				m_drivetrain->SetPIDSetpoint(215.75, m_drivetrain->GetAngle());
+				m_drivetrain->EnablePID();
+				m_autonDuringDriveCase++;
+				return false;
+			case 1:
+				if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->DisablePID();
+					return true;
+				}
+			}
+			break;
+		case k5:
+			switch (m_autonDuringDriveCase) {
+			case 0:
+				m_drivetrain->SetPIDSetpoint(272.8, m_drivetrain->GetAngle());
+				m_drivetrain->EnablePID();
+				m_autonDuringDriveCase++;
+				return false;
+			case 1:
+				if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->DisablePID();
+					return true;
+				}
+			}
+			break;
+		}
+
+		return false;
+		/*
 		switch (m_autonDefenseType) {
 			case kRamparts:
 				switch(m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
 					case 1:
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()) {
+							m_drivetrain->DisablePID();
 							return true;
 							m_autonDuringDriveCase++;
 						}
@@ -490,8 +566,8 @@ public:
 			case kMoat:
 			switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
@@ -505,8 +581,8 @@ public:
 							m_arm->DisableArmPID();
 						}
 
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()) {
+							m_drivetrain->DisablePID();
 							m_arm->DisableArmPID();
 							return true;
 						}
@@ -522,14 +598,14 @@ public:
 
 				switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
 					case 1:
-						if (m_drivetrain->DistanceAtSetPoint()){
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()){
+							m_drivetrain->DisablePID();
 							return true;
 							break;
 						}
@@ -541,14 +617,14 @@ public:
 
 				switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
 					case 1:
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()) {
+							m_drivetrain->DisablePID();
 							return true;
 							break;
 						}
@@ -559,14 +635,14 @@ public:
 			case kLowBar:
 				switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
 					case 1:
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()) {
+							m_drivetrain->DisablePID();
 							return true;
 							break;
 						}
@@ -576,14 +652,14 @@ public:
 			case kChiliFries:
 				switch (m_autonDuringDriveCase) {
 					case 0:
-						m_drivetrain->SetDistance(144);
-						m_drivetrain->EnableDistance();
+						m_drivetrain->SetPIDSetpoint(144, m_drivetrain->GetAngle());
+						m_drivetrain->EnablePID();
 						m_autonDuringDriveCase++;
 						return false;
 						break;
 					case 1:
-						if (m_drivetrain->DistanceAtSetPoint()) {
-							m_drivetrain->DisableDistance();
+						if (m_drivetrain->DistanceAtSetpoint()) {
+							m_drivetrain->DisablePID();
 							return true;
 							break;
 						}
@@ -592,114 +668,56 @@ public:
 				//driveX feet
 				break;
 		}
+		*/
 	}
 
 	bool AutonBeforeShoot() {
 		switch (m_autonDefenseLocation) {
+		case k1:
+			switch (m_autonBeforeShootCase) {
+				case 0:
+					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 60);
+					m_drivetrain->EnablePID();
+					if (m_drivetrain->AngleAtSetpoint()){
+						m_autonBeforeShootCase++;
+					}
+					break;
+				case 1:
+					m_drivetrain->ResetEncoder();
+					m_drivetrain->SetPIDSetpoint(96.68, m_drivetrain->GetAngle());
+					m_drivetrain->EnablePID();
+					m_autonBeforeShootCase++;
+					break;
+				case 2:
+					m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+					m_arm->EnableArmPID();
 
-			 case k1:
-				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
-				m_arm->EnableArmPID();
-
-				m_intake->SetShooter(1.0);
-
-				if (m_camera->SeeTarget() == false) {
-					m_drivetrain->SetTurn(0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.55);
-					return false;
-				} else {
+					m_intake->SetShooter(1.0);
+					m_autonBeforeShootCase++;
+					break;
+				case 2:
+					if (m_drivetrain->DistanceAtSetpoint()) {
+						m_drivetrain->DisablePID();
+						if (m_arm->ArmAtPIDSetPoint()){
+							m_arm->ApplyBrake();
+							m_arm->DisableArmPID();
+							m_autonBeforeShootCase++;
+						}
+					}
+					break;
+				case 3:
+					m_drivetrain->ShiftLow();
 					GyroAutoLineUp();
-					return true;
-				}
-				 return false;
-				break;
-				//turn right
-			case k2:
-				/*m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
-				m_arm->EnableArmPID();
 
-				m_intake->SetShooter(1.0);
-
-				if (m_camera->SeeTarget() == false) {
-					m_drivetrain->SetTurn(0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
-					return false;
-				} else {
-					GyroAutoLineUp();
-					return true;
-				} */
-				m_light->Set(Relay::kForward);
-				return false;
-				break;
-				//turn a lil right
-			case k3:
-
-				/*
-				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
-				m_arm->EnableArmPID();
-
-				m_intake->SetShooter(1.0);
-
-				if (m_camera->SeeTarget() == false) {
-					m_drivetrain->SetTurn(0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
-					return false;
-				} else {
-					GyroAutoLineUp();
-					return true;
-				}
-
-				*/
-				return false;
-				break;
-				//dont turn just shoot man
-			case k4:
-
-				/*
-				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
-				m_arm->EnableArmPID();
-
-				m_intake->SetShooter(1.0);
-
-				if (m_camera->SeeTarget() == false) {
-					m_drivetrain->SetTurn(-0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", 0.6);
-					return false;
-				} else {
-					GyroAutoLineUp();
-					return true;
-				}
-
-				*/
-				return false;
-				break;
-				//turn a lil left
-			case k5:
-
-				/*
-				m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
-				m_arm->EnableArmPID();
-
-				m_intake->SetShooter(1.0);
-
-				if (m_camera->SeeTarget() == false) {
-					m_drivetrain->SetTurn(-0.55);
-					SmartDashboard::PutNumber("* Line Up Turn", -0.6);
-					return false;
-				} else {
-					GyroAutoLineUp();
-					return true;
-				}
-				*/
-				return false;
-				break;
-				//turn left
+					return m_camera->AtTarget();
+			}
+			return false;
 		}
 	}
 
 	bool AutonShooting() {
-		//m_intake->SetRoller(-1.0);
-
+		m_intake->SetRoller(-1.0);
+		return false;
 	}
 
 	bool AutonArmToKickstand() {
@@ -713,10 +731,11 @@ public:
 				if (m_arm->ArmAtPIDSetPoint()) {
 					m_arm->DisableArmPID();
 					m_autonArmToKickstandCase++;
-					return false;
+					return true;
 				}
 				break;
 		}
+		return false;
 	}
 
 	bool AutonArmToGround() {
@@ -737,6 +756,8 @@ public:
 				break;
 			}
 		}
+
+		return false;
 	}
 
 	double GetManualTotalCurrent() {
@@ -800,15 +821,15 @@ public:
 			if (m_camera->SeeTarget()) {
 				m_gyroAutonLineUpCount++;
 				SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
-				m_drivetrain->SetAngle(m_drivetrain->GetAngle() + m_camera->GetX());
-				m_drivetrain->EnableAngle();
+				m_drivetrain->SetPIDSetpoint(0.0, m_drivetrain->GetAngle() + m_camera->GetX());
+				m_drivetrain->EnablePID();
 				m_gyroAutonLineUpStep++;
 			}
 			break;
 		case 1:
 			//	If we moved, take another picture
-			if (m_drivetrain->AngleAtSetPoint()) {
-				m_drivetrain->DisableAngle();
+			if (m_drivetrain->AngleAtSetpoint()) {
+				m_drivetrain->DisablePID();
 				m_gyroAutonLineUpStep = 0;
 			}
 			break;
@@ -816,7 +837,7 @@ public:
 	}
 
 	void DisableGyroAutoLineUp () {
-		m_drivetrain->DisableAngle();
+		m_drivetrain->DisablePID();
 		m_gyroAutonLineUpStep = 0;
 		m_gyroAutonLineUpCount = 0;
 	}
@@ -887,7 +908,7 @@ public:
 			//m_drivetrain->ShiftLow();
 			//AutoLineUp();
 		} else {
-			m_drivetrain->DisableDistance();
+			m_drivetrain->DisablePID();
 			m_drivetrain->ArcadeDrive(0.0, 0.0);
 		}
 
@@ -1262,10 +1283,12 @@ public:
 	void PrintData(){
 		SmartDashboard::PutNumber("Drive Angle", m_drivetrain->GetAngle());
 
-		SmartDashboard::PutNumber("AutoLine Difference", m_drivetrain->GetAnglePIDSetPoint() - m_drivetrain->GetAngle());
-		SmartDashboard::PutNumber("AutoLine Angle Setpoint", m_drivetrain->GetAnglePIDSetPoint());
+		SmartDashboard::PutNumber("AutoLine Difference", m_drivetrain->GetAnglePIDSetpoint() - m_drivetrain->GetAngle());
+		SmartDashboard::PutNumber("AutoLine Angle Setpoint", m_drivetrain->GetAnglePIDSetpoint());
 		SmartDashboard::PutNumber("ANGLE", m_drivetrain->GetAngle());
-		SmartDashboard::PutBoolean("Drive Angle at Setpoint", m_drivetrain->AngleAtSetPoint());
+		SmartDashboard::PutBoolean("Drive Angle at Setpoint", m_drivetrain->AngleAtSetpoint());
+		SmartDashboard::PutNumber("Ready to shoot", m_camera->AtTarget());
+
 		/*********************************
 		 * Current Data to Dashboard
 		 *********************************/
@@ -1395,8 +1418,8 @@ public:
 		 */
 		SmartDashboard::PutNumber("Drive Encoder Distance", m_drivetrain->GetAverageDistance());
 
-		SmartDashboard::PutBoolean("Drive Distance at Setpoint", m_drivetrain->DistanceAtSetPoint());
-		SmartDashboard::PutNumber("Drive Distance PID Setpoint", m_drivetrain->GetDistancePIDSetPoint());
+		SmartDashboard::PutBoolean("Drive Distance at Setpoint", m_drivetrain->DistanceAtSetpoint());
+		SmartDashboard::PutNumber("Drive Distance PID Setpoint", m_drivetrain->GetDistancePIDSetpoint());
 		/*
 		 * Drive Left Encoder
 		 */

@@ -40,7 +40,7 @@ double CameraHandler::GetTargetNormalizedCenter() {
 }
 
 bool CameraHandler::AtTarget() {
-	return fabs(GetTargetNormalizedCenter()) < 0.1;
+	return SeeTarget() && fabs(GetX()) < 2.0;
 }
 
 bool CameraHandler::SeeTargetLeft() {

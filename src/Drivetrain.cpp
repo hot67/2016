@@ -184,125 +184,59 @@ float Drivetrain::GetTurn(){
 	return(m_turn);
 }
 
-/******************************
- * 	Distance PID
- ******************************/
-
-void Drivetrain::EnableDistance(){
-	if (!IsEnabledDistance()) {
+void Drivetrain::EnablePID() {
+	if (!m_distancePID->IsEnabled()) {
 		m_distancePID->Enable();
 	}
 
-	if (!IsEnabledAngle()) {
-		SetAngle(GetAngle());
-		EnableAngle();
+	if (!m_anglePID->IsEnabled()) {
+		m_anglePID->Enable();
 	}
 }
 
-void Drivetrain::DisableDistance(){
-	if (IsEnabledDistance()) {
+void Drivetrain::DisablePID() {
+	if (m_distancePID->IsEnabled()) {
 		m_distancePID->Disable();
-		DisableAngle();
+	}
+
+	if (m_anglePID->IsEnabled()) {
+		m_anglePID->Disable();
 	}
 }
 
-bool Drivetrain::IsEnabledDistance(){
-	return (m_distancePID->IsEnabled());
+bool Drivetrain::IsPIDEnabled() {
+	return m_anglePID->IsEnabled() || m_distancePID->IsEnabled();
 }
 
-void Drivetrain::SetDistance(double distance) {
+void Drivetrain::SetPIDSetpoint(double distance, double angle) {
 	m_distancePID->SetSetpoint(distance);
+	m_anglePID->SetSetpoint(angle);
 }
 
-double Drivetrain::GetDistancePIDSetPoint() {
+double Drivetrain::GetDistancePIDSetpoint() {
 	return m_distancePID->GetSetpoint();
 }
 
-bool Drivetrain::DistanceAtSetPoint () {
-	if (fabs(GetDistancePIDSetPoint() - GetAverageDistance()) < 4) {
+double Drivetrain::GetAnglePIDSetpoint() {
+	return m_anglePID->GetSetpoint();
+}
+
+bool Drivetrain::DistanceAtSetpoint() {
+	if (fabs(GetDistancePIDSetpoint() - GetAverageDistance()) < 4) {
 		return true;
 	} else {
 		return false;
 	}
 }
 
-double Drivetrain::GetDistancePID () {
-	return (m_distancePIDWrapper->PIDGet());
-}
-
-
-/******************************
- * Turn PID
- ******************************/
-
-void Drivetrain::EnableAngle() {
-	if (!IsEnabledAngle()) {
-		m_anglePID->Enable();
-	}
-}
-
-void Drivetrain::DisableAngle(){
-	if (IsEnabledAngle()) {
-		m_anglePID->Disable();
-	}
-}
-
-bool Drivetrain::IsEnabledAngle() {
-	return m_anglePID->IsEnabled();
-}
-
-void Drivetrain::SetAngle(double angle) {
-	m_anglePID->SetSetpoint(angle);
-}
-
-double Drivetrain::GetAnglePIDSetPoint() {
-	return m_anglePID->GetSetpoint();
-}
-
-bool Drivetrain::AngleAtSetPoint() {
-	if (fabs(GetAnglePIDSetPoint() - GetAngle()) < 2) {
+bool Drivetrain::AngleAtSetpoint() {
+	if (fabs(GetAnglePIDSetpoint() - GetAngle()) < 2) {
 		return true;
 	}
 	else {
 		return false;
 	}
 }
-
-/*
-void Drivetrain::DisableBothPIDs(){
-	DisableDistance();
-//	DisableAngle();
-}
-
-*/
-
-/******************************
- * Spangle PID
- ******************************/
-/*
-void Drivetrain::EnableSpangle(){
-	m_spanglePID->Enable();
-}
-
-void Drivetrain::DisableSpangle(){
-	m_spanglePID->Disable();
-}
-
-void Drivetrain::SetSpangle(float angle){
-	m_spanglePID->SetSetpoint(angle);
-}
-bool Drivetrain::SpangleAtSetPoint() {
-	return m_spanglePID->OnTarget();
-}
-
-double Drivetrain::GetSpanglePIDSetPoint(){
-	return m_spanglePID->GetSetpoint();
-}
-
-bool Drivetrain::IsEnabledSpangle() {
-	return m_spanglePID->IsEnabled();
-}
- */
 
 Drivetrain::~Drivetrain() {
 
