@@ -119,7 +119,6 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 		m_rShooterTalon->Set(-speed);
 	}
 
-
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
 }

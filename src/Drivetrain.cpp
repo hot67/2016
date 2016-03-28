@@ -64,7 +64,7 @@ double Drivetrain::GetAngle(){
 */
 
 double Drivetrain::GetAverageDistance(){
-	return((GetLDistance() + GetRDistance()) / 2 * -1);
+	return(GetLDistance() * -1);
 }
 
 double Drivetrain::GetLDistance(){

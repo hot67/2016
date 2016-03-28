@@ -13,7 +13,7 @@
 /*
  * PID Values
  */
-#define ARM_UP_P 0.05
+#define ARM_UP_P 0.06
 #define ARM_UP_I 0
 #define ARM_UP_D 0
 
