@@ -281,7 +281,7 @@ public:
 		CameraServer::GetInstance()->SetQuality(50);
 		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
-		m_arm->ZeroArmEncoder();
+		//m_arm->ZeroAccelerometerArmEncoder();
 		m_arm->ZeroScrewEncoder();
 		m_drivetrain->ResetEncoder();
 		m_drivetrain->ResetGyro();
@@ -359,7 +359,7 @@ public:
 		m_autonTimer->Reset();
 		m_autonTimer->Start();
 
-		m_arm->ZeroAccelerometerArmEncoder();
+		//m_arm->ZeroAccelerometerArmEncoder();
 	}
 
 	void AutonomousPeriodic()
@@ -547,7 +547,7 @@ public:
 		switch (m_autonDefenseLocation) {
 		case k1:
 
-			if (m_autonTimer->Get() < 4.5 && m_autonTimer->Get() > 15.0) {
+			if (m_autonTimer->Get() > 4.5 && m_autonTimer->Get() < 15.0) {
 				m_intake->SetShooter(1.0);
 			}
 			else {
