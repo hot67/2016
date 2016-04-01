@@ -281,7 +281,7 @@ public:
 		CameraServer::GetInstance()->SetQuality(50);
 		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
-		//m_arm->ZeroAccelerometerArmEncoder();
+		m_arm->ZeroAccelerometerArmEncoder();
 		m_arm->ZeroScrewEncoder();
 		m_drivetrain->ResetEncoder();
 		m_drivetrain->ResetGyro();
@@ -359,7 +359,7 @@ public:
 		m_autonTimer->Reset();
 		m_autonTimer->Start();
 
-		//m_arm->ZeroAccelerometerArmEncoder();
+		m_arm->ZeroAccelerometerArmEncoder();
 	}
 
 	void AutonomousPeriodic()
@@ -512,7 +512,7 @@ public:
 		case k4:
 			switch (m_autonDuringDriveCase) {
 			case 0:
-				m_drivetrain->SetPIDSetpoint(215.75, m_drivetrain->GetAngle());
+				m_drivetrain->SetPIDSetpoint(190, m_drivetrain->GetAngle());
 				m_drivetrain->EnablePID();
 				m_autonDuringDriveCase++;
 				return false;
@@ -546,13 +546,7 @@ public:
 	bool AutonBeforeShoot() {
 		switch (m_autonDefenseLocation) {
 		case k1:
-
-			if (m_autonTimer->Get() > 4.5 && m_autonTimer->Get() < 15.0) {
-				m_intake->SetShooter(1.0);
-			}
-			else {
-				m_intake->SetShooter(0.0);
-			}
+			m_intake->SetShooter(1.0);
 
 			switch (m_autonBeforeShootCase) {
 				case 0:
@@ -588,7 +582,7 @@ public:
 					return false;
 					break;
 				case 4:
-					m_drivetrain->ShiftLow();
+					//m_drivetrain->ShiftLow();
 					GyroAutoLineUp();
 
 					return m_camera->AtTarget();
@@ -724,8 +718,11 @@ public:
 	}
 
 	bool AutonShooting() {
-		if (m_autonTimer->Get() < 14) {
+		if (m_autonTimer->Get() > 14 && m_autonTimer->Get() < 14.99) {
 			m_intake->SetRoller(1.0);
+		}
+		else {
+			m_intake->SetRoller(0.0);
 		}
 		return false;
 	}
@@ -823,15 +820,13 @@ public:
 	}
 
 	void GyroAutoLineUp () {
-		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
 		SmartDashboard::PutNumber("* Auto Line Up Count", m_gyroAutonLineUpCount);
 		switch (m_gyroAutonLineUpStep) {
 		case 0:
 			//	Get Target and start PID
 			if (m_camera->SeeTarget()) {
 				m_gyroAutonLineUpCount++;
-				SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
-				m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), m_drivetrain->GetAngle() + m_camera->GetX());
+				m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), (m_drivetrain->GetAngle() + m_camera->GetX()));
 				m_drivetrain->EnablePID();
 				m_gyroAutonLineUpStep++;
 			}
@@ -947,14 +942,14 @@ public:
 
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();
-			/*m_drivetrain->SetAngle(0);
-			m_drivetrain->EnableAngle();
-			if (m_drivetrain->AngleAtSetPoint()) {
-				m_drivetrain->DisableAngle();
-			}*/
+			//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 0);
+			//m_drivetrain->EnablePID();
+			//if (m_drivetrain->AngleAtSetpoint()) {
+			//	m_drivetrain->DisablePID();
+			//}
 		} else {
 			DisableGyroAutoLineUp();
-			//m_drivetrain->DisableAngle();
+			//m_drivetrain->DisablePID();
 		}
 	}
 
@@ -991,7 +986,7 @@ public:
 		 * 		"far high goal" -> but i don't think they use it for this
 		 * operator a - arm to 5
 		 * 		pickup position
-		 * operator b - arm to 65
+		 * operator b - arm to 30
 		 * 		"close high goal"
 		 *
 		 *
@@ -1297,7 +1292,13 @@ public:
 		SmartDashboard::PutNumber("AutoLine Angle Setpoint", m_drivetrain->GetAnglePIDSetpoint());
 		SmartDashboard::PutNumber("ANGLE", m_drivetrain->GetAngle());
 		SmartDashboard::PutBoolean("Drive Angle at Setpoint", m_drivetrain->AngleAtSetpoint());
+		SmartDashboard::PutBoolean("Drive Angle Enabled", m_drivetrain->IsPIDEnabled());
 		SmartDashboard::PutBoolean("Ready to shoot", m_camera->AtTarget());
+
+
+		SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
+
+		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
 
 		/*********************************
 		 * Current Data to Dashboard
@@ -1320,6 +1321,8 @@ public:
 		 * Intake Current Data
 		 */
 		SmartDashboard::PutNumber("Roller Current", m_pdp->GetCurrent(6));
+
+		SmartDashboard::PutNumber("Auto Line UP Step", m_gyroAutonLineUpStep);
 
 		/*
 		 * Screw Current Data
@@ -1350,7 +1353,7 @@ public:
 		/*
 		 * Total Power Data
 		 */
-		SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
+		//SmartDashboard::PutNumber("Total Power", m_pdp->GetTotalPower());
 
 		SmartDashboard::PutBoolean("Arm Light Sensor", m_arm->IsLightSensorTriggered());
 

@@ -10,7 +10,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	 * Setup Arm Tilt Sensor
 	 */
 	m_armAccelerometer = new ADXL345_I2C(I2C::kOnboard, ADXL345_I2C::kRange_2G);
-	m_armGyro = new AnalogGyro(3);
+	m_armGyro = new AnalogGyro(0);
 	m_armAngle = new TiltSensor(m_armAccelerometer, m_armGyro, 0.15);
 
 	/*

@@ -13,7 +13,7 @@
 /*
  * PID Values
  */
-#define ARM_UP_P 0.06
+#define ARM_UP_P 0.07 //0.065
 #define ARM_UP_I 0
 #define ARM_UP_D 0
 
@@ -113,10 +113,10 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 47
+#define FAR_HIGH_GOAL 46 //47
 #define MEDIUM_HIGH_GOAL 50
-#define CLOSE_HIGH_GOAL 65 //54.8 actually sets 51.
-#define BATTER_HIGH_GOAL 35
+#define CLOSE_HIGH_GOAL 35 //0 //65
+#define BATTER_HIGH_GOAL 35 //35
 
 #define CLOSE_LOW_GOAL 15
 
@@ -127,7 +127,7 @@
 
 #define CLIMBING_ARM 58.
 
-#define SCREW_ENCODER_VALUE -1
+#define SCREW_ENCODER_VALUE 1
 /**
  * 	Shooter Speed for Different Set points
  */
