@@ -131,6 +131,7 @@ public:
 	double GetAverageSpeed();
 
 	double GetAngle();
+	void ResetAngle();
 
 	void ResetEncoder();
 

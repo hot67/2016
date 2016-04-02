@@ -112,6 +112,10 @@ double Drivetrain::GetAngle() {
 	return m_gyro->GetAngle();
 }
 
+void Drivetrain::ResetAngle() {
+	m_gyro->Reset();
+}
+
 void Drivetrain::SetTurn(double turn) {
 	ArcadeDrive(m_speed, turn);
 }
@@ -142,9 +146,9 @@ void Drivetrain::EnablePID() {
 	if (!m_distancePID->IsEnabled()) {
 		m_distancePID->Enable();
 	}
-	//if (!m_anglePID->IsEnabled()) {
-		//m_anglePID->Enable();
-	//}
+	if (!m_anglePID->IsEnabled()) {
+		m_anglePID->Enable();
+	}
 }
 
 void Drivetrain::DisablePID() {

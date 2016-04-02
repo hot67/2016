@@ -345,7 +345,9 @@ public:
 
 		m_autonArmToKickstandCase = 0;
 		m_autonArmToGroundCase = 0;
+
 		m_autonDuringDriveCase = 0;
+		m_autonBeforeShootCase = 0;
 
 		f_autonRan = false;
 
@@ -355,6 +357,7 @@ public:
 
 		m_arm->ZeroAccelerometerArmEncoder();
 		m_drivetrain->ResetEncoder();
+		m_drivetrain->ResetAngle();
 	}
 
 	void AutonomousPeriodic()
@@ -386,11 +389,9 @@ public:
 				}
 				break;
 			case 4:
-				//zero the arm encoder
 				m_autonCase++;
-				break;
-			case 5:
 				f_autonRan = true;
+				break;
 		}
 
 		PrintData();
@@ -475,29 +476,27 @@ public:
 				if (m_drivetrain->DistanceAtSetpoint()) {
 					m_drivetrain->DisablePID();
 					m_autonDuringDriveCase++;
-					return false;
 				}
-				break;
-			case 2:
-				m_arm->SetArmPIDPoint(CARRY + 5);
-				m_arm->EnableArmPID();
-				m_autonDuringDriveCase++;
 				return false;
 				break;
-			case 3:
-				if (m_arm->ArmAtPIDSetPoint()) {
-					m_arm->DisableArmPID();
-				}
-
-				if (f_shootingOrNot == true) {
+			case 2:
+				if (f_shootingOrNot == true){
 					m_autonDuringDriveCase = 5;
 					return true;
 				}
 				else {
+					m_arm->SetArmPIDPoint(CARRY + 5);
+					m_arm->EnableArmPID();
 					m_autonDuringDriveCase++;
 					return false;
 				}
-
+				break;
+			case 3:
+				if (m_arm->ArmAtPIDSetPoint()) {
+					m_arm->DisableArmPID();
+					m_autonDuringDriveCase++;
+					return false;
+				}
 				break;
 			case 4:
 				if (m_autonTimer->Get() > 13.0) {
@@ -706,6 +705,7 @@ public:
 
 					if (m_arm->ArmAtPIDSetPoint()) {
 						m_arm->ApplyBrake();
+						m_arm->DisableArmPID();
 						m_autonBeforeShootCase++;
 					}
 					return false;
@@ -729,7 +729,6 @@ public:
 					if (m_drivetrain->DistanceAtSetpoint()) {
 						m_drivetrain->DisablePID();
 						m_autonBeforeShootCase++;
-						return false;
 					}
 					return false;
 					break;
@@ -1182,7 +1181,7 @@ public:
 					m_arm->SetArm(m_operator->AxisLY());
 				}
 			}
-			else if (m_arm->GetScrewPos() < 3.0 && m_arm->GetScrewPos() > 0.0) {
+			else if (m_arm->GetScrewPos() < 3.0 && m_arm->GetScrewPos() > -5.0) {
 				m_arm->SetScrew(0.5);
 
 				if (m_arm->GetScrewSpeed() < 0.00002) {

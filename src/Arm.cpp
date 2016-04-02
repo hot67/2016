@@ -127,7 +127,7 @@ void Arm::SetScrew(float speed) {
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
 	}
-	else if (GetScrewPos() > 0 && speed > 0) {
+	else if (GetScrewPos() > -5 && speed > 0) {
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
 	}
