@@ -16,7 +16,7 @@ AnglePIDWrapper::~AnglePIDWrapper() {
 
 void AnglePIDWrapper::PIDWrite(float output) {
 	SmartDashboard::PutNumber("Turn PID Output", output);
-	m_drivetrain->SetTurn(output * 0.7);
+	m_drivetrain->SetTurn(output);
 }
 
 double AnglePIDWrapper::PIDGet() {

@@ -20,19 +20,17 @@
 #ifndef SRC_DRIVETRAIN_H_
 #define SRC_DRIVETRAIN_H_
 
-#include <AnglePIDWrapper.h>
 #include "WPILib.h"
 #include "AHRS.h"
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
+#include "AnglePIDWrapper.h"
 
 //#include "AHRS.h"
 
 #include "DistancePIDWrapper.h"
 
 //#include "TurnPIDWrapper.h"
-
-#include "SpanglePIDWrapper.h"
 
 /*
  * Talons' Can Bus Location
@@ -61,7 +59,7 @@
 /*
  * PID coefficients for turning
  */
-#define ANGLE_P 0.12 //0.086
+#define ANGLE_P 0.15 //0.12
 #define ANGLE_I 0.0035 //0.0071
 #define ANGLE_D 0
 
@@ -132,16 +130,9 @@ public:
 	 */
 	double GetAverageSpeed();
 
-	void ResetEncoder();
-
 	double GetAngle();
-	void ResetGyro();
 
-	void UpdateAccelArray();
-
-	double GetAccelX();
-	double GetAccelY();
-	double GetAccelZ();
+	void ResetEncoder();
 
 	/******************************
 	 * Motor Control
@@ -186,33 +177,20 @@ private:
 
 	Solenoid* m_shift;
 
-	AHRS *m_gyro;
-	BuiltInAccelerometer *m_accel;
-
 	Timer* m_timer;
+
+	AHRS* m_gyro;
 
 	RobotDrive* m_drive;
 
 	DistancePIDWrapper* m_distancePIDWrapper;
-
 	AnglePIDWrapper* m_anglePIDWrapper;
 
-	PIDController* m_anglePID;
 	PIDController* m_distancePID;
+	PIDController* m_anglePID;
 	//PIDController* m_spanglePID;
 
 	float m_turn, m_speed;
-
-	double m_xRing[50];
-	double m_yRing[50];
-	double m_zRing[50];
-
-	int m_index = 0;
-
-	double oldAccelX = 0;
-	double oldAccelY = 0;
-	double oldAccelZ = 0;
-
 };
 
 #endif /* SRC_DRIVETRAIN_H_ */

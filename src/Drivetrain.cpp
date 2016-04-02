@@ -19,9 +19,8 @@ Drivetrain::Drivetrain(HotBot* bot)
 	m_lEncode = new Encoder(DRIVE_ENCODER_LF, DRIVE_ENCODER_LR, true);
 	m_rEncode = new Encoder(DRIVE_ENCODER_RF, DRIVE_ENCODER_RR, false);
 
-	m_gyro = new AHRS(SPI::Port::kMXP);
-
-	m_accel = new BuiltInAccelerometer();
+	m_gyro = new AHRS (I2C::Port::kMXP);
+	//m_gyro = new AHRS(SPI::Port::kMXP);
 
 	m_timer = new Timer;
 
@@ -30,8 +29,7 @@ Drivetrain::Drivetrain(HotBot* bot)
     m_drive->SetExpiration(0.1);
 
 	m_distancePIDWrapper = new DistancePIDWrapper(this);
-
-	m_anglePIDWrapper = new AnglePIDWrapper (this);
+	m_anglePIDWrapper = new AnglePIDWrapper(this);
 
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
@@ -44,11 +42,6 @@ Drivetrain::Drivetrain(HotBot* bot)
      */
     m_turn = m_speed = 0.0;
 
-    for (int i = 0; i < 50; i++) {
-    	m_xRing[i] = 0.0;
-    	m_yRing[i] = 0.0;
-    	m_zRing[i] = 0.0;
-    }
 }
 
 /******************************
@@ -92,49 +85,6 @@ void Drivetrain::ResetEncoder(){
 	m_rEncode->Reset();
 }
 
-double Drivetrain::GetAngle() {
-	//credit to mark the true genius
-	if (m_gyro->GetAngle() > 180.0) {
-		return m_gyro->GetAngle() - 360.0;
-	} else {
-		return m_gyro->GetAngle();
-	}
-}
-
-void Drivetrain::ResetGyro() {
-	m_gyro->Reset();
-}
-
-void Drivetrain::UpdateAccelArray() {
-	m_xRing[m_index++ % 50] = fabs(m_accel->GetX());
-	m_yRing[m_index++ % 50] = fabs(m_accel->GetY());
-	m_zRing[m_index++ % 50] = fabs(m_accel->GetZ() - 1);
-
-	double averageX = 0;
-	double averageY = 0;
-	double averageZ = 0;
-
-	for (int i = 0; i < 50; i++) {
-		averageX += m_xRing[i];
-		averageY += m_yRing[i];
-		averageZ += m_zRing[i];
-	}
-
-	oldAccelX = averageX /50;
-	oldAccelY = averageY /50;
-	oldAccelZ = averageZ /50;
-}
-
-double Drivetrain::GetAccelX() {
-	return oldAccelX;
-}
-double Drivetrain::GetAccelY() {
-	return oldAccelY;
-}
-double Drivetrain::GetAccelZ() {
-	return oldAccelZ;
-}
-
 /******************************
  * Motors
  ******************************/
@@ -156,6 +106,10 @@ void Drivetrain::ArcadeDrive(double speed, double angle){
 
 void Drivetrain::SetSpeed(double speed) {
 	ArcadeDrive(speed, m_turn);
+}
+
+double Drivetrain::GetAngle() {
+	return m_gyro->GetAngle();
 }
 
 void Drivetrain::SetTurn(double turn) {
@@ -188,10 +142,9 @@ void Drivetrain::EnablePID() {
 	if (!m_distancePID->IsEnabled()) {
 		m_distancePID->Enable();
 	}
-
-	if (!m_anglePID->IsEnabled()) {
-		m_anglePID->Enable();
-	}
+	//if (!m_anglePID->IsEnabled()) {
+		//m_anglePID->Enable();
+	//}
 }
 
 void Drivetrain::DisablePID() {
@@ -202,23 +155,6 @@ void Drivetrain::DisablePID() {
 	if (m_anglePID->IsEnabled()) {
 		m_anglePID->Disable();
 	}
-}
-
-bool Drivetrain::IsPIDEnabled() {
-	return m_anglePID->IsEnabled() || m_distancePID->IsEnabled();
-}
-
-void Drivetrain::SetPIDSetpoint(double distance, double angle) {
-	m_distancePID->SetSetpoint(distance);
-	m_anglePID->SetSetpoint(angle);
-}
-
-double Drivetrain::GetDistancePIDSetpoint() {
-	return m_distancePID->GetSetpoint();
-}
-
-double Drivetrain::GetAnglePIDSetpoint() {
-	return m_anglePID->GetSetpoint();
 }
 
 bool Drivetrain::DistanceAtSetpoint() {
@@ -238,6 +174,18 @@ bool Drivetrain::AngleAtSetpoint() {
 	}
 }
 
+void Drivetrain::SetPIDSetpoint(double distance, double angle) {
+	m_distancePID->SetSetpoint(distance);
+	m_anglePID->SetSetpoint(angle);
+}
+
+double Drivetrain::GetDistancePIDSetpoint() {
+	return m_distancePID->GetSetpoint();
+}
+
+double Drivetrain::GetAnglePIDSetpoint() {
+	return m_anglePID->GetSetpoint();
+}
 
 Drivetrain::~Drivetrain() {
 

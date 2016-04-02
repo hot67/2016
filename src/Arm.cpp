@@ -70,16 +70,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 	m_screwPIDController = new PIDController(SCREW_P, SCREW_I, SCREW_D, m_screwPIDWrapper, m_screwPIDWrapper);
 
-	/*
-	 * Initialize the Motion Profiling Controllers
-	 * We just need to give them a Talon.
-	 */
-	m_armMPTargetPos = 0;
-	m_screwMPTargetPos = 0;
-	m_armMPController = new ArmMotionProfiling(m_armLeftTalon);
-	m_screwMPController = new ArmMotionProfiling(m_screwLeftTalon);
-
-	m_offset = 7.75;
+	m_offset = 8.41; //7.75
 
 }
 
@@ -200,7 +191,7 @@ void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(0.0);
 	m_armRightTalon->SetPosition(0.0);
 
-	m_offset = 7.75;
+	m_offset = 8.41; //7.75
 }
 
 void Arm::ZeroScrewEncoder() {

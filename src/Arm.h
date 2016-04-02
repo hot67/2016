@@ -1,7 +1,6 @@
 #ifndef SRC_ARM_H_
 #define SRC_ARM_H_
 
-#include <ArmMotionProfiling.h>
 #include <RobotUtils/HotSubsystem.h>
 #include <TiltSensor.h>
 
@@ -115,7 +114,7 @@
  */
 #define FAR_HIGH_GOAL 46 //47
 #define MEDIUM_HIGH_GOAL 50
-#define CLOSE_HIGH_GOAL 35 //0 //65
+#define CLOSE_HIGH_GOAL 36 //0 //65
 #define BATTER_HIGH_GOAL 35 //35
 
 #define CLOSE_LOW_GOAL 15
@@ -123,7 +122,7 @@
 #define CARRY 15.06
 #define PICKUP 5
 #define OBSTACLE -10
-#define CLIMB_ARM 92.
+#define CLIMB_ARM 94.
 
 #define CLIMBING_ARM 58.
 
@@ -256,10 +255,6 @@ class Arm: public HotSubsystem {
 	/*
 	 * Motion Profiling Controllers and Variables
 	 */
-	ArmMotionProfiling *m_armMPController;
-	float m_armMPTargetPos;
-	ArmMotionProfiling *m_screwMPController;
-	float m_screwMPTargetPos;
 
 	double m_offset;
 

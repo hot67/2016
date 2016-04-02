@@ -10,7 +10,6 @@
 
 #include "RobotUtils/HotSubsystem.h"
 
-#include "ShooterPIDWrapper.h"
 
 //#define COMPETITION_BOT
 #define PRACTICE_BOT
@@ -85,12 +84,6 @@ public:
 	 * SENSORS
 	 ******************************/
 
-	/*
-	 * get encoder rate
-	 * 			the black-white sensor
-	 */
-	double GetShooterSpeed();
-	double GetShooterPeriod();
 
 	/******************************
 	 * MOTORS
@@ -119,11 +112,6 @@ public:
 	 ******************************/
 
 	/*
-	 * setting shooter default to 0.8
-	 */
-	void SetShooterDefault();
-
-	/*
 	 * rolls the ball into the shooter if the shooter PID is on target (if the shooter is up to speed)
 	 */
 	void Shoot();
@@ -132,59 +120,6 @@ public:
 	 * Shooter status function
 	 */
 	ShooterStatus GetShooterStatus();
-
-	/*
-	 * Increase Shooter Speed by 0.01
-	 */
-	void IncreaseShooterSpeed();
-
-	/*
-	 * Decrease shooter speed by 0.01
-	 */
-	void DecreaseShooterSpeed();
-
-	/*
-	 * sets shooter speed to m_desiredshooterspeed
-	 * 			which is the adjustable variable by the IncreaseShooterSpeed() and the DecreaseShooterSpeed()
-	 */
-	void SetDesiredShooterSpeed();
-
-
-
-	/******************************
-	 * 	SHOOTER PID
-	 ******************************/
-
-	/*
-	 * Enable and Disable Shooter PID
-	 */
-	void EnableShooterPID();
-	void DisableShooterPID();
-
-	/*
-	 * Is enabled?
-	 */
-	bool IsShooterPIDEnabled();
-
-	/*
-	 * Set Setpoint
-	 */
-	void SetShooterPIDSetPoint(float speed);
-
-	/*
-	 * Get set point
-	 */
-	double GetShooterPIDSetPoint();
-
-	/*
-	 * At set point?
-	 */
-	bool ShooterAtSetPoint();
-
-	/*
-	 * LOGGING
-	 */
-	void IntakePrintData();
 
 
 };
