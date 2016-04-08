@@ -65,6 +65,7 @@ private:
 
 	Timer *m_shootingTimer;
 	bool f_rollingIn;
+	float m_shooterPrev = 0.0;
 
 public:
 	enum ShooterStatus {

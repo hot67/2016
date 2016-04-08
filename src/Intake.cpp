@@ -77,6 +77,23 @@ void Intake::ResetRollerStatus() {
 }
 
 void Intake::SetShooter(float speed){ //set speed of shooter
+	float time = m_shootingTimer->Get();
+	m_shootingTimer->Stop();
+	m_shootingTimer->Reset();
+	m_shootingTimer->Start();
+
+	if ((speed - m_shooterPrev) / time > 1.0) {
+		m_shooterPrev = m_shooterPrev + time;
+	} else if ((speed - m_shooterPrev) / time > -1.0) {
+		m_shooterPrev = speed;
+	} else {
+		m_shooterPrev = m_shooterPrev - time;
+	}
+
+	m_lShooterTalon->Set(m_shooterPrev);
+	m_rShooterTalon->Set(-m_shooterPrev);
+
+	/*
 	//positive values roll out
 	//negative values will destroy the robot
 
@@ -100,6 +117,7 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 
 	// we will never accidently destroy the robot
 	//if there's a negative value, it won't run
+	 */
 }
 
 float Intake::GetLeftShooter(){

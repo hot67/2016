@@ -692,7 +692,7 @@ public:
 		case k1:
 			switch (m_autonBeforeShootCase) {
 				case 0:
-					m_arm->SetArmPIDPoint(48);
+					m_arm->SetArmPIDPoint(50);
 					m_arm->EnableArmPID();
 
 					if (m_arm->ArmAtPIDSetPoint()){
