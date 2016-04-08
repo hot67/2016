@@ -112,7 +112,7 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 46 //47
+#define FAR_HIGH_GOAL 60 //64 //66 //46
 #define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 36 //0 //65
 #define BATTER_HIGH_GOAL 35 //35

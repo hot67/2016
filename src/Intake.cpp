@@ -80,6 +80,7 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 	//positive values roll out
 	//negative values will destroy the robot
 
+	SmartDashboard::PutNumber("* ShootingTimer Get", m_shootingTimer->Get());
 	if (speed == 0) {
 		m_shootingTimer->Stop();
 		m_shootingTimer->Reset();

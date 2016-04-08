@@ -59,8 +59,8 @@
 /*
  * PID coefficients for turning
  */
-#define ANGLE_P 0.15 //0.12
-#define ANGLE_I 0.0035 //0.0071
+#define ANGLE_P 0.15 //0.06 //0.12
+#define ANGLE_I 0.0035 //0.00245 //0.015 //0.0071
 #define ANGLE_D 0
 
 #define SPANGLE_P 0
@@ -163,6 +163,10 @@ public:
 
 	double GetDistancePIDSetpoint();
 	double GetAnglePIDSetpoint();
+
+	double GetAngleP();
+	double GetAngleI();
+	double GetAngleD();
 
 	bool DistanceAtSetpoint();
 	bool AngleAtSetpoint();

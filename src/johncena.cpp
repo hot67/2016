@@ -4,18 +4,17 @@
 #include "Intake.h"
 #include "Drivetrain.h"
 #include "Arm.h"
-//#include "CameraHandler.h"
+#include "CameraHandler.h"
 #include <string>
 
  /*
   * ToDo:
   *
-  * OK - RB, Y - bring arm away from tower, screw out, then move arm towards tower with fully etended screw
-  * OK - RB, B - start retracting screw and once its like 1/4 way in, move arm up (bringing up the drivetrain) and lock break
-  *
+  * remove bottom stop for the screw
   * full speed on the screw
-  *
   * drive straight code for ramparts in auton
+  * slow down with the speed of the shooter
+  * 	tapered down with brake mode
   *
   * autonomous
   * 	low bar autonomous
@@ -25,17 +24,6 @@
   * 		requiring gyro for driving straight
   * 	CDF autonomous
   * 		"dead reckoning" - Jim Meyer
-  * 	shooting high
-  *
-  * shooter speed optical sensor working
-  *
-  * MUST TEST
-  *		Right bumper b
-  *		Right bumper y
-  *		rodneys gyro for the arm
-  *		shooter stuff
-  *			two motors & the speed up
-  *		OK - shooter encoder (tested on the board, but must be tested on the actual robot)
   *
   */
 
@@ -148,6 +136,7 @@ private:
 	Drivetrain* m_drivetrain;
 	Intake* m_intake;
 	Arm* m_arm;
+	CameraHandler* m_camera;
 
 	/*
 	 * Power Distribution Panel
@@ -223,6 +212,7 @@ public:
 		m_drivetrain = new Drivetrain(this);
 		m_intake = new Intake(this);
 		m_arm = new Arm(this);
+		m_camera = new CameraHandler();
 
 		//m_USBCamera = std::make_shared<USBCamera>("cam0", true);
 
@@ -281,6 +271,7 @@ public:
 		m_arm->ZeroAccelerometerArmEncoder();
 		m_arm->ZeroScrewEncoder();
 		m_drivetrain->ResetEncoder();
+		m_drivetrain->ResetAngle();
 	}
 
 	void DisabledInit()
@@ -467,7 +458,7 @@ public:
 		case k1:
 			switch (m_autonDuringDriveCase) {
 			case 0:
-				m_drivetrain->SetPIDSetpoint(193, 0); //234
+				m_drivetrain->SetPIDSetpoint(215, 0); //193
 				m_drivetrain->EnablePID();
 				m_autonDuringDriveCase++;
 				return false;
@@ -694,24 +685,23 @@ public:
 	}
 
 	bool AutonBeforeShoot() {
+
+		m_intake->SetShooter(1.0);
+
 		switch (m_autonDefenseLocation) {
 		case k1:
-			m_intake->SetShooter(1.0);
-
 			switch (m_autonBeforeShootCase) {
 				case 0:
-					m_arm->SetArmPIDPoint(CLOSE_HIGH_GOAL);
+					m_arm->SetArmPIDPoint(48);
 					m_arm->EnableArmPID();
 
-					if (m_arm->ArmAtPIDSetPoint()) {
-						m_arm->ApplyBrake();
-						m_arm->DisableArmPID();
+					if (m_arm->ArmAtPIDSetPoint()){
 						m_autonBeforeShootCase++;
 					}
 					return false;
 					break;
 				case 1:
-					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 60);
+					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 53);
 					m_drivetrain->EnablePID();
 					m_autonBeforeShootCase++;
 					return false;
@@ -719,7 +709,7 @@ public:
 				case 2:
 					if (m_drivetrain->AngleAtSetpoint()){
 						m_drivetrain->ResetEncoder();
-						m_drivetrain->SetPIDSetpoint(48.68, m_drivetrain->GetAngle());
+						m_drivetrain->SetPIDSetpoint(51.0, m_drivetrain->GetAngle());
 						m_drivetrain->EnablePID();
 						m_autonBeforeShootCase++;
 					}
@@ -734,9 +724,9 @@ public:
 					break;
 				case 4:
 					//m_drivetrain->ShiftLow();
-					//GyroAutoLineUp();
+					GyroAutoLineUp();
 
-					return true; //m_camera->AtTarget();
+					return m_camera->AtTarget();
 					break;
 			}
 		case k2:
@@ -840,7 +830,7 @@ public:
 					return false;
 					break;
 				case 2:
-					m_arm->SetArmPIDPoint(FAR_HIGH_GOAL);
+					m_arm->SetArmPIDPoint(46);
 					m_arm->EnableArmPID();
 
 					//m_intake->SetShooter(1.0);
@@ -871,10 +861,10 @@ public:
 
 	bool AutonShooting() {
 		if (m_autonTimer->Get() > 14 && m_autonTimer->Get() < 14.99) {
-			//m_intake->SetRoller(1.0);
+			m_intake->SetRoller(1.0);
 		}
 		else {
-			//m_intake->SetRoller(0.0);
+			m_intake->SetRoller(0.0);
 		}
 		return false;
 	}
@@ -928,7 +918,7 @@ public:
 		return totalCurrent;
 	}
 
-	/*
+
 	void GyroAutoLineUp () {
 		SmartDashboard::PutNumber("* Auto Line Up Count", m_gyroAutonLineUpCount);
 		switch (m_gyroAutonLineUpStep) {
@@ -956,7 +946,6 @@ public:
 		m_gyroAutonLineUpStep = 0;
 		m_gyroAutonLineUpCount = 0;
 	}
-	*/
 
 	void TeleopInit()
 	{
@@ -1051,14 +1040,14 @@ public:
 		}
 
 		if (m_driver->ButtonA()) {
-			//GyroAutoLineUp();
+			GyroAutoLineUp();
 			//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 0);
 			//m_drivetrain->EnablePID();
 			//if (m_drivetrain->AngleAtSetpoint()) {
 				//m_drivetrain->DisablePID();
 			//}
 		} else {
-			//DisableGyroAutoLineUp();
+			DisableGyroAutoLineUp();
 			//m_drivetrain->DisablePID();
 		}
 	}
@@ -1092,7 +1081,7 @@ public:
 		 *
 		 * operator x - arm to 15
 		 * 		carry position
-		 * operator y - arm to 42
+		 * operator y - arm to 56
 		 * 		"far high goal" -> but i don't think they use it for this
 		 * operator a - arm to 5
 		 * 		pickup position
@@ -1399,19 +1388,28 @@ public:
 	}
 
 	void PrintData(){
-		//SmartDashboard::PutBoolean("Ready to shoot", m_camera->AtTarget());
-		//SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
 
-		//SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
+		SmartDashboard::PutNumber("* Angle P", m_drivetrain->GetAngleP());
+		SmartDashboard::PutNumber("* Angle I", m_drivetrain->GetAngleI());
+		SmartDashboard::PutNumber("* Angle D", m_drivetrain->GetAngleD());
+
+		SmartDashboard::PutBoolean("Ready to shoot", m_camera->AtTarget());
+		SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
+
+		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
+
+
 		SmartDashboard::PutNumber("Auto Line UP Step", m_gyroAutonLineUpStep);
 
 		SmartDashboard::PutNumber("ANGLE", m_drivetrain->GetAngle());
+
+		SmartDashboard::PutNumber("Angle PID Point", m_drivetrain->GetAnglePIDSetpoint());
 
 		/*********************************
 		 * Current Data to Dashboard
 		 *********************************/
 
-		/*
+
 		SmartDashboard::PutNumber("Left Drive Front Current", m_pdp->GetCurrent(1));
 		SmartDashboard::PutNumber("Left Drive Rear Current", m_pdp->GetCurrent(0));
 		SmartDashboard::PutNumber("Right Drive Front Current", m_pdp->GetCurrent(14));
@@ -1420,9 +1418,7 @@ public:
 		SmartDashboard::PutNumber("Pivot Left Current", m_pdp->GetCurrent(4));
 		SmartDashboard::PutNumber("Pivot Right Current", m_pdp->GetCurrent(5));
 
-
 		SmartDashboard::PutNumber("Roller Current", m_pdp->GetCurrent(6));
-
 
 		SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
 		SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
@@ -1432,8 +1428,6 @@ public:
 		SmartDashboard::PutNumber("Gear Shift Current", m_pdp->GetCurrent(7));
 
 		SmartDashboard::PutNumber("LED Ring Current", m_pdp->GetCurrent(8));
-
-		*/
 
 		/*
 		 * Total Current Data

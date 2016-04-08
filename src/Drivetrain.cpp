@@ -41,7 +41,6 @@ Drivetrain::Drivetrain(HotBot* bot)
      *  Initialize turning and speed
      */
     m_turn = m_speed = 0.0;
-
 }
 
 /******************************
@@ -57,7 +56,7 @@ double Drivetrain::GetAngle(){
 */
 
 double Drivetrain::GetAverageDistance(){
-	return(GetLDistance() * 1);
+	return(GetLDistance() * -1);
 }
 
 double Drivetrain::GetLDistance(){
@@ -189,6 +188,18 @@ double Drivetrain::GetDistancePIDSetpoint() {
 
 double Drivetrain::GetAnglePIDSetpoint() {
 	return m_anglePID->GetSetpoint();
+}
+
+double Drivetrain::GetAngleP() {
+	return m_anglePID->GetP();
+}
+
+double Drivetrain::GetAngleI() {
+	return m_anglePID->GetI();
+}
+
+double Drivetrain::GetAngleD() {
+	return m_anglePID->GetD();
 }
 
 Drivetrain::~Drivetrain() {
