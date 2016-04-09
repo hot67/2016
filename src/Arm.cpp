@@ -3,8 +3,7 @@
 /*
  * The Arm Subsystem
  */
-Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
-
+Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 
 	/*
 	 * Setup Arm Tilt Sensor
@@ -67,11 +66,9 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 	m_armPIDController = new PIDController(ARM_UP_P, ARM_UP_I, ARM_UP_D, m_armPIDWrapper, m_armPIDWrapper);
 	m_armPIDController->SetAbsoluteTolerance(3.0); //4
 
-
 	m_screwPIDController = new PIDController(SCREW_P, SCREW_I, SCREW_D, m_screwPIDWrapper, m_screwPIDWrapper);
 
 	m_offset = 8.41; //7.75
-
 }
 
 /*
@@ -107,7 +104,6 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") { //A robot
 
 } */
 
-
 void Arm::SetArm(float speed) {
 	m_armLeftTalon->Set(-speed);
 	m_armRightTalon->Set(speed);
@@ -122,12 +118,12 @@ void Arm::SetScrew(float speed) {
 	 */
 	SmartDashboard::PutNumber("Screw speed", speed);
 
-	if (GetScrewPos() < 75 && speed < 0) {
+	if (GetScrewPos() < 70 && speed < 0) { //75
 		//going up and screw position is less than 30
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
 	}
-	else if (GetScrewPos() > -5 && speed > 0) {
+	else if (speed > 0) {
 		m_screwLeftTalon->Set(-speed);
 		m_screwRightTalon->Set(-speed);
 	}
@@ -206,6 +202,13 @@ void Arm::ZeroLightSensorArmEncoder() {
 	m_offset = 58.73;
 }
 
+void Arm::ZeroFloorArmEncoder() {
+	m_armLeftTalon->SetPosition(0);
+	m_armRightTalon->SetPosition(0);
+
+	m_offset = 0.0;
+}
+
 void Arm::ZeroAccelerometerArmEncoder() {
 	m_armLeftTalon->SetPosition(0);
 	m_armRightTalon->SetPosition(0);
@@ -224,7 +227,6 @@ bool Arm::IsLightSensorTriggered() {
 	return m_armLightSensor->Get();
 }
 
-
 void Arm::ArmPrintData() {
 
 	/*
@@ -233,7 +235,6 @@ void Arm::ArmPrintData() {
 	SmartDashboard::PutNumber("Arm Encoder", GetArmPos());
 	SmartDashboard::PutNumber("Screw Encoder", GetArmPos());
 }
-
 
 Arm::ArmPIDWrapper::ArmPIDWrapper(Arm *arm) {
 	m_arm = arm;

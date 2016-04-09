@@ -346,7 +346,7 @@ public:
 		m_autonTimer->Reset();
 		m_autonTimer->Start();
 
-		m_arm->ZeroAccelerometerArmEncoder();
+		//m_arm->ZeroAccelerometerArmEncoder();
 		m_drivetrain->ResetEncoder();
 		m_drivetrain->ResetAngle();
 	}
@@ -466,6 +466,7 @@ public:
 			case 1:
 				if (m_drivetrain->DistanceAtSetpoint()) {
 					m_drivetrain->DisablePID();
+					m_arm->ZeroFloorArmEncoder();
 					m_autonDuringDriveCase++;
 				}
 				return false;
@@ -726,7 +727,9 @@ public:
 					//m_drivetrain->ShiftLow();
 					GyroAutoLineUp();
 
-					return m_camera->AtTarget();
+					if (m_autonTimer->Get() > 11){
+						return m_camera->AtTarget();
+					}
 					break;
 			}
 		case k2:
@@ -860,11 +863,15 @@ public:
 	}
 
 	bool AutonShooting() {
-		if (m_autonTimer->Get() > 14 && m_autonTimer->Get() < 14.99) {
+		if (m_autonTimer->Get() > 12 && m_autonTimer->Get() < 12.99) {
 			m_intake->SetRoller(1.0);
 		}
 		else {
 			m_intake->SetRoller(0.0);
+		}
+
+		if (m_autonTimer->Get() > 13.5) {
+			m_intake->SetShooter(0.0);
 		}
 		return false;
 	}
@@ -889,7 +896,6 @@ public:
 
 	bool AutonArmToGround() {
 		//moves arm to ground
-		//zeores the arm at the kickstand
 
 		switch (m_autonArmToGroundCase) {
 		case 0:

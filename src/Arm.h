@@ -308,6 +308,8 @@ public:
 
 	void ZeroAccelerometerArmEncoder();
 
+	void ZeroFloorArmEncoder();
+
 	void CalibrateArm(double offset);
 	/*
 	 * Raw Access to Light Sensor

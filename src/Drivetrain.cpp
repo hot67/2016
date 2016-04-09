@@ -203,5 +203,4 @@ double Drivetrain::GetAngleD() {
 }
 
 Drivetrain::~Drivetrain() {
-
 }

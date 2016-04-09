@@ -84,10 +84,10 @@ void Intake::SetShooter(float speed){ //set speed of shooter
 
 	if ((speed - m_shooterPrev) / time > 1.0) {
 		m_shooterPrev = m_shooterPrev + time;
-	} else if ((speed - m_shooterPrev) / time > -1.0) {
+	} else if ((speed - m_shooterPrev) / time > -0.5) {
 		m_shooterPrev = speed;
 	} else {
-		m_shooterPrev = m_shooterPrev - time;
+		m_shooterPrev = m_shooterPrev - (0.5 * time);
 	}
 
 	m_lShooterTalon->Set(m_shooterPrev);
