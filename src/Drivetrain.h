@@ -134,6 +134,8 @@ public:
 	void ResetAngle();
 	double GetAngularVelocity();
 
+	bool IsRotating();
+
 	void ResetEncoder();
 
 	/******************************

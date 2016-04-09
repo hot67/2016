@@ -56,23 +56,23 @@ double Drivetrain::GetAngle(){
 */
 
 double Drivetrain::GetAverageDistance(){
-	return(GetLDistance() * -1);
+	return(GetLDistance() + GetRDistance()) / 2;
 }
 
 double Drivetrain::GetLDistance(){
-	return(m_lEncode->GetDistance() * .0084275);
+	return -(m_lEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetRDistance(){
-	return(m_rEncode->GetDistance() * .0084275);
+	return -(m_rEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetLSpeed(){
-	return(m_lEncode->GetRate() * .0084275);
+	return -(m_lEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetRSpeed(){
-	return(m_rEncode->GetRate() * .0084275);
+	return -(m_rEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetAverageSpeed(){
@@ -117,6 +117,10 @@ void Drivetrain::ResetAngle() {
 
 double Drivetrain::GetAngularVelocity() {
 	return m_gyro->GetRate();
+}
+
+bool Drivetrain::IsRotating() {
+	return m_gyro->IsRotating();
 }
 
 void Drivetrain::SetTurn(double turn) {

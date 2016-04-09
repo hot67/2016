@@ -175,6 +175,8 @@ private:
 
 	bool f_autonRan;
 
+	bool f_autonReadyToShoot = false;
+
 	bool f_shootingOrNot;
 	/*
 	 * Auton choice/case selection initializations
@@ -273,6 +275,8 @@ public:
 		f_rollingIn = false;
 
 		f_shootingOrNot = false;
+
+		f_autonReadyToShoot = false;
 
 		m_autonTimer = new Timer();
 	}
@@ -374,16 +378,16 @@ public:
 
 		switch (m_autonDefenseLocation) {
 		case k2:
-			m_autonAngle1 = 90;
-			m_autonDistance1 = 90;
+			m_autonAngle1 = 53;
+			m_autonDistance1 = 87;
 			m_autonAngle2 = 0;
-			m_autonDistance2 = 55;
+			m_autonDistance2 = 0;
 			break;
 		case k3:
-			m_autonAngle1 = 90;
-			m_autonDistance1 = 45;
+			m_autonAngle1 = 35;
+			m_autonDistance1 = 60;
 			m_autonAngle2 = 0;
-			m_autonDistance2 = 55;
+			m_autonDistance2 = 0;
 			break;
 		case k4:
 			m_autonAngle1 = -90;
@@ -397,7 +401,7 @@ public:
 	void MiddleThreeAuton() {
 		switch (m_autonCase) {
 		case 0:
-			if (OverDefense(m_autonDefenseType) == true) {
+			if (OverDefense(m_autonDefenseType) == true && f_shootingOrNot == true) {
 				m_autonCase++;
 			}
 			break;
@@ -412,7 +416,11 @@ public:
 		case 2:
 			GyroAutoLineUp();
 			m_intake->SetShooter(1.0);
-			if (m_camera->AtTarget() == true && fabs(m_drivetrain->GetAngularVelocity()) < 3) {
+
+			f_autonReadyToShoot = f_autonReadyToShoot || m_camera->AtTarget();
+
+			if (m_camera->AtTarget() == true && m_drivetrain->AngleAtSetpoint()) {
+				DisableGyroAutoLineUp();
 				m_autonCase++;
 
 				m_autonMiddleTimer->Stop();
@@ -423,7 +431,7 @@ public:
 		case 3:
 			m_intake->SetShooter(1.0);
 
-			if (m_autonMiddleTimer->Get() < 2) {
+			if (m_autonMiddleTimer->Get() < 1) {
 				m_intake->SetRoller(1.0);
 			}
 			else {
@@ -433,6 +441,7 @@ public:
 			break;
 		case 4:
 			m_intake->SetShooter(0.0);
+			m_intake->SetRoller(0.0);
 			m_arm->DisableArmPID();
 		}
 	}
@@ -1007,7 +1016,7 @@ public:
 				return false;
 				break;
 			case 1:
-				m_drivetrain->SetPIDSetpoint(150, 0);
+				m_drivetrain->SetPIDSetpoint(170, 0);
 				m_drivetrain->EnablePID();
 				m_autonOverDefenseCase++;
 				return false;
@@ -1133,7 +1142,7 @@ public:
 		switch (m_gyroAutonLineUpStep) {
 		case 0:
 			//	Get Target and start PID
-			if (m_camera->SeeTarget()) {
+			if (m_camera->SeeTarget() && !m_camera->AtTarget()) {
 				m_gyroAutonLineUpCount++;
 				m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), (m_drivetrain->GetAngle() + m_camera->GetX()));
 				m_drivetrain->EnablePID();
@@ -1162,6 +1171,7 @@ public:
 		 * Switches the auton case to 0 again...
 		 */
 		m_autonCase = 0;
+		m_intake->ResetRollerStatus();
 	}
 
 	void TeleopPeriodic()
@@ -1598,6 +1608,9 @@ public:
 
 	void PrintData(){
 
+		//	Debug
+		SmartDashboard::PutBoolean("* Debug Ready to shoot", f_autonReadyToShoot);
+
 		SmartDashboard::PutNumber("* Angle P", m_drivetrain->GetAngleP());
 		SmartDashboard::PutNumber("* Angle I", m_drivetrain->GetAngleI());
 		SmartDashboard::PutNumber("* Angle D", m_drivetrain->GetAngleD());
@@ -1731,7 +1744,12 @@ public:
 		/*
 		 * Drive Left Encoder
 		 */
-		//SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
+		SmartDashboard::PutNumber("Drive Left Encoder Distance", m_drivetrain->GetLDistance());
+
+		/*
+		 * Drive Right Encoder
+		 */
+		SmartDashboard::PutNumber("Drive Right Encoder Distance", m_drivetrain->GetRDistance());
 
 		/*
 		 * Auton Data
@@ -1739,15 +1757,13 @@ public:
 		SmartDashboard::PutNumber("Auton Case", m_autonCase);
 		SmartDashboard::PutNumber("Auton Timer", m_autonTimer->Get());
 
-		/*
-		 * Drive Right Encoder
-		 */
-		//SmartDashboard::PutNumber("Drive Right Encoder Distance", m_drivetrain->GetRDistance());
 
 		/*
 		 * Drive Average Speed
 		 */
 		SmartDashboard::PutNumber("Drive Average Speed", m_drivetrain->GetAverageSpeed());
+
+		SmartDashboard::PutBoolean("* Is Rotating", m_drivetrain->IsRotating());
 
 		/*
 		 * Drive Left Speed

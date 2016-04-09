@@ -43,6 +43,8 @@ void Intake::SetRoller(float speed){
 	//positive values roll out
 //	m_rollerTalon->Set(speed);
 
+	SmartDashboard::PutBoolean("* Debug f_rollingIn", f_rollingIn);
+	SmartDashboard::PutNumber("* Debug timer for pulsing", m_pulseOutTimer->Get());
 	SmartDashboard::PutNumber("Roller Get", speed);
 	if (speed > 0.0) {
 		SmartDashboard::PutNumber("Roller Get", speed);
@@ -60,6 +62,7 @@ void Intake::SetRoller(float speed){
 		}
 		else if (f_rollingIn == false) {
 			if (m_pulseOutTimer->Get() < 0.1) {
+				m_rollerTalon->Set(m_rollerTalon->Get());
 			} else {
 				SmartDashboard::PutNumber("Roller Get", 0.0);
 				m_rollerTalon->Set(0.0);
@@ -127,6 +130,7 @@ float Intake::GetLeftShooter(){
 float Intake::GetRightShooter(){
 	return m_rShooterTalon->Get();
 }
+
 
 /******************************
  * SHOOTER SPECIFICS
