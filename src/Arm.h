@@ -124,9 +124,15 @@
 #define OBSTACLE -10
 #define CLIMB_ARM 94.
 
+#define K1_AUTON_ARM 50
+#define K2_AUTON_ARM 50
+#define K3_AUTON_ARM 50
+#define K4_AUTON_ARM 50
+#define K5_AUTON_ARM 50
+
 #define CLIMBING_ARM 58.
 
-#define SCREW_ENCODER_VALUE 1
+#define SCREW_ENCODER_VALUE -1
 /**
  * 	Shooter Speed for Different Set points
  */

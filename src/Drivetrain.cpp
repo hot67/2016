@@ -115,6 +115,10 @@ void Drivetrain::ResetAngle() {
 	m_gyro->Reset();
 }
 
+double Drivetrain::GetAngularVelocity() {
+	return m_gyro->GetRate();
+}
+
 void Drivetrain::SetTurn(double turn) {
 	ArcadeDrive(m_speed, turn);
 }

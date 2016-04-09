@@ -180,7 +180,7 @@ float Arm::GetArmSpeed() {
 }
 
 float Arm::GetScrewSpeed() {
-	return - m_screwLeftTalon->GetSpeed() / 4;
+	return - m_screwLeftTalon->GetSpeed() / 4 * SCREW_ENCODER_VALUE;
 }
 
 void Arm::ZeroArmEncoder() {

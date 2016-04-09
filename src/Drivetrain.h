@@ -132,6 +132,7 @@ public:
 
 	double GetAngle();
 	void ResetAngle();
+	double GetAngularVelocity();
 
 	void ResetEncoder();
 
