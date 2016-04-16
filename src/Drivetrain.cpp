@@ -60,23 +60,23 @@ double Drivetrain::GetAverageDistance(){
 }
 
 double Drivetrain::GetLDistance(){
-	return -(m_lEncode->GetDistance() * .0084275);
+	return (m_lEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetRDistance(){
-	return -(m_rEncode->GetDistance() * .0084275);
+	return (m_rEncode->GetDistance() * .0084275);
 }
 
 double Drivetrain::GetLSpeed(){
-	return -(m_lEncode->GetRate() * .0084275);
+	return (m_lEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetRSpeed(){
-	return -(m_rEncode->GetRate() * .0084275);
+	return (m_rEncode->GetRate() * .0084275);
 }
 
 double Drivetrain::GetAverageSpeed(){
-	return((GetLSpeed() + GetRSpeed()) / 2 * -1);
+	return((GetLSpeed() + GetRSpeed()) / 2);
 }
 
 void Drivetrain::ResetEncoder(){
@@ -165,6 +165,15 @@ void Drivetrain::DisablePID() {
 
 	if (m_anglePID->IsEnabled()) {
 		m_anglePID->Disable();
+	}
+}
+
+bool Drivetrain::IsPIDEnabled() {
+	if (m_distancePID->IsEnabled() || m_anglePID->IsEnabled()) {
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 

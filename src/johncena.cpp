@@ -314,7 +314,7 @@ public:
 
 		SmartDashboard::PutNumber("Recieved Image X 0 ", 1);
 
-		m_light->Set(Relay::kForward);
+		//m_light->Set(Relay::kReverse);
 		/*
 
 		std::string dType = SmartDashboard::GetString("Defense Type", "None");
@@ -355,6 +355,9 @@ public:
 		/*
 		 * Sets default auton case to 0 just in case
 		 */
+
+		m_light->Set(Relay::kReverse);
+
 		m_autonCase = 0;
 		m_autonLoop = 0;
 
@@ -391,14 +394,27 @@ public:
 			break;
 		case k4:
 			m_autonAngle1 = -5;
-			m_autonDistance1 = 40;
+
+			if (m_autonDefenseType == kRoughTerrain) {
+				m_autonDistance1 = 35;
+			}
+			else {
+				m_autonDistance1 = 40;
+			}
 			m_autonAngle2 = 0;
 			m_autonDistance2 = 0;
 			break;
 		}
+
+		m_light->Set(Relay::kOff);
 	}
 
 	void MiddleThreeAuton() {
+
+		if (m_autonTimer->Get() > 14) {
+			m_intake->SetShooter(0.0);
+		}
+
 		switch (m_autonCase) {
 		case 0:
 			if (OverDefense(m_autonDefenseType) == true && f_shootingOrNot == true) {
@@ -414,40 +430,32 @@ public:
 			}
 			break;
 		case 2:
+			//m_drivetrain->ShiftLow();
 			GyroAutoLineUp();
-			m_intake->SetShooter(1.0);
 
-			f_autonReadyToShoot = f_autonReadyToShoot || m_camera->AtTarget();
-
-			if (m_camera->AtTarget() == true && m_drivetrain->AngleAtSetpoint()) {
-				DisableGyroAutoLineUp();
+			if (m_autonTimer->Get() > 11.25 &&
+					m_camera->AtTarget() &&
+					m_drivetrain->AngleAtSetpoint()){
 				m_autonCase++;
-
-				m_autonMiddleTimer->Stop();
-				m_autonMiddleTimer->Reset();
-				m_autonMiddleTimer->Start();
 			}
 			break;
 		case 3:
-			m_intake->SetShooter(1.0);
-
-			if (m_autonMiddleTimer->Get() < 1) {
+			if (m_autonTimer->Get() > 11.25 && m_autonTimer->Get() < 14.0) {
+				DisableGyroAutoLineUp();
 				m_intake->SetRoller(1.0);
 			}
 			else {
 				m_intake->SetRoller(0.0);
+				m_intake->SetShooter(0.0);
 				m_autonCase++;
 			}
-			break;
-		case 4:
-			m_intake->SetShooter(0.0);
-			m_intake->SetRoller(0.0);
-			m_arm->DisableArmPID();
 		}
 	}
 	void AutonomousPeriodic()
 	{
 		m_arm->ReleaseBrake();
+		m_light->Set(Relay::kReverse);
+
 
 		if (m_autonDefenseLocation == k2
 				|| m_autonDefenseLocation == k3
@@ -469,7 +477,7 @@ public:
 					break;
 				case 2:
 					//if the auton drive initial flag is going up
-					m_light->Set(Relay::kForward);
+					m_light->Set(Relay::kReverse);
 					if (AutonBeforeShoot() == true) {
 						m_autonCase++;
 					}
@@ -827,8 +835,11 @@ public:
 					//m_drivetrain->ShiftLow();
 					GyroAutoLineUp();
 
-					if (m_autonTimer->Get() > 11){
-						return m_camera->AtTarget();
+					if (m_autonTimer->Get() > 11 && m_camera->AtTarget() && m_drivetrain->AngleAtSetpoint()){
+						return true;
+					}
+					else {
+						return false;
 					}
 					break;
 			}
@@ -930,7 +941,7 @@ public:
 	}
 
 	bool AutonShooting() {
-		if (m_autonTimer->Get() > 11 && m_autonTimer->Get() < 11.99) {
+		if (m_autonTimer->Get() > 11 && m_autonTimer->Get() < 12.99) {
 			m_intake->SetRoller(1.0);
 		}
 		else {
@@ -1153,6 +1164,8 @@ public:
 		 */
 		m_autonCase = 0;
 		m_intake->ResetRollerStatus();
+
+		m_light->Set(Relay::kOff);
 	}
 
 	void TeleopPeriodic()
@@ -1174,8 +1187,6 @@ public:
 				m_drivetrain->DisableSpangle();
 			}
 		} */
-
-		m_light->Set(Relay::kForward);
 
 		/*
 		 * Publishes data to the SmartDashboard to be filtered through the LabView dashboard
@@ -1241,6 +1252,7 @@ public:
 
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();
+			//m_light->Set(Relay::kReverse);
 			//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 0);
 			//m_drivetrain->EnablePID();
 			//if (m_drivetrain->AngleAtSetpoint()) {
@@ -1248,6 +1260,7 @@ public:
 			//}
 		} else {
 			DisableGyroAutoLineUp();
+			//m_light->Set(Relay::kOff);
 			//m_drivetrain->DisablePID();
 		}
 	}
@@ -1306,6 +1319,7 @@ public:
 
 		if (m_operator->ButtonRB() && m_operator->ButtonStart()) {
 			m_arm->ApplyBrake();
+			m_arm->SetScrew(m_operator->AxisLY());
 		} else if (m_operator->ButtonStart()) {
 			m_intake->SetShooter(1.0);
 			m_arm->ReleaseBrake();
@@ -1338,7 +1352,7 @@ public:
 			 * 		Move the arm to climb position and extend the screw up
 			 */
 			if (m_arm->GetScrewPos() < 70){
-				m_arm->SetScrew(-0.8);
+				m_arm->SetScrew(-1.0);
 				m_arm->SetArmPIDPoint(CLIMB_ARM - 10);
 				m_arm->EnableArmPID();
 			}
@@ -1358,24 +1372,20 @@ public:
 		} else if (m_operator->ButtonB() && m_operator->ButtonRB()) {
 			m_intake->SetShooter(0.0);
 
-			if (m_arm->GetScrewPos() >= 3) {
+			//if (m_arm->GetScrewPos() >= 3) {
 
-				m_arm->SetScrew(0.8);
+			m_arm->SetScrew(1.0);
 
-				if (m_arm->GetScrewPos() < 60) {
-					m_arm->SetArmPIDPoint(CLIMBING_ARM);
-					m_arm->EnableArmPID();
-				}
-				else {
-					m_arm->SetArm(m_operator->AxisLY());
-				}
+			if (m_arm->GetScrewPos() < 60) {
+				m_arm->SetArmPIDPoint(CLIMBING_ARM);
+				m_arm->EnableArmPID();
 			}
-			else if (m_arm->GetScrewPos() < 3.0 && m_arm->GetScrewPos() > -5.0) {
-				m_arm->SetScrew(0.5);
-
-				if (m_arm->GetScrewSpeed() < 0.00002) {
-					m_arm->SetScrew(m_operator->AxisLY());
-				}
+			else {
+				m_arm->SetArm(m_operator->AxisLY());
+			}
+			/*}
+			else if (m_arm->GetScrewPos() < 3.0) {
+				m_arm->SetScrew(0.8);
 			}
 			/*else {
 				m_arm->SetScrew(m_operator->AxisLY());
@@ -1393,6 +1403,9 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(MEDIUM_HIGH_GOAL);
 			m_arm->EnableArmPID();
+
+			m_light->Set(Relay::kForward);
+
 			/**
 			 * Speed up Shooter
 			 */
@@ -1410,6 +1423,7 @@ public:
 			/**
 			 * Speed up Shooter
 			 */
+			m_light->Set(Relay::kForward);
 			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonB() && m_operator->ButtonLB()) {
 			/*
@@ -1423,6 +1437,8 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
+			m_light->Set(Relay::kForward);
+
 			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonB()) {
 			/**
@@ -1436,6 +1452,8 @@ public:
 			/**
 			 * 	Speed Up Shooter
 			 */
+			m_light->Set(Relay::kForward);
+
 			m_intake->SetShooter(1.0);
 		} else if (m_operator->ButtonX() && m_operator->ButtonLB()) {
 			/**
@@ -1445,6 +1463,8 @@ public:
 			 */
 			m_arm->SetArmPIDPoint(CLOSE_LOW_GOAL);
 			m_arm->EnableArmPID();
+			m_light->Set(Relay::kForward);
+
 
 			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonX()) {
@@ -1469,10 +1489,12 @@ public:
 			/**
 			 * 	Floor Pick up
 			 */
-			m_arm->SetArmPIDPoint(PICKUP);
+			m_arm->SetArmPIDPoint(K2_AUTON_ARM);
 			m_arm->EnableArmPID();
 
-			m_intake->SetShooter(0.0);
+			m_light->Set(Relay::kReverse);
+
+			m_intake->SetShooter(1.0);
 		} /*else if (m_operator->ButtonStart()) {
 			m_intake->SetShooter(1.0); }*/
 		 else {
@@ -1486,6 +1508,7 @@ public:
 			m_arm->DisableArmPID();
 			m_arm->DisableScrewPID();
 			m_arm->SetArm(0.0);
+			m_light->Set(Relay::kOff);
 			if (!m_operator->ButtonStart()) {
 				m_intake->SetShooter(0.0);
 			}
@@ -1601,6 +1624,8 @@ public:
 		SmartDashboard::PutBoolean("Ready to shoot", m_camera->AtTarget());
 		SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
 
+		SmartDashboard::PutNumber("Screw Talon Output", m_arm->GetScrewLeftTalon());
+
 		SmartDashboard::PutNumber("* Camera X", m_camera->GetX());
 
 
@@ -1611,6 +1636,9 @@ public:
 		SmartDashboard::PutNumber("ANGLE", m_drivetrain->GetAngle());
 
 		SmartDashboard::PutNumber("Angle PID Point", m_drivetrain->GetAnglePIDSetpoint());
+
+		SmartDashboard::PutBoolean("Angle At Setpoint", m_drivetrain->AngleAtSetpoint());
+		SmartDashboard::PutBoolean("Angle Is Enabled", m_drivetrain->IsPIDEnabled());
 
 		/*********************************
 		 * Current Data to Dashboard
@@ -1627,8 +1655,8 @@ public:
 
 		SmartDashboard::PutNumber("Roller Current", m_pdp->GetCurrent(6));
 
-		SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(11));
-		SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(10));
+		SmartDashboard::PutNumber("Lift Left Current", m_pdp->GetCurrent(2));
+		SmartDashboard::PutNumber("Lift Right Current", m_pdp->GetCurrent(3));
 
 		SmartDashboard::PutNumber("Shooter Current", m_pdp->GetCurrent(9));
 

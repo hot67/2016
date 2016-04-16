@@ -112,7 +112,7 @@
 /*
  * PID Setpoints for arm
  */
-#define FAR_HIGH_GOAL 60 //64 //66 //46
+#define FAR_HIGH_GOAL 58 //60
 #define MEDIUM_HIGH_GOAL 50
 #define CLOSE_HIGH_GOAL 36 //0 //65
 #define BATTER_HIGH_GOAL 35 //35
@@ -132,7 +132,7 @@
 
 #define CLIMBING_ARM 58.
 
-#define SCREW_ENCODER_VALUE -1
+#define SCREW_ENCODER_VALUE 1
 /**
  * 	Shooter Speed for Different Set points
  */
@@ -309,6 +309,8 @@ public:
 	 */
 	void ZeroArmEncoder();
 	void ZeroScrewEncoder();
+
+	float GetScrewLeftTalon();
 
 	void ZeroLightSensorArmEncoder();
 

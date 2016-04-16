@@ -68,7 +68,7 @@ Arm::Arm(HotBot* bot) : HotSubsystem(bot, "Arm") {
 
 	m_screwPIDController = new PIDController(SCREW_P, SCREW_I, SCREW_D, m_screwPIDWrapper, m_screwPIDWrapper);
 
-	m_offset = 8.41; //7.75
+	m_offset = 8.8; //8.41 //7.75
 }
 
 /*
@@ -174,6 +174,10 @@ float Arm::GetRightScrewPos() {
 	return - m_screwRightTalon->GetPosition() / 4;
 }
 
+float Arm::GetScrewLeftTalon() {
+	return m_screwLeftTalon->Get();
+}
+
 
 float Arm::GetArmSpeed() {
 	return - m_armLeftTalon->GetSpeed() * 79.2;
@@ -187,7 +191,7 @@ void Arm::ZeroArmEncoder() {
 	m_armLeftTalon->SetPosition(0.0);
 	m_armRightTalon->SetPosition(0.0);
 
-	m_offset = 8.41; //7.75
+	m_offset = 8.8; //8.41; //7.75
 }
 
 void Arm::ZeroScrewEncoder() {
@@ -213,7 +217,7 @@ void Arm::ZeroAccelerometerArmEncoder() {
 	m_armLeftTalon->SetPosition(0);
 	m_armRightTalon->SetPosition(0);
 
-	m_offset = GetArmAngle();
+	m_offset = (GetArmAngle() - 2);
 }
 
 void Arm::CalibrateArm(double offset) {
