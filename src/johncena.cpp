@@ -434,7 +434,7 @@ public:
 			GyroAutoLineUp();
 
 			if (m_autonTimer->Get() > 11.25 &&
-					m_camera->AtTarget() &&
+					m_camera->SeeTarget() &&
 					m_drivetrain->AngleAtSetpoint()){
 				m_autonCase++;
 			}
@@ -835,7 +835,7 @@ public:
 					//m_drivetrain->ShiftLow();
 					GyroAutoLineUp();
 
-					if (m_autonTimer->Get() > 11 && m_camera->AtTarget() && m_drivetrain->AngleAtSetpoint()){
+					if (m_autonTimer->Get() > 11 && m_camera->SeeTarget() && m_drivetrain->AngleAtSetpoint()){
 						return true;
 					}
 					else {
@@ -931,8 +931,13 @@ public:
 					break;
 				case 2:
 					GyroAutoLineUp();
-					if (m_autonTimer->Get() > 11){
-						return m_camera->AtTarget();
+					if (m_autonTimer->Get() > 11 &&
+							m_camera->SeeTarget() &&
+							m_drivetrain->AngleAtSetpoint()){
+						return true;
+					}
+					else {
+						return false;
 					}
 					break;
 			}
@@ -1252,12 +1257,6 @@ public:
 
 		if (m_driver->ButtonA()) {
 			GyroAutoLineUp();
-			//m_light->Set(Relay::kReverse);
-			//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 0);
-			//m_drivetrain->EnablePID();
-			//if (m_drivetrain->AngleAtSetpoint()) {
-				//m_drivetrain->DisablePID();
-			//}
 		} else {
 			DisableGyroAutoLineUp();
 			//m_light->Set(Relay::kOff);
@@ -1327,7 +1326,6 @@ public:
 			if ((m_operator->ButtonRB() && m_operator->ButtonB()) == false){
 				m_arm->ReleaseBrake();
 			}
-
 		}
 
 		if (fabs(m_operator->AxisRY()) > 0.2) {
@@ -1387,7 +1385,7 @@ public:
 			else if (m_arm->GetScrewPos() < 3.0) {
 				m_arm->SetScrew(0.8);
 			}
-			/*else {
+			else {
 				m_arm->SetScrew(m_operator->AxisLY());
 
 				if (m_arm->ArmAtPIDSetPoint()) {
@@ -1621,7 +1619,7 @@ public:
 
 		SmartDashboard::PutNumber("* Angular Velocity", m_drivetrain->GetAngularVelocity());
 
-		SmartDashboard::PutBoolean("Ready to shoot", m_camera->AtTarget());
+		SmartDashboard::PutBoolean("At Target", m_camera->AtTarget());
 		SmartDashboard::PutNumber("* Auto Aim Target", m_drivetrain->GetAngle() + m_camera->GetX());
 
 		SmartDashboard::PutNumber("Screw Talon Output", m_arm->GetScrewLeftTalon());

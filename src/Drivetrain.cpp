@@ -35,7 +35,7 @@ Drivetrain::Drivetrain(HotBot* bot)
     m_distancePID->SetAbsoluteTolerance(5.2);
 
     m_anglePID = new PIDController(ANGLE_P, ANGLE_I, ANGLE_D, m_anglePIDWrapper, m_anglePIDWrapper);
-    m_anglePID->SetAbsoluteTolerance(2.0);
+    m_anglePID->SetAbsoluteTolerance(2.5);
 
     /*
      *  Initialize turning and speed
@@ -186,7 +186,7 @@ bool Drivetrain::DistanceAtSetpoint() {
 }
 
 bool Drivetrain::AngleAtSetpoint() {
-	if (fabs(GetAnglePIDSetpoint() - GetAngle()) < 2) {
+	if (fabs(GetAnglePIDSetpoint() - GetAngle()) < 2.5) {
 		return true;
 	}
 	else {
