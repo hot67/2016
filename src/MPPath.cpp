@@ -12,6 +12,9 @@ MPPath::MPPath(double Vmax, double Amax, double Amin, double target) {
 	m_Amax = Amax;
 	m_Amin = Amin;
 	m_target = target;
+	f_negative = target < 0;
+
+	target = fabs(target);
 
     double dt1 = Vmax / Amax;
     double dt3 = -Vmax / Amin;
@@ -41,14 +44,16 @@ MPPath::MPPath(double Vmax, double Amax, double Amin, double target) {
 }
 
 double MPPath::GetP(double t) {
+	double c = f_negative ? -1 : 1;
+
     if (t < m_t1) {
-    	return m_Amax * t * t / 2;
+    	return c * (m_Amax * t * t / 2);
     } else if (t < m_t2) {
-    	return m_p1 + m_Vmax * (t-m_t1);
+    	return c * (m_p1 + m_Vmax * (t-m_t1));
     } else if (t < m_t3) {
-    	return m_p2 + m_Amin * (t-m_t2) * (t-m_t2) / 2 + m_Vmax * (t-m_t2);
+    	return c * (m_p2 + m_Amin * (t-m_t2) * (t-m_t2) / 2 + m_Vmax * (t-m_t2));
     } else {
-    	return m_p3;
+    	return c * (m_p3);
     }
 }
 
