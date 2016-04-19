@@ -25,6 +25,7 @@
 #include "RobotUtils/HotSubsystem.h"
 #include <cmath>
 #include "AnglePIDWrapper.h"
+#include "MPController.h"
 
 //#include "AHRS.h"
 
@@ -62,6 +63,10 @@
 #define ANGLE_P 0.14 //0.15
 #define ANGLE_I 0.0037 //0.0035
 #define ANGLE_D 0
+
+#define ANGLE_V_MAX 1
+#define ANGLE_A_MAX 1
+#define ANGLE_A_MIN -1
 
 #define SPANGLE_P 0
 #define SPANGLE_I 0
@@ -195,7 +200,7 @@ private:
 	AnglePIDWrapper* m_anglePIDWrapper;
 
 	PIDController* m_distancePID;
-	PIDController* m_anglePID;
+	MPController* m_anglePID;
 	//PIDController* m_spanglePID;
 
 	float m_turn, m_speed;

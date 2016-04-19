@@ -34,7 +34,8 @@ Drivetrain::Drivetrain(HotBot* bot)
     m_distancePID = new PIDController(DISTANCE_SHIFTL_P, DISTANCE_SHIFTL_I, DISTANCE_SHIFTL_D, m_distancePIDWrapper, m_distancePIDWrapper);
     m_distancePID->SetAbsoluteTolerance(5.2);
 
-    m_anglePID = new PIDController(ANGLE_P, ANGLE_I, ANGLE_D, m_anglePIDWrapper, m_anglePIDWrapper);
+    m_anglePID = new MPController(ANGLE_P, ANGLE_I, ANGLE_D, ANGLE_V_MAX, ANGLE_A_MAX, ANGLE_A_MIN,
+    		m_anglePIDWrapper, m_anglePIDWrapper);
     m_anglePID->SetAbsoluteTolerance(2.0);
 
     /*
