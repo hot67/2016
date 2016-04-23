@@ -387,9 +387,9 @@ public:
 		}
 		else if (m_autonDefenseLocation == k2) {
 			m_autonArmAngle = 45;
-			m_autonCrossDistance = 150;
-			m_autonInitialAngle = 45;
-			m_autonTowerDistance = 110;
+			m_autonCrossDistance = 130;
+			m_autonInitialAngle = 67;
+			m_autonTowerDistance = 40;
 		}
 		else if (m_autonDefenseLocation == k3) {
 			m_autonArmAngle = 45;
@@ -406,7 +406,7 @@ public:
 		else if (m_autonDefenseLocation == k5) {
 			m_autonArmAngle = 45;
 			m_autonCrossDistance = 210;
-			m_autonInitialAngle = -10;
+			m_autonInitialAngle = -20;
 			m_autonTowerDistance = 35;
 		}
 
@@ -591,11 +591,44 @@ public:
 				return false;
 				break;
 			case 3:
+				if (m_autonDefenseLocation == k2) {
+					m_drivetrain->SetPIDSetpoint(80, m_autonInitialAngle);
+					m_drivetrain->EnablePID();
+
+					if (m_drivetrain->DistanceAtSetpoint()) {
+						m_drivetrain->DisablePID();
+						m_drivetrain->ResetEncoder();
+						m_autonBeforeShootCase++;
+					}
+				}
+				else {
+					m_autonBeforeShootCase++;
+				}
+				break;
+			case 4:
+				if (m_autonDefenseLocation == k2) {
+					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 0);
+					m_drivetrain->EnablePID();
+
+					if (m_drivetrain->AngleAtSetpoint()) {
+						m_drivetrain->DisablePID();
+						m_drivetrain->ResetEncoder();
+						m_autonBeforeShootCase++;
+					}
+				}
+				else {
+					m_autonBeforeShootCase++;
+				}
+				break;
+			case 5:
 				m_drivetrain->SetAnglePID(ANGLE_DRIVE_P, ANGLE_DRIVE_I, ANGLE_DRIVE_D);
 
 				m_drivetrain->SetDistancePIDMax(0.5);
 
-				m_drivetrain->SetPIDSetpoint(m_autonTowerDistance, GyroAutoLineUpValue());
+				if (m_camera->SeeTarget()) {
+					m_drivetrain->SetPIDSetpoint(m_autonTowerDistance, GyroAutoLineUpValue());
+				}
+
 				m_drivetrain->EnablePID();
 
 				if (m_drivetrain->DistanceAtSetpoint() && m_drivetrain->AngleAtSetpoint() && m_camera->SeeTarget()) {
@@ -606,7 +639,7 @@ public:
 				}
 				return false;
 				break;
-			case 4:
+			case 6:
 				if (m_autonTimer->Get() > 11) {
 					return true;
 				}
@@ -615,7 +648,7 @@ public:
 				}
 				break;
 		}
-
+		return false;
 	}
 
 
@@ -1294,6 +1327,8 @@ public:
 
 		//	Debug
 		SmartDashboard::PutBoolean("* Debug Ready to shoot", f_autonReadyToShoot);
+
+		SmartDashboard::PutNumber("* Auton Before Shoot Case", m_autonBeforeShootCase);
 
 		SmartDashboard::PutNumber("* Angle P", m_drivetrain->GetAngleP());
 		SmartDashboard::PutNumber("* Angle I", m_drivetrain->GetAngleI());
