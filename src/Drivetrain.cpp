@@ -56,7 +56,7 @@ double Drivetrain::GetAngle(){
 */
 
 double Drivetrain::GetAverageDistance(){
-	return GetLDistance();
+	return -GetLDistance();
 }
 
 double Drivetrain::GetLDistance(){
@@ -149,6 +149,14 @@ float Drivetrain::GetTurn(){
 	return(m_turn);
 }
 
+void Drivetrain::SetAnglePID(float p, float i, float d) {
+	m_anglePID->SetPID(p, i, d);
+}
+
+void Drivetrain::SetDistancePIDMax(float maximum) {
+	m_distancePID->SetOutputRange(-maximum, maximum);
+}
+
 void Drivetrain::EnablePID() {
 	if (!m_distancePID->IsEnabled()) {
 		m_distancePID->Enable();
@@ -193,6 +201,8 @@ bool Drivetrain::AngleAtSetpoint() {
 		return false;
 	}
 }
+
+
 
 void Drivetrain::SetPIDSetpoint(double distance, double angle) {
 	m_distancePID->SetSetpoint(distance);

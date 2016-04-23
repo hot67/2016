@@ -63,6 +63,10 @@
 #define ANGLE_I 0.0037 //0.0035
 #define ANGLE_D 0
 
+#define ANGLE_DRIVE_P 0.14
+#define ANGLE_DRIVE_I 0.0
+#define ANGLE_DRIVE_D 0.0
+
 #define SPANGLE_P 0
 #define SPANGLE_I 0
 #define SPANGLE_D 0
@@ -166,6 +170,10 @@ public:
 
 	double GetDistancePIDSetpoint();
 	double GetAnglePIDSetpoint();
+
+	void SetAnglePID(float p, float i, float d);
+
+	void SetDistancePIDMax(float maximum);
 
 	double GetAngleP();
 	double GetAngleI();

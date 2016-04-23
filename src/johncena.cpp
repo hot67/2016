@@ -431,7 +431,6 @@ public:
 			break;
 		case 2:
 			//m_drivetrain->ShiftLow();
-			GyroAutoLineUp();
 
 			if (m_autonTimer->Get() > 11.25 &&
 					m_camera->SeeTarget() &&
@@ -567,7 +566,7 @@ public:
 		case k1:
 			switch (m_autonDuringDriveCase) {
 			case 0:
-				m_drivetrain->SetPIDSetpoint(215, 0); //193
+				m_drivetrain->SetPIDSetpoint(210, 0); //193
 				m_drivetrain->EnablePID();
 				m_autonDuringDriveCase++;
 				return false;
@@ -818,24 +817,33 @@ public:
 				case 2:
 					if (m_drivetrain->AngleAtSetpoint()){
 						m_drivetrain->ResetEncoder();
-						m_drivetrain->SetPIDSetpoint(51.0, m_drivetrain->GetAngle());
-						m_drivetrain->EnablePID();
 						m_autonBeforeShootCase++;
 					}
 					return false;
 					break;
 				case 3:
-					if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->SetAnglePID(ANGLE_DRIVE_P, ANGLE_DRIVE_I, ANGLE_DRIVE_D);
+
+					m_drivetrain->SetDistancePIDMax(0.5);
+
+					m_drivetrain->SetPIDSetpoint(45.0, GyroAutoLineUpValue());
+					m_drivetrain->EnablePID();
+
+					if (m_drivetrain->DistanceAtSetpoint() && m_drivetrain->AngleAtSetpoint() && m_camera->SeeTarget()) {
 						m_drivetrain->DisablePID();
+						m_drivetrain->SetAnglePID(ANGLE_P, ANGLE_I, ANGLE_D);
+						m_drivetrain->ResetEncoder();
 						m_autonBeforeShootCase++;
 					}
 					return false;
 					break;
 				case 4:
-					//m_drivetrain->ShiftLow();
-					GyroAutoLineUp();
+					//GyroAutoLineUp();
 
-					if (m_autonTimer->Get() > 11 && m_camera->SeeTarget() && m_drivetrain->AngleAtSetpoint()){
+					//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), GyroAutoLineUpValue());
+					//m_drivetrain->EnablePID();
+
+					if (m_autonTimer->Get() > 11) {
 						return true;
 					}
 					else {
@@ -953,7 +961,7 @@ public:
 			m_intake->SetRoller(0.0);
 		}
 
-		if (m_autonTimer->Get() > 13.5) {
+		if (m_autonTimer->Get() > 13.0) {
 			m_intake->SetShooter(0.0);
 		}
 		return false;
@@ -1133,6 +1141,14 @@ public:
 		return totalCurrent;
 	}
 
+	double GyroAutoLineUpValue() {
+		if (m_camera->SeeTarget() && m_camera->AtTarget() == false) {
+			return m_drivetrain->GetAngle() + m_camera->GetX();
+		}
+		else {
+			return m_drivetrain->GetAngle();
+		}
+	}
 
 	void GyroAutoLineUp () {
 		SmartDashboard::PutNumber("* Auto Line Up Count", m_gyroAutonLineUpCount);
@@ -1485,7 +1501,7 @@ public:
 			m_intake->SetShooter(0.0);
 		} else if (m_operator->ButtonA()) {
 			/**
-			 * 	Floor Pick up
+			 * 	Auton Line Up Test!
 			 */
 			m_arm->SetArmPIDPoint(K2_AUTON_ARM);
 			m_arm->EnableArmPID();
