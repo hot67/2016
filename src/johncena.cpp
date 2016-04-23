@@ -204,10 +204,10 @@ private:
 	int m_autonArmToGroundCase = 0;
 
 
-	float m_autonDistance1 = 0;
-	float m_autonAngle1 = 0;
-	float m_autonDistance2 = 0;
-	float m_autonAngle2 = 0;
+	float m_autonArmAngle = 0;
+	float m_autonCrossDistance = 0;
+	float m_autonInitialAngle = 0;
+	float m_autonTowerDistance = 0;
 
 public:
 	johncena()
@@ -379,118 +379,79 @@ public:
 		m_drivetrain->ResetEncoder();
 		m_drivetrain->ResetAngle();
 
-		switch (m_autonDefenseLocation) {
-		case k2:
-			m_autonAngle1 = 53;
-			m_autonDistance1 = 87;
-			m_autonAngle2 = 0;
-			m_autonDistance2 = 0;
-			break;
-		case k3:
-			m_autonAngle1 = 35;
-			m_autonDistance1 = 60;
-			m_autonAngle2 = 0;
-			m_autonDistance2 = 0;
-			break;
-		case k4:
-			m_autonAngle1 = -5;
+		if (m_autonDefenseLocation == k1) {
+			m_autonArmAngle = 50;
+			m_autonCrossDistance = 210;
+			m_autonInitialAngle = 53;
+			m_autonTowerDistance = 45;
+		}
+		else if (m_autonDefenseLocation == k2) {
+			m_autonArmAngle = 45;
+			m_autonCrossDistance = 150;
+			m_autonInitialAngle = 45;
+			m_autonTowerDistance = 110;
+		}
+		else if (m_autonDefenseLocation == k3) {
+			m_autonArmAngle = 45;
+			m_autonCrossDistance = 150;
+			m_autonInitialAngle = 10;
+			m_autonTowerDistance = 55;
+		}
+		else if (m_autonDefenseLocation == k4) {
+			m_autonArmAngle = 45;
+			m_autonCrossDistance = 150;
+			m_autonInitialAngle = 0;
+			m_autonTowerDistance = 47;
+		}
+		else if (m_autonDefenseLocation == k5) {
+			m_autonArmAngle = 45;
+			m_autonCrossDistance = 210;
+			m_autonInitialAngle = -10;
+			m_autonTowerDistance = 35;
+		}
 
-			if (m_autonDefenseType == kRoughTerrain) {
-				m_autonDistance1 = 35;
-			}
-			else {
-				m_autonDistance1 = 40;
-			}
-			m_autonAngle2 = 0;
-			m_autonDistance2 = 0;
-			break;
+		if (m_autonDefenseType == kRoughTerrain){
+			m_autonCrossDistance = m_autonCrossDistance - 10;
 		}
 
 		m_light->Set(Relay::kOff);
 	}
 
-	void MiddleThreeAuton() {
-
-		if (m_autonTimer->Get() > 14) {
-			m_intake->SetShooter(0.0);
-		}
-
-		switch (m_autonCase) {
-		case 0:
-			if (OverDefense(m_autonDefenseType) == true && f_shootingOrNot == true) {
-				m_autonCase++;
-			}
-			break;
-		case 1:
-			m_arm->SetArmPIDPoint(K2_AUTON_ARM);
-			m_arm->EnableArmPID();
-			m_intake->SetShooter(1.0);
-			if (TurnForwardTurnForward(m_autonAngle1, m_autonDistance1, m_autonAngle2, m_autonDistance2) == true) {
-				m_autonCase++;
-			}
-			break;
-		case 2:
-			//m_drivetrain->ShiftLow();
-
-			if (m_autonTimer->Get() > 11.25 &&
-					m_camera->SeeTarget() &&
-					m_drivetrain->AngleAtSetpoint()){
-				m_autonCase++;
-			}
-			break;
-		case 3:
-			if (m_autonTimer->Get() > 11.25 && m_autonTimer->Get() < 14.0) {
-				DisableGyroAutoLineUp();
-				m_intake->SetRoller(1.0);
-			}
-			else {
-				m_intake->SetRoller(0.0);
-				m_intake->SetShooter(0.0);
-				m_autonCase++;
-			}
-		}
-	}
 	void AutonomousPeriodic()
 	{
 		m_arm->ReleaseBrake();
 		m_light->Set(Relay::kReverse);
 
 
-		if (m_autonDefenseLocation == k2
-				|| m_autonDefenseLocation == k3
-				|| m_autonDefenseLocation == k4) {
-			MiddleThreeAuton();
-		} else {
-
-			switch (m_autonCase) {
-				case 0:
-					if (AutonBeforeDrive() == true) {
-						m_autonCase++;
-					}
-					break;
-				case 1:
-					//if the auton arm initial flag is going up
-					if (AutonDuringDrive() == true && f_shootingOrNot == true) {
-						m_autonCase++;
-					}
-					break;
-				case 2:
-					//if the auton drive initial flag is going up
-					m_light->Set(Relay::kReverse);
-					if (AutonBeforeShoot() == true) {
-						m_autonCase++;
-					}
-					break;
-				case 3:
-					if (AutonShooting() == true) {
-						m_autonCase++;
-					}
-					break;
-				case 4:
+		switch (m_autonCase) {
+			case 0:
+				if (AutonBeforeDrive() == true) {
 					m_autonCase++;
-					f_autonRan = true;
-					break;
-			}
+				}
+				break;
+			case 1:
+				//if the auton arm initial flag is going up
+				if (AutonDuringDrive() == true && f_shootingOrNot == true) {
+					m_autonCase++;
+				}
+				break;
+			case 2:
+				//if the auton drive initial flag is going up
+				m_light->Set(Relay::kReverse);
+				if (AutonBeforeShoot() == true) {
+					m_autonCase++;
+				}
+				break;
+			case 3:
+				if (AutonShooting() == true) {
+					m_autonCase++;
+				}
+				break;
+			case 4:
+				m_autonCase++;
+				f_autonRan = true;
+				break;
+
 		}
 
 		PrintData();
@@ -543,9 +504,6 @@ public:
 					return true;
 				}
 
-
-				return true;
-
 				//arm kickstand ???
 				break;
 		}
@@ -555,18 +513,13 @@ public:
 		//drive across the defense
 		//distance may vary
 		//all should be done in low gear
-
 		//drive pid should be disabled after returning true
-
 		//purpose of the truth is to move into next case in auton periodic
-
 		//robot is already over the defense
 
-		switch (m_autonDefenseLocation) {
-		case k1:
-			switch (m_autonDuringDriveCase) {
+		switch (m_autonDuringDriveCase) {
 			case 0:
-				m_drivetrain->SetPIDSetpoint(210, 0); //193
+				m_drivetrain->SetPIDSetpoint(m_autonCrossDistance, 0); //210
 				m_drivetrain->EnablePID();
 				m_autonDuringDriveCase++;
 				return false;
@@ -606,188 +559,6 @@ public:
 				return true;
 				break;
 			}
-			break;
-		case k2:
-			switch (m_autonDuringDriveCase) {
-			case 0:
-				m_drivetrain->SetPIDSetpoint(150.0, m_drivetrain->GetAngle());
-				m_drivetrain->EnablePID();
-				m_autonDuringDriveCase++;
-				return false;
-				break;
-			case 1:
-				if (m_drivetrain->GetAverageSpeed() > -5.0) {
-					m_arm->SetArmPIDPoint(CARRY);
-					m_arm->EnableArmPID();
-				}
-				else {
-					m_arm->DisableArmPID();
-				}
-
-				if (m_drivetrain->DistanceAtSetpoint()) {
-					m_drivetrain->DisablePID();
-					m_autonDuringDriveCase++;
-					return false;
-				}
-				break;
-			case 2:
-				m_arm->SetArmPIDPoint(CARRY + 5);
-				m_arm->EnableArmPID();
-				m_autonDuringDriveCase++;
-				return false;
-				break;
-			case 3:
-				if (m_arm->ArmAtPIDSetPoint()) {
-					m_arm->DisableArmPID();
-					m_autonDuringDriveCase++;
-				}
-				return false;
-				break;
-			case 4:
-				if (m_autonTimer->Get() > 13.0) {
-					m_arm->ZeroArmEncoder();
-					m_autonDuringDriveCase++;
-				}
-				return true;
-				break;
-			}
-			break;
-		case k3:
-			switch (m_autonDuringDriveCase) {
-			case 0:
-				m_drivetrain->SetPIDSetpoint(190.0, m_drivetrain->GetAngle());
-				m_drivetrain->EnablePID();
-				m_autonDuringDriveCase++;
-				return false;
-				break;
-			case 1:
-				if (m_drivetrain->GetAverageSpeed() > - 5.0) {
-					m_arm->SetArmPIDPoint(CARRY);
-					m_arm->EnableArmPID();
-				}
-				else {
-					m_arm->DisableArmPID();
-				}
-
-				if (m_drivetrain->DistanceAtSetpoint()) {
-					m_drivetrain->DisablePID();
-					m_autonDuringDriveCase++;
-					return false;
-				}
-				break;
-			case 2:
-				m_arm->SetArmPIDPoint(CARRY + 5);
-				m_arm->EnableArmPID();
-				m_autonDuringDriveCase++;
-				return false;
-				break;
-			case 3:
-				if (m_arm->ArmAtPIDSetPoint()) {
-					m_arm->DisableArmPID();
-					m_autonDuringDriveCase++;
-				}
-				return false;
-				break;
-			case 4:
-				if (m_autonTimer->Get() > 13.0) {
-					m_arm->ZeroArmEncoder();
-					m_autonDuringDriveCase++;
-				}
-				return true;
-				break;
-			}
-			break;
-		case k4:
-			switch (m_autonDuringDriveCase) {
-				case 0:
-					m_drivetrain->SetPIDSetpoint(190.0, m_drivetrain->GetAngle());
-					m_drivetrain->EnablePID();
-					m_autonDuringDriveCase++;
-					return false;
-					break;
-				case 1:
-					if (m_drivetrain->GetAverageSpeed() > - 5.0) {
-						m_arm->SetArmPIDPoint(CARRY);
-						m_arm->EnableArmPID();
-					}
-					else {
-						m_arm->DisableArmPID();
-					}
-
-					if (m_drivetrain->DistanceAtSetpoint()) {
-						m_drivetrain->DisablePID();
-						m_autonDuringDriveCase++;
-						return false;
-					}
-					break;
-				case 2:
-					m_arm->SetArmPIDPoint(CARRY + 5);
-					m_arm->EnableArmPID();
-					m_autonDuringDriveCase++;
-					return false;
-					break;
-				case 3:
-					if (m_arm->ArmAtPIDSetPoint()) {
-						m_arm->DisableArmPID();
-						m_autonDuringDriveCase++;
-					}
-					return false;
-					break;
-				case 4:
-					if (m_autonTimer->Get() > 13.0) {
-						m_arm->ZeroArmEncoder();
-						m_autonDuringDriveCase++;
-					}
-					return true;
-					break;
-				}
-				break;
-		case k5:
-			switch (m_autonDuringDriveCase) {
-				case 0:
-					m_drivetrain->SetPIDSetpoint(235, 0); //193
-					m_drivetrain->EnablePID();
-					m_autonDuringDriveCase++;
-					return false;
-					break;
-				case 1:
-					if (m_drivetrain->DistanceAtSetpoint()) {
-						m_drivetrain->DisablePID();
-						m_arm->ZeroFloorArmEncoder();
-						m_autonDuringDriveCase++;
-					}
-					return false;
-					break;
-				case 2:
-					if (f_shootingOrNot == true){
-						m_autonDuringDriveCase = 5;
-						return true;
-					}
-					else {
-						m_arm->SetArmPIDPoint(CARRY + 5);
-						m_arm->EnableArmPID();
-						m_autonDuringDriveCase++;
-						return false;
-					}
-					break;
-				case 3:
-					if (m_arm->ArmAtPIDSetPoint()) {
-						m_arm->DisableArmPID();
-						m_autonDuringDriveCase++;
-						return false;
-					}
-					break;
-				case 4:
-					if (m_autonTimer->Get() > 13.0) {
-						m_arm->ZeroArmEncoder();
-						m_autonDuringDriveCase++;
-					}
-					return true;
-					break;
-				}
-				break;
-		}
-
 		return false;
 		// Removed because we are just going to say 'hey these encoder values work' and ignore from there on
 	}
@@ -796,162 +567,57 @@ public:
 
 		m_intake->SetShooter(1.0);
 
-		switch (m_autonDefenseLocation) {
-		case k1:
-			switch (m_autonBeforeShootCase) {
-				case 0:
-					m_arm->SetArmPIDPoint(K1_AUTON_ARM);
-					m_arm->EnableArmPID();
+		switch (m_autonBeforeShootCase) {
+			case 0:
+				m_arm->SetArmPIDPoint(m_autonArmAngle);
+				m_arm->EnableArmPID();
 
-					if (m_arm->ArmAtPIDSetPoint()){
-						m_autonBeforeShootCase++;
-					}
-					return false;
-					break;
-				case 1:
-					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), 53);
-					m_drivetrain->EnablePID();
+				if (m_arm->ArmAtPIDSetPoint()){
 					m_autonBeforeShootCase++;
-					return false;
-					break;
-				case 2:
-					if (m_drivetrain->AngleAtSetpoint()){
-						m_drivetrain->ResetEncoder();
-						m_autonBeforeShootCase++;
-					}
-					return false;
-					break;
-				case 3:
-					m_drivetrain->SetAnglePID(ANGLE_DRIVE_P, ANGLE_DRIVE_I, ANGLE_DRIVE_D);
-
-					m_drivetrain->SetDistancePIDMax(0.5);
-
-					m_drivetrain->SetPIDSetpoint(45.0, GyroAutoLineUpValue());
-					m_drivetrain->EnablePID();
-
-					if (m_drivetrain->DistanceAtSetpoint() && m_drivetrain->AngleAtSetpoint() && m_camera->SeeTarget()) {
-						m_drivetrain->DisablePID();
-						m_drivetrain->SetAnglePID(ANGLE_P, ANGLE_I, ANGLE_D);
-						m_drivetrain->ResetEncoder();
-						m_autonBeforeShootCase++;
-					}
-					return false;
-					break;
-				case 4:
-					//GyroAutoLineUp();
-
-					//m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), GyroAutoLineUpValue());
-					//m_drivetrain->EnablePID();
-
-					if (m_autonTimer->Get() > 11) {
-						return true;
-					}
-					else {
-						return false;
-					}
-					break;
-			}
-		case k2:
-			switch (m_autonBeforeShootCase) {
-				case 0:
-					m_arm->SetArmPIDPoint(CARRY + 5);
-					m_arm->EnableArmPID();
-					m_intake->SetShooter(1.0);
+				}
+				return false;
+				break;
+			case 1:
+				m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), m_autonInitialAngle);
+				m_drivetrain->EnablePID();
+				m_autonBeforeShootCase++;
+				return false;
+				break;
+			case 2:
+				if (m_drivetrain->AngleAtSetpoint()){
+					m_drivetrain->ResetEncoder();
 					m_autonBeforeShootCase++;
-					return false;
-					break;
-				case 1:
-					if (TurnForwardTurnForward(90, 90, 0, 55) == true) {
-						m_autonBeforeShootCase++;
-					}
-					return false;
-					break;
-				case 2:
-					m_arm->SetArmPIDPoint(K2_AUTON_ARM);
-					m_arm->EnableArmPID();
+				}
+				return false;
+				break;
+			case 3:
+				m_drivetrain->SetAnglePID(ANGLE_DRIVE_P, ANGLE_DRIVE_I, ANGLE_DRIVE_D);
 
-					return false;
-					break;
-				case 3:
-					GyroAutoLineUp();
-					if (m_autonTimer->Get() > 11) {
-						return m_camera->AtTarget();
-					}
-					break;
-			}
-		case k3:
-			switch (m_autonBeforeShootCase) {
-				case 0:
-					m_drivetrain->SetPIDSetpoint(40, m_drivetrain->GetAngle());
-					m_drivetrain->EnablePID();
-					m_autonCase++;
-					return false;
-					break;
-				case 1:
-					if (m_drivetrain->DistanceAtSetpoint() == true) {
-						m_drivetrain->DisablePID();
-						m_autonCase++;
-					}
-					return false;
-					break;
-				case 2:
-					//GyroAutoLineUp();
-					return true; //m_camera->AtTarget();
-					break;
-			}
-		case k4:
-			switch (m_autonBeforeShootCase) {
-				case 0:
-					m_drivetrain->SetPIDSetpoint(40, m_drivetrain->GetAngle());
-					m_drivetrain->EnablePID();
-					m_autonCase++;
-					return false;
-					break;
-				case 1:
-					if (m_drivetrain->DistanceAtSetpoint() == true) {
-						m_drivetrain->DisablePID();
-						m_autonCase++;
-					}
-					return false;
-					break;
-				case 2:
-					//GyroAutoLineUp();
-					return true; //m_camera->AtTarget();
-					break;
-			}
-		case k5:
-			switch (m_autonBeforeShootCase) {
-				case 0:
-					m_drivetrain->SetPIDSetpoint(m_drivetrain->GetAverageDistance(), -33);
-					m_drivetrain->EnablePID();
+				m_drivetrain->SetDistancePIDMax(0.5);
+
+				m_drivetrain->SetPIDSetpoint(m_autonTowerDistance, GyroAutoLineUpValue());
+				m_drivetrain->EnablePID();
+
+				if (m_drivetrain->DistanceAtSetpoint() && m_drivetrain->AngleAtSetpoint() && m_camera->SeeTarget()) {
+					m_drivetrain->DisablePID();
+					m_drivetrain->SetAnglePID(ANGLE_P, ANGLE_I, ANGLE_D);
+					m_drivetrain->ResetEncoder();
 					m_autonBeforeShootCase++;
+				}
+				return false;
+				break;
+			case 4:
+				if (m_autonTimer->Get() > 11) {
+					return true;
+				}
+				else {
 					return false;
-					break;
-				case 1:
-					m_arm->SetArmPIDPoint(46);
-					m_arm->EnableArmPID();
-
-					if (m_drivetrain->AngleAtSetpoint()) {
-						m_autonBeforeShootCase++;
-					}
-					//m_intake->SetShooter(1.0);
-					return false;
-					break;
-				case 2:
-					GyroAutoLineUp();
-					if (m_autonTimer->Get() > 11 &&
-							m_camera->SeeTarget() &&
-							m_drivetrain->AngleAtSetpoint()){
-						return true;
-					}
-					else {
-						return false;
-					}
-					break;
-			}
-
+				}
+				break;
 		}
+
 	}
+
 
 	bool AutonShooting() {
 		if (m_autonTimer->Get() > 11 && m_autonTimer->Get() < 12.99) {
