@@ -132,7 +132,7 @@
 
 #define CLIMBING_ARM 58.
 
-#define SCREW_ENCODER_VALUE -1
+#define SCREW_ENCODER_VALUE 1
 /**
  * 	Shooter Speed for Different Set points
  */

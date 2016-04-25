@@ -593,7 +593,6 @@ public:
 					m_autonBeforeDriveCase++;
 					return false;
 					break;
-					//this is the last part that worked (case 12 is good, case 13 is bad)
 				}
 				return false;
 				break;
