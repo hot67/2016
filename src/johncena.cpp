@@ -196,6 +196,8 @@ private:
 
 	int m_autonOverDefenseCase = 0;
 
+	int m_autonBeforeDriveCase = 0;
+
 	int m_gyroAutonLineUpStep = 0;
 	int m_gyroAutonLineUpCount = 0;
 
@@ -364,6 +366,7 @@ public:
 		m_autonArmToKickstandCase = 0;
 		m_autonArmToGroundCase = 0;
 
+		m_autonBeforeDriveCase = 0;
 		m_autonDuringDriveCase = 0;
 		m_autonBeforeShootCase = 0;
 
@@ -500,11 +503,99 @@ public:
 				//you cannot use autonarmtokickstand function bc its to ground
 				break;
 			case kChiliFries:
-				if (AutonArmToKickstand() == true) {
-					return true;
-				}
+				switch (m_autonBeforeDriveCase) {
+				case 0:
+					m_arm->SetArmPIDPoint(30);
+					m_arm->EnableArmPID();
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+				case 1:
+					if (m_arm->ArmAtPIDSetPoint()){
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 2:
+					m_drivetrain->SetDistancePIDMax(0.65);
+					m_drivetrain->SetPIDSetpoint(-40, 0);
+					m_drivetrain->EnablePID();
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+				case 3:
+					if (m_drivetrain->DistanceAtSetpoint()) {
+						m_drivetrain->DisablePID();
+						m_drivetrain->ResetEncoder();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 4:
+					if (m_arm->ArmAtPIDSetPoint()) {
+						m_arm->DisableArmPID();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 5:
+					m_arm->SetArmPIDPoint(1);
+					m_arm->EnableArmPID();
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+				case 6:
+					if (m_arm->ArmAtPIDSetPoint()) {
+						m_arm->DisableArmPID();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 7:
+					m_drivetrain->SetPIDSetpoint(-30, 0);
+					m_drivetrain->EnablePID();
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+				case 8:
+					if (m_drivetrain->DistanceAtSetpoint()) {
+						m_drivetrain->ResetEncoder();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 9:
+					m_arm->SetArmPIDPoint(25);
+					m_arm->EnableArmPID();
 
-				//arm kickstand ???
+					if (m_arm->ArmAtPIDSetPoint()) {
+						m_arm->DisableArmPID();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 10:
+					m_drivetrain->SetPIDSetpoint(-80, 0);
+					m_drivetrain->EnablePID();
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+				case 11:
+					if (m_drivetrain->DistanceAtSetpoint()) {
+						m_drivetrain->DisablePID();
+						m_drivetrain->ResetEncoder();
+						m_autonBeforeDriveCase++;
+					}
+					return false;
+					break;
+				case 12:
+					m_drivetrain->SetDistancePIDMax(1.0);
+					m_autonBeforeDriveCase++;
+					return false;
+					break;
+					//this is the last part that worked (case 12 is good, case 13 is bad)
+				}
+				return false;
 				break;
 		}
 	}
